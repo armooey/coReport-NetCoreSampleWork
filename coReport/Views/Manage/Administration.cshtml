@@ -1,0 +1,80 @@
+﻿@using coReport.Models.ManageViewModels
+@model AdministrationViewModel
+@{
+    ViewData["Title"] = "مدیریت";
+    ViewData["ViewName"] = "Administration";
+}
+
+<form asp-controller="Manage" asp-action="Administration" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal" role="form">
+    <div class="col-md">
+        <h5>تغییر نقش کاربر</h5>
+    </div>
+    <hr />
+    <div class="form-group">
+        <label asp-for="Role" class="col-md-4 control-label"></label>
+        <div class="col-md-4">
+            <select asp-for="Role" asp-items="@Model.Roles" class="form-control"></select>
+            <span asp-validation-for="Role" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="col-md">
+        <h5>مسدود کردن کاربر</h5>
+        <h6> می‌توانید دسترسی کاربر را تا زمانی مشخص مسدود کنید.</h6>
+    </div>
+    <hr />
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div hidden="hidden" class="form-group">
+        <label asp-for="Username" class="col-md-2 control-label"></label>
+        <div class="col-md-4">
+            <input asp-for="Username" class="form-control" />
+            <span asp-validation-for="Username" class="text-danger"></span>
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <div class="col-md-4">
+            <label><input id="banned" asp-for="IsBanned"> مسدود کردن کاربر</label>
+            <span asp-validation-for="IsBanned" class="text-danger"></span>
+        </div>
+    </div>
+    <div>؟</div>
+
+    <div class="form-group">
+        <label asp-for="BanEnd" class="col-md-4 control-label"></label>
+        <div class="col-md-4">
+            <input id="banTime" asp-for="BanEnd" class="form-control" />
+            <span asp-validation-for="BanEnd" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-4">
+            <button type="submit" class="btn btn-primary">ذخیره</button>
+        </div>
+    </div>
+</form>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            if ($("#banned").prop("checked") == true) {
+                $("#banTime").prop("disabled", false);
+            }
+            else if ($("#banned").prop("checked") == false) {
+                $("#banTime").prop("disabled", true);
+            }
+
+            $('input[type="checkbox"]').click(function () {
+                if ($("#banned").prop("checked") == true) {
+                    $("#banTime").prop("disabled", false);
+                }
+                else if ($("#banned").prop("checked") == false) {
+                    $("#banTime").prop("disabled", true);
+                }
+            });
+        });
+    </script>
+}
+

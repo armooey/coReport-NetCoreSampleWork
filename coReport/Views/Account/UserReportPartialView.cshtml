@@ -1,0 +1,17 @@
+﻿@using coReport.Models.ReportViewModel
+@model ReportViewModel
+
+<div class="border border-dark p-3 rounded user-card">
+    <div class="col">
+        <span><i class="fas fa-clipboard-list"></i> <b>@Model.Title</b></span>
+        <span class="span-control">پروژه @Model.ProjectName</span>
+        
+       
+        <a asp-action="Edit" asp-controller="Report" asp-route-id="@Model.Id" class="btn btn-primary float-left span-control" style="margin-top:-6px">
+            <i class="fas fa-pencil-alt"></i> ویرایش
+        </a>
+        <button class="btn btn-danger float-left span-control" onclick="DeleteReport(@Model.Id)" style="margin-top:-6px">
+            <i class="fas fa-trash-alt"></i> حذف
+        </button>
+    </div>
+</div>

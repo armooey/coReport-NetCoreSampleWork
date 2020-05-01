@@ -1,0 +1,94 @@
+﻿@using coReport.Models.AccountViewModels
+@using coReport.Auth
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "ثبت نام";
+}
+
+
+    <div class="col-md-6 p-2 box-widget" style="margin: auto; margin-top: 10%;">
+        <form id="register" asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]"
+              method="post" class="form-horizontal" enctype="multipart/form-data" role="form">
+            <h4 class="text-center">ثبت نام</h4>
+            <hr />
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md">
+                        <div class="form-group">
+                            <label asp-for="Username" class="col-md-6 control-label"></label>
+                            <div class="col-md">
+                                <input asp-for="Username" class="form-control" />
+                                <span asp-validation-for="Username" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="FirstName" class="col-md-6 control-label"></label>
+                            <div class="col-md">
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="LastName" class="col-md-6 control-label"></label>
+                            <div class="col-md">
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Email" class="col-md-6 control-label"></label>
+                            <div class="col-md">
+                                <input asp-for="Email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-md">
+                        <div class="form-group">
+                            <label asp-for="Password" class="col-md-6 control-label"></label>
+                            <div class="col-md">
+                                <input asp-for="Password" class="form-control" />
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="ConfirmPassword" class="col-md-6 control-label"></label>
+                            <div class="col-md">
+                                <input asp-for="ConfirmPassword" class="form-control" />
+                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Role" class="col-md-6 control-label"></label>
+                            <div class="col-md">
+                                <select asp-for="Role" asp-items="@Model.Roles" class="form-control"></select>
+                                <span asp-validation-for="Role" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Image" class="col-md-6 control-label"></label>
+                            <div class="col-md">
+                                <input asp-for="Image" class="form-control" />
+                                <span asp-validation-for="Image" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <div class="col-md">
+                        <button type="submit" class="btn btn-primary">ثبت نام</button>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
+

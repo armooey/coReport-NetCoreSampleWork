@@ -1,0 +1,50 @@
+﻿
+    @{
+        var userName = @ViewData["UserName"];
+    }
+    <ul class="nav nav-pills flex-column">
+        @if (ViewData["ViewName"].Equals("Index"))
+        {
+            <li class="nav-item "><a class="nav-link active"><i class="far fa-user"></i> پروفایل</a></li>
+        }
+        else
+        {
+            <li class="nav-item"><a class="nav-link" asp-action="Index" asp-route-userName="@userName" asp-route-returnUrl="@ViewData["returnUrl"]">
+                <i class="far fa-user"></i> پروفایل</a></li>
+        }
+
+        @if (ViewData["ViewName"].Equals("Email"))
+        {
+            <li class="nav-item"><a class="nav-link active"><i class="far fa-envelope"></i> ایمیل</a></li>
+        }
+        else
+        {
+            <li class="nav-item"><a class="nav-link" asp-action="Email" asp-route-userName="@userName" asp-route-returnUrl="@ViewData["returnUrl"]">
+                <i class="far fa-envelope"></i> ایمیل</a></li>
+        }
+
+        @if (ViewData["ViewName"].Equals("Password"))
+        {
+            <li class="nav-item "><a class="nav-link active"><i class="fas fa-key"></i> کلمه عبور</a></li>
+        }
+        else
+        {
+            <li class="nav-item"><a class="nav-link" asp-action="Password" asp-route-userName="@userName" asp-route-returnUrl="@ViewData["returnUrl"]">
+                <i class="fas fa-key"></i> کلمه عبور</a></li>
+        }
+
+        @if (User.IsInRole("ادمین") && !userName.Equals("admin"))
+        {
+            if (ViewData["ViewName"].Equals("Administration"))
+            {
+                <li class="nav-item "><a class="nav-link active"><i class="fas fa-user-tie"></i> مدیریت</a></li>
+            }
+            else
+            {
+                <li class="nav-item"><a class="nav-link" asp-action="Administration" asp-route-userName="@userName" asp-route-returnUrl="@ViewData["returnUrl"]">
+                    <i class="fas fa-user-tie"></i> مدیریت</a></li>
+            }
+        }
+        <li><br /></li>
+        <li class="nav-item"><a class="nav-link btn-secondary" asp-controller="Manage" asp-action="Return" asp-route-returnUrl="@ViewData["returnUrl"]">بازگشت</a></li>
+    </ul>

@@ -1,0 +1,37 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using coReport.Auth
+@using coReport.Services
+@inject SignInManager<ApplicationUser> SignInManager
+
+    <ul class="navbar-nav">
+        @if (SignInManager.IsSignedIn(User))
+        {
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown">
+                    <img class="profile-img rounded-circle"
+                         src="@Url.Action("GetUserImage", "Account")"
+                         style="width:35px;height:35px;background-color:white" />
+                </a>
+                <div class="dropdown-menu">
+                    @if (User.IsInRole("ادمین"))
+                    {
+                        <a class="dropdown-item" asp-action="Index" asp-controller="Manage" asp-route-userName="@User.Identity.Name" asp-route-returnUrl="@Url.Action("AdminPanel", "Admin")"
+                           title="Manage"><i class="fas fa-cog"></i> تنظیمات</a>
+                    }
+                    else if (User.IsInRole("مدیر"))
+                    {
+                        <a class="dropdown-item" asp-action="Index" asp-controller="Manage" asp-route-userName="@User.Identity.Name" asp-route-returnUrl="@Url.Action("ManageReports", "Manager", new {nav = "unseen" })"
+                            title="Manage"><i class="fas fa-cog"></i> تنظیمات</a>
+                    }
+                    else
+                    {
+                        <a class="dropdown-item" asp-action="Index" asp-controller="Manage" asp-route-userName="@User.Identity.Name" asp-route-returnUrl="@Url.Action("ManageReports", "Account")"
+                           title="Manage"><i class="fas fa-cog"></i> تنظیمات</a>
+                    }
+                    <form class="form-inline" asp-action="LogOff" asp-controller="Account" asp-route-returnUrl="@Url.Action("Index", "Home")">
+                        <button type="submit" class="dropdown-item btn btn-link"><i class="fas fa-sign-out-alt"></i> خروج</button>
+                    </form>
+                </div>
+            </li>
+        }
+    </ul>

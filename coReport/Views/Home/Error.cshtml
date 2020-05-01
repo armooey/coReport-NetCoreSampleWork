@@ -1,0 +1,15 @@
+﻿@using coReport.Models.HomeViewModels
+@model ErrorViewModel
+@{
+    ViewData["Title"] = "خطا";
+}
+
+<h4 class="text-danger">خطا</h4>
+<h5 class="text-danger">هنگام ذخیره در پایگاه داده مشکلی پیش آمده است.</h5>
+
+@if (Model.Error != null)
+{
+    <p>
+        <strong>پیغام خطا: </strong> <code style="direction: ltr">@Model.Error</code>
+    </p>
+}

@@ -1,0 +1,151 @@
+﻿@using coReport.Models.ReportViewModel
+@model CreateReportViewModel
+@{
+    ViewData["Title"] = "ایجاد گزارش";
+}
+<link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
+<link href="~/lib/quill/quill.snow.css" rel="stylesheet" />
+
+<div class="container p-2 box-widget">
+    <div class="container">
+        <form id="form" onsubmit="fetchText()" asp-controller="Report" asp-action="Create" method="post"
+              class="form-horizontal" role="form" enctype="multipart/form-data">
+            <h5 >ایجاد گزارش</h5>
+            <hr />
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="Title" class="col-md control-label"></label>
+                        <div class="col-md">
+                            <input asp-for="Title" class="form-control" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ProjectName" class="col-md control-label"></label>
+                        <div class="col-md">
+                            <input asp-for="ProjectName" class="form-control" />
+                            <span asp-validation-for="ProjectName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ProjectManagerIds" class="col-md control-label"></label>
+                        <div class="col-md">
+                            <select id="manager_multiselect" asp-for="ProjectManagerIds" style="width: 100%" multiple="multiple">
+                                <option></option>
+                                @foreach (var user in Model.Managers)
+                                {
+                                    <option value="@user.Id">@user.FirstName @user.LastName</option>
+                                }
+                            </select>
+                            <span asp-validation-for="ProjectManagerIds" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label asp-for="EnterTime" class="col-md control-label"></label>
+                        <div class="col-md">
+                            <input asp-for="EnterTime" class="form-control" />
+                            <span asp-validation-for="EnterTime" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ExitTime" class="col-md control-label"></label>
+                        <div class="col-md">
+                            <input asp-for="ExitTime" class="form-control" />
+                            <span asp-validation-for="ExitTime" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr />
+
+
+
+            <div class="form-group">
+                <div class="col-md-11">
+                    <textarea hidden="hidden" id="text" asp-for="Text"></textarea>
+                    <h5>گزارش</h5>
+                    <div id="editor">
+                    </div>
+                    <span asp-validation-for="Text" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="Attachment" class="col-md-4 control-label"></label>
+                <div class="col-md-4" style="margin-top: 10px">
+                    <input asp-for="Attachment" class="form-control" />
+                    <span asp-validation-for="Attachment" class="text-danger"></span>
+                </div>
+            </div>
+            <hr />
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md">
+                    <button type="submit" class="btn btn-primary">ثبت</button>
+                    <a class="btn btn-secondary" asp-controller="Account" asp-action="ManageReports">بازگشت</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+@section Scripts {
+
+    <script src="~/lib/select2/js/select2.min.js"></script>
+    <script src="~/lib/select2/js/i18n/fa.js"></script>
+    <script src="~/lib/quill/quill.js"></script>
+    <script>
+    $(document).ready(function () {
+        $('#manager_multiselect').select2({
+            placeholder: 'انتخاب کنید...',
+            dir: 'rtl',
+            language: 'fa'
+        });
+    });
+
+
+    
+
+    var FontAttributor = Quill.import('attributors/class/font');
+    FontAttributor.whitelist = [
+     'arial','default' ,'times-new-roman'
+    ];
+    Quill.register(FontAttributor, true);
+
+    var toolbarOptions = [
+      [{ 'font': ['arial', 'default', 'times-new-roman'] }],
+      [{ 'size': ['small', false, 'large', 'huge'] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'align': [] }],
+      [{ 'direction': 'rtl' }],
+      [{ 'color': [] } , { 'background': [] }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'header': [1, 2, 3, false] }],
+      ['code-block']
+     ];
+
+    var quill = new Quill('#editor', {
+        modules: {
+    toolbar: toolbarOptions
+    },
+    theme: 'snow'
+    });
+
+    quill.setContents(@Html.Raw(Model.Text));
+
+    function fetchText()
+    {
+        var textBox = document.getElementById("text");
+        textBox.value = JSON.stringify(quill.getContents());
+    }
+
+
+    </script>
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

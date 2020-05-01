@@ -1,0 +1,62 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using coReport.Auth
+@using coReport.Models.HomeViewModels
+@model HomeViewModel
+
+@{
+    ViewData["Title"] = "CoReport";
+}
+
+@if (Model != null && Model.AlertsCount != 0)
+{
+    <div class="alert alert-dismissible alert-danger">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        شما @Model.AlertsCount اخطار دارید! لطفا پیام های خود را بررسی کنید.
+    </div>
+}
+
+<div class="text-center" style="position: absolute;text-align:center;top: 40%;left: 25%;width: 50%;">
+    @if (Model != null)
+    {
+
+        <h2 class="display-5">خوش آمدید @Model.Name</h2>
+        <hr class="divider" />
+        @if (Model.Role == "ادمین")
+        {
+
+            <a class="btn btn-primary" asp-action="AdminPanel" asp-controller="Admin">پنل مدیریت</a>
+        }
+        else if (Model.Role == "مدیر")
+        {
+            <div class="nav-item">
+                <a class="btn btn-primary" asp-action="ManageReports" asp-controller="Manager" asp-route-nav="unseen">مدیریت گزارشات</a>
+            </div>
+        }
+        else
+        {
+            <div class="nav-item">
+                <a class="btn btn-primary" asp-action="ManageReports" asp-controller="Account">مدیریت گزارشات</a>
+            </div>
+        }
+
+    }
+    else
+    {
+        <h1 class="display-3">coReport</h1>
+        <h3 style="font-weight:lighter">
+            ابزاری برای
+            <span class="txt-rotate"
+                  data-period="1000"
+                  data-rotate='[ "ثبت گزارش.", "مدیریت گزارش.", "مدیریت کارمندان." ]'></span>
+
+        </h3>
+        <hr class="divider" />
+        <p>برای ادامه لطفا وارد حساب کاربری خود شوید.</p>
+
+        <div class="row justify-content-center">
+            <a class="btn btn-primary span-control" asp-action="Login" asp-controller="Account">ورود</a>
+            <a class="btn btn-primary span-control" asp-action="Register" asp-controller="Account">ثبت نام</a>
+        </div>
+    }
+</div>
+<script src="~/js/typewriter.js"></script>

@@ -1,0 +1,46 @@
+﻿@using coReport.Models.AccountViewModels
+@model UserViewModel
+
+<div class="media border border-dark p-1 rounded user-card" style="background:white">
+    <div class="col">
+        <div class="media">
+            <a class="float-right">
+                @if (Model.Image != null)
+                {
+                    <img class=" img rounded-circle" src="data:image/jpeg;base64,@Convert.ToBase64String(Model.Image)" style="width: 70px;height:70px;">
+                }
+                else
+                {
+                    <img class=" img rounded-circle" src="~/Images/user.png" style="width: 70px;height:70px;">
+                }
+            </a>
+            <div class="media-body">
+                <h5>@Model.FirstName @Model.LastName <small class="text-muted"> @Model.Role</small></h5>
+                <span class="span-control"><i class="fas fa-envelope"></i> @Model.Email</span>
+                <button class="float-left btn btn-danger span-control" style="margin-top:-10px" onclick="DeleteUser(@Model.Id)">
+                    <i class="fas fa-trash-alt"></i> حذف
+                </button>
+                <a class="float-left btn btn-primary span-control" style="margin-top:-10px" asp-action="Index" asp-controller="Manage" 
+                   asp-route-userName="@Model.Username" asp-route-returnUrl="@Url.Action("ManageUsers","Admin")"><i class="fas fa-pencil-alt"></i> ویرایش
+                </a>
+                @if (!Model.IsActive)
+                {
+                    if (Model.Role == "کارمند")
+                    {
+                        <button id="openModalButton" type="button" class="float-left btn btn-primary span-control" style="margin-top:-10px"
+                                onclick="setUserId(@Model.Id)" data-toggle="modal" data-target="#selectManager">
+                            <i class="fas fa-check"></i> فعالسازی
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="float-left btn btn-primary span-control" style="margin-top:-10px" onclick="ActivateUser(@Model.Id)">
+                            <i class="fas fa-check"></i> فعالسازی
+                        </button>
+                    }
+                }
+            </div>
+        </div>
+
+    </div>
+</div>

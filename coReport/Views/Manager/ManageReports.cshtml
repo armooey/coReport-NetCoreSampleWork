@@ -1,0 +1,101 @@
+﻿@using coReport.Models.ReportViewModel
+@using coReport.Models.Report
+@model ReportsViewModel
+
+@{
+    ViewData["Title"] = "گزارشات";
+}
+
+
+
+<a asp-action="CreateManagerReport" asp-controller="Report" class="btn btn-primary float-left">ثبت گزارش</a>
+
+
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        @if (ViewData["Navigation"].Equals("today"))
+        {
+            <a class="nav-link active">گزارشات امروز</a>
+        }
+        else
+        {
+            <a class="nav-link" asp-action="ManageReports" asp-route-nav="today">گزارشات امروز</a>
+        }
+    </li>
+    <li class="nav-item">
+        @if (ViewData["Navigation"].Equals("unseen"))
+        {
+            <a class="nav-link active">گزارشات دیده ‌نشده</a>
+        }
+        else
+        {
+            <a class="nav-link" asp-action="ManageReports" asp-route-nav="unseen">گزارشات دیده ‌نشده</a>
+        }
+
+    </li>
+</ul>
+<br />
+<div class="row">
+    <div class="col-md-7">
+
+        <h6 class="text-center">گزارشات کاربران</h6>
+        @if (Model.UserReports.Count() == 0)
+        {
+            <div class="text-lg-center"><b>هیچ گزارشی یافت نشد.</b></div>
+        }
+        else
+        {
+            @foreach (ReportViewModel report in Model.UserReports)
+            {
+                <partial name="UserReportPartialView" model="report" />
+            }
+        }
+    </div>
+    <div class="col-md-5 col-md-offset-2">
+        <h6 class="text-center">گزارشات مدیر</h6>
+        @if (Model.ManagerReports.Count() == 0)
+        {
+            <div class="text-lg-center"><b>هیچ گزارشی یافت نشد.</b></div>
+        }
+        else
+        {
+            @foreach (var report in Model.ManagerReports)
+            {
+                <partial name="ManagerReportPartialView" model="report" />
+            }
+        }
+    </div>
+</div>
+
+
+@section scripts
+{
+    <script src="~/lib/popper.js/umd/popper.min.js"></script>
+    <script src="~/lib/bootbox.js/bootbox.min.js"></script>
+    <script>
+        function DeleteReport(id) {
+            bootbox.confirm({
+                message: "آیا می‌خواهید این گزارش را حذف کنید؟",
+                buttons: {
+                    confirm: {
+                        label: 'بله',
+                        className: 'btn-primary'
+                    },
+                    cancel: {
+                        label: 'خیر',
+                        className: 'btn-secondary'
+                    }
+                },
+                callback: function (result) {
+                    if (result)
+                        $.ajax({
+                            url: "DeleteReport",
+                            data: { id: id }
+                        }).done(function () {
+                            location.reload();
+                        });
+                }
+            });
+        }
+    </script>
+}

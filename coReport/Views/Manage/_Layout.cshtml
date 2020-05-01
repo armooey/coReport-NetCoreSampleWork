@@ -1,0 +1,36 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using coReport.Auth
+@using coReport.Models.AccountViewModels
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
+
+@{ 
+    Layout = "~/Views/Shared/_Layout.cshtml"; 
+}
+
+<div>
+    @if (User.IsInRole("ادمین") && !ViewData["UserName"].Equals("admin"))
+    {
+        <h4>مدیریت حساب کاربری @UserManager.FindByNameAsync(ViewData["UserName"].ToString()).Result.FirstName</h4>
+    }
+    else
+    {
+        <h4>مدیریت حساب کاربری شما</h4>
+    }
+    <h5>تغییرات حساب کاربری</h5>
+    <hr />
+    <div class="row">
+        <div class="col-md-3">
+            <partial name="_ManageNav" />
+        </div>
+        <div class="col-md-9">
+            @RenderBody()
+        </div>
+    </div>
+</div>
+

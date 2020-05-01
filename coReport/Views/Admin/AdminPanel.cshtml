@@ -1,0 +1,118 @@
+﻿@using coReport.Models.AdminViewModels
+@model AdminPanelViewModel
+@{
+    ViewData["Title"] = "پنل ادمین";
+}
+
+<link href="~/lib/Chart.js/Chart.min.css" rel="stylesheet" />
+<div>
+    <div>
+        <a class="btn btn-primary" asp-action="ManageUsers" asp-controller="Admin">مدیریت کاربران</a>
+    </div>
+    <hr class="divider" />
+    <div class="row" style="margin-top:40px">
+        <div class="col-md border border-dark p-2 box-widget">
+            <h6><b>فعالیت کاربران</b></h6>
+            <hr />
+            <div class="chart-container">
+                <canvas id="reportsChart"></canvas>
+            </div>
+        </div>
+
+        <div class="col-md border border-dark p-2 box-widget">
+            <h6><b>پیام ها</b></h6>
+            <hr />
+            @if (Model.Messages.Count() == 0)
+            {
+                <div class="text-center"><b>پیامی موجود نیست.</b></div>
+            }
+            else
+            {
+                foreach (var message in Model.Messages)
+                {
+                    <partial name="_MessagePartialView" model="message" />
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/lib/Chart.js/Chart.min.js"></script>
+    <script src="~/lib/popper.js/umd/popper.min.js"></script>
+    <script src="~/lib/bootbox.js/bootbox.min.js"></script>
+
+    <script>
+    var days = JSON.parse('@Html.Raw(Json.Serialize(@Model.Days))');
+    var userReportCount = JSON.parse('@Html.Raw(Json.Serialize(@Model.UsersReportCount))');
+    var managerReportCount = JSON.parse('@Html.Raw(Json.Serialize(@Model.ManagersReportCount))');
+    var context = document.getElementById('reportsChart').getContext('2d');
+    var myChart = new Chart(context, {
+        type: 'line',
+            data: {
+            labels: days,
+            datasets: [
+                {
+                    data: userReportCount,
+                    label: "گزارشات کارمندان",
+                    borderColor: "#FF2D00",
+                    fill: true
+                },
+                {
+                    data: managerReportCount,
+                    label: "گزارشات مدیران",
+                    borderColor: "#0072FF",
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    function DeleteMessage(id) {
+            bootbox.confirm({
+                message: "آیا می‌خواهید این پیام را حذف کنید؟",
+                buttons: {
+                    confirm: {
+                        label: 'بله',
+                        className: 'btn-primary'
+                    },
+                    cancel: {
+                        label: 'خیر',
+                        className: 'btn-secondary'
+                    }
+                },
+                callback: function (result) {
+                    if (result)
+                        $.ajax({
+                            url: "/Message/DeleteMessage",
+                            data: { id: id }
+                        }).done(function () {
+                            location.reload();
+                        });
+                }
+            });
+        }
+
+
+        function ViewMessage(id)
+        {
+            $.ajax({
+                url: "/Message/SetViewed",
+                data: { id: id }
+            });
+        }
+
+    $(document).ready(function(){
+        $('[data-toggle="popover"]').popover();
+        $('.seen-False').attr('style', 'background-color:lightgray');
+        $('[data-toggle="popover"]').click(function () {
+            $(this).parent().parent().attr('style', 'background-color:white');
+        });
+    });
+    </script>
+}

@@ -1,0 +1,60 @@
+﻿@using coReport.Models.ReportViewModel
+@model ManagerReportViewModel
+@{
+    ViewData["Title"] = "ایجاد گزارش";
+}
+
+    <div class="container p-2 box-widget">
+        @if (Model.ReportElements.Count == 0)
+        {
+            <h4 class="text-lg-center">گزارشی یافت نشد.</h4>
+            <h5 class="text-lg-center">برای ثبت گزارش ابتدا باید کاربران گزارش خود را ثبت کنند.</h5>
+        }
+        else
+        {
+            <form asp-controller="Report" asp-action="CreateManagerReport" method="post" class="form-horizontal" role="form">
+                <table class="table">
+                    <tr>
+                        <th>نام</th>
+                        <th>گزارش</th>
+                        <th>قابل قبول</th>
+                        <th>قابل مشاهده</th>
+                        <th>نام پروژه</th>
+                        <th>ساعت کار</th>
+                    </tr>
+                    @for (int i = 0; i < Model.ReportElements.Count; i++)
+                    {
+                        <tr>
+                            <td>@Model.ReportElements[i].Author.FirstName @Model.ReportElements[i].Author.LastName</td>
+                            <td>
+                                <input asp-for="ReportElements[i].ReportId" hidden="hidden" />
+                                <div class="col-md-10">
+                                    <textarea cols="20" rows="4" asp-for="@Model.ReportElements[i].Text" class="form-control"></textarea>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <input asp-for="@Model.ReportElements[i].IsAccepted" />
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <input asp-for="@Model.ReportElements[i].IsViewableByUser" />
+                                </div>
+                            </td>
+                            <td>@Model.ReportElements[i].ProjectName</td>
+                            <td>@Model.ReportElements[i].WorkHour.ToString("hh\\:mm")</td>
+                        </tr>
+                    }
+                </table>
+
+                <button type="submit" class="btn btn-primary">ثبت</button>
+                <a class="btn btn-secondary" asp-controller="Manager" asp-action="ManageReports" asp-route-nav="unseen">بازگشت</a>
+
+            </form>
+        }
+    </div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

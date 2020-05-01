@@ -1,0 +1,33 @@
+﻿@using coReport.Models.MessageViewModels
+@using coReport.Models.Message
+@model MessageViewModel
+
+<div class="border border-dark p-3 rounded user-card seen-@Model.IsViewed">
+    <div class="col">
+        @if (Model.Type == MessageType.System_Notification || Model.Type == MessageType.Manager_Report_Notification)
+        {
+            <span><i class="fas fa-desktop"></i> <b>@Model.Title</b></span>
+        }
+        else if(Model.Type == MessageType.Warning)
+        {
+            <span style="color:red"><i class="fas fa-exclamation-triangle"></i> <b>@Model.Title</b></span>
+        }
+
+        @if (Model.Type == MessageType.Manager_Report_Notification)
+        {
+            <span class="span-control"><i class="fas fa-user-tie"></i> @Model.AuthorName</span>
+        }
+        else
+        { 
+            <span class="span-control"> @Model.AuthorName</span>
+        }
+
+        <button onclick="ViewMessage(@Model.Id)" data-toggle="popover" data-trigger="focus" title="@Model.Title" data-content="@Model.Text"
+                class="btn btn-primary float-left span-control" style="margin-top: -6px">
+            <i class="far fa-eye"></i> مشاهده
+        </button>
+        <button class="btn btn-danger float-left span-control" onclick="DeleteMessage(@Model.Id)" style="margin-top:-6px">
+            <i class="fas fa-trash-alt"></i> حذف
+        </button>
+    </div>
+</div>
