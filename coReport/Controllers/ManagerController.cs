@@ -21,10 +21,6 @@ namespace coReport.Controllers
         private UserManager<ApplicationUser> _userManager;
         private IReportData _reportData;
         private IManagerReportData _managerReportData;
-        private IWebHostEnvironment _webHostEnvironment;
-        private RoleManager<IdentityRole<short>> _roleManager;
-        private IManagerData _managerData;
-        private IMessageService _messageService;
 
         public ManagerController(UserManager<ApplicationUser> userManager, IReportData reportData,
             IManagerReportData managerReportData,
@@ -36,10 +32,6 @@ namespace coReport.Controllers
             _userManager = userManager;
             _reportData = reportData;
             _managerReportData = managerReportData;
-            _webHostEnvironment = webHostEnvironment;
-            _roleManager = roleManager;
-            _managerData = managerData;
-            _messageService = messageService;
         }
 
         public async Task<IActionResult> ManageReports(String nav)

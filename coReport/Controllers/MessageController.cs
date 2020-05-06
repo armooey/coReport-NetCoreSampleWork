@@ -34,6 +34,7 @@ namespace coReport.Controllers
             return RedirectToAction("ManageReports", "Account");
         }
 
+        //Marks the message as read
         public IActionResult SetViewed(short id)
         {
             try

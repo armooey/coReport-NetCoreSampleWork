@@ -130,5 +130,10 @@ namespace coReport.Services
                 .OrderByDescending(r => r.Date)
                 .ToList();
         }
+
+        public int GetReportsCountByDate(DateTime date)
+        {
+            return _context.ManagerReports.Count(r => r.Date.Date == date);
+        }
     }
 }

@@ -217,15 +217,15 @@ namespace coReport.Controllers
                 var managerReportElement = report.ManagerReportElements;
                 var element = new ManagerReportElement();
                 if(managerReportElement != null)
-                    element = managerReportElement.Where(mre => mre.ManagerReportId == managerReport.Id).FirstOrDefault();
+                    element = managerReportElement.FirstOrDefault(mre => mre.ManagerReportId == managerReport.Id);
                 elements.Add(new ManagerReportElementViewModel
                 {
                     ReportId = report.Id,
                     Author = report.Author,
                     WorkHour = report.ExitTime.Subtract(report.EnterTime),
                     Text = element.Text ?? null,
-                    IsAccepted = element.IsAcceptable,
-                    IsViewableByUser = element.IsViewable,
+                    IsAccepted = element != null ? element.IsAcceptable:false,
+                    IsViewableByUser = element != null ? element.IsViewable : false,
                     ProjectName = report.ProjectName
                 });
             }
@@ -351,7 +351,7 @@ namespace coReport.Controllers
         [HttpGet("download")]
         public ActionResult DownloadReportAttachment(String fileName)
         {
-            var filePath = String.Format("{0}\\UserData\\Files\\{1}", _webHostEnvironment.ContentRootPath, fileName);
+            var filePath = Path.Combine(_webHostEnvironment.ContentRootPath, "UserData", "Files", fileName);
             try
             {
                 byte[] file = System.IO.File.ReadAllBytes(filePath);
@@ -359,7 +359,11 @@ namespace coReport.Controllers
             }
             catch (Exception e)
             {
-                throw e;
+                var errorModel = new ErrorViewModel
+                {
+                    Error = e.Message
+                };
+                return RedirectToAction("Error", "Home", errorModel);
             }
         }
     }

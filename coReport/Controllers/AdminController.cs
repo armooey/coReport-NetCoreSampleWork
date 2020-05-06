@@ -26,14 +26,14 @@ namespace coReport.Controllers
     {
         private UserManager<ApplicationUser> _userManager;
         private IReportData _reportData;
-        private IManagerReportData _adminReportData;
+        private IManagerReportData _managerReportData;
         private IWebHostEnvironment _webHostEnvironment;
         private RoleManager<IdentityRole<short>> _roleManager;
         private IManagerData _managerData;
         private IMessageService _messageService;
 
         public AdminController(UserManager<ApplicationUser> userManager, IReportData reportData,
-            IManagerReportData adminReportData,
+            IManagerReportData managerReportData,
             IWebHostEnvironment webHostEnvironment,
             RoleManager<IdentityRole<short>> roleManager,
             IManagerData managerData,
@@ -41,7 +41,7 @@ namespace coReport.Controllers
         {
             _userManager = userManager;
             _reportData = reportData;
-            _adminReportData = adminReportData;
+            _managerReportData = managerReportData;
             _webHostEnvironment = webHostEnvironment;
             _roleManager = roleManager;
             _managerData = managerData;
@@ -52,9 +52,8 @@ namespace coReport.Controllers
         {
             _messageService.CreateSystemNotifications();
             //prepare datas for chart
-            var userReports = _reportData.GetAll();
-            var managerReports = _adminReportData.GetAll();
-            var userMessages = _messageService.GetReceivedMessages(1);
+            short ADMIN_ID = 1;
+            var userMessages = _messageService.GetReceivedMessages(ADMIN_ID);
             var today = DateTime.Now.Date;
             var userReportCount = new List<int>();
             var managerReportCount = new List<int>();
@@ -73,8 +72,9 @@ namespace coReport.Controllers
             //counting number of reports in the last 7 days
             for (int i = -6; i <= 0; i++)
             {
-                userReportCount.Add(userReports.Where(r => r.Date.Date == today.AddDays(i)).Count());
-                managerReportCount.Add(managerReports.Where(r => r.Date.Date == today.AddDays(i)).Count());
+                var day = today.AddDays(i); //finding the day that we want to count reports
+                userReportCount.Add(_reportData.GetReportsCountByDate(day));
+                managerReportCount.Add(_managerReportData.GetReportsCountByDate(day));
             }
             foreach (var userMessage in userMessages)
             {
@@ -200,12 +200,12 @@ namespace coReport.Controllers
         public async Task<IActionResult> DeleteUser(short userId)
         {
             _reportData.PreprocessUserDelete(userId);
-            ApplicationUser _user = await _userManager.FindByIdAsync(userId.ToString());
-            if (_user != null)
+            ApplicationUser user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user != null)
             {
                 try
                 {
-                    IdentityResult result = await _userManager.DeleteAsync(_user);
+                    IdentityResult result = await _userManager.DeleteAsync(user);
                     if (result.Succeeded)
                         return RedirectToAction("ManageUsers");
                     else

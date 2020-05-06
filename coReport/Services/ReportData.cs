@@ -175,5 +175,10 @@ namespace coReport.Services
                 }
             }
         }
+
+        public int GetReportsCountByDate(DateTime date)
+        {
+            return _context.Reports.Count(r => r.Date.Date == date);
+        }
     }
 }
