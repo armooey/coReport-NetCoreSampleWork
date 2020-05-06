@@ -1,6 +1,6 @@
-﻿using coReport.Models.Manager;
-using coReport.Models.Message;
-using coReport.Models.Report;
+﻿using coReport.Models.ManagerModels;
+using coReport.Models.MessageModels;
+using coReport.Models.ReportModels;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;

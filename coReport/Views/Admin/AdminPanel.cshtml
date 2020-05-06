@@ -1,4 +1,5 @@
 ﻿@using coReport.Models.AdminViewModels
+@using coReport.Models.ProjectViewModels
 @model AdminPanelViewModel
 @{
     ViewData["Title"] = "پنل ادمین";
@@ -6,19 +7,35 @@
 
 <link href="~/lib/Chart.js/Chart.min.css" rel="stylesheet" />
 <div>
-    <div>
-        <a class="btn btn-primary" asp-action="ManageUsers" asp-controller="Admin">مدیریت کاربران</a>
-    </div>
-    <hr class="divider" />
+
     <div class="row" style="margin-top:40px">
         <div class="col-md border border-dark p-2 box-widget">
-            <h6><b>فعالیت کاربران</b></h6>
+            <span><b>فعالیت کاربران</b></span>
+            <a class="btn btn-primary btn-sm float-left" asp-action="ManageUsers" asp-controller="Admin">مدیریت کاربران</a>
             <hr />
             <div class="chart-container">
                 <canvas id="reportsChart"></canvas>
             </div>
         </div>
 
+        <div class="col-md border border-dark p-2 box-widget">
+            <span><b>پروژه ها</b></span>
+            <button class="btn btn-primary btn-sm float-left" data-toggle="modal" data-target="#createProject">ایجاد پروژه جدید</button>
+            <hr />
+            @if (Model.Projects.Count() == 0)
+            {
+                <div class="text-center"><b>پروژه‌ای موجود نیست.</b></div>
+            }
+            else
+            {
+                foreach (var project in Model.Projects)
+                {
+                    <partial name="ProjectPartialView" model="project" />
+                }
+            }
+        </div>
+    </div>
+    <div class="row">
         <div class="col-md border border-dark p-2 box-widget">
             <h6><b>پیام ها</b></h6>
             <hr />
@@ -37,8 +54,36 @@
     </div>
 </div>
 
+
+<div id="createProject" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6>ایجاد پروژه</h6>
+            </div>
+            <form asp-action="AddProject" method="post" role="form">
+                <div class="form-group" style="margin-top: 10px">
+                    <label class="col-md-4">عنوان پروژه</label>
+                    <div class="col-md-10">
+                        <input type="text" name="projectName" data-val="true" data-val-required="عنوان پروژه اجباری است." class="form-control" />
+                        <span  class="text-danger field-validation-valid" data-valmsg-for="projectName" data-valmsg-replace="true"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                    <button type="submit" class="btn btn-primary">ثبت</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+
 @section scripts
 {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
     <script src="~/lib/Chart.js/Chart.min.js"></script>
     <script src="~/lib/popper.js/umd/popper.min.js"></script>
     <script src="~/lib/bootbox.js/bootbox.min.js"></script>
@@ -49,7 +94,7 @@
     var managerReportCount = JSON.parse('@Html.Raw(Json.Serialize(@Model.ManagersReportCount))');
     var context = document.getElementById('reportsChart').getContext('2d');
     var myChart = new Chart(context, {
-        type: 'line',
+        type: 'bar',
             data: {
             labels: days,
             datasets: [
@@ -69,7 +114,15 @@
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false
+            maintainAspectRatio: false,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        stepSize: 1
+                    }
+                }]
+            }
         }
     });
 
@@ -104,6 +157,32 @@
             $.ajax({
                 url: "/Message/SetViewed",
                 data: { id: id }
+            });
+        }
+
+        function EndProject(id)
+        {
+            bootbox.confirm({
+                message: "آیا مایلید به این پروژه خاتمه دهید؟",
+                buttons: {
+                    confirm: {
+                        label: 'بله',
+                        className: 'btn-primary'
+                    },
+                    cancel: {
+                        label: 'خیر',
+                        className: 'btn-secondary'
+                    }
+                },
+                callback: function (result) {
+                    if (result)
+                        $.ajax({
+                            url: "/Admin/EndProject",
+                            data: { id: id }
+                        }).done(function () {
+                            location.reload();
+                        });
+                }
             });
         }
 

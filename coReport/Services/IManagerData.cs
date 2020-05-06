@@ -1,5 +1,5 @@
 ﻿using coReport.Auth;
-using coReport.Models.Manager;
+using coReport.Models.ManagerModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,6 +1,6 @@
 ﻿using coReport.Data;
-using coReport.Models.Message;
-using coReport.Models.Report;
+using coReport.Models.MessageModels;
+using coReport.Models.ReportModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

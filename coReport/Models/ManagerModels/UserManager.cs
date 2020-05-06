@@ -4,14 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace coReport.Models.Report
+namespace coReport.Models.ManagerModels
 {
-    public class ProjectManager
+    public class UserManager
     {
-        public short ReportId { get; set; }
-        public virtual Report Report { get; set; }
+        public short UserId { get; set; }
+        public virtual ApplicationUser User { get; set; }
         public short ManagerId { get; set; }
         public virtual ApplicationUser Manager { get; set; }
-        public bool IsViewd { get; set; }
     }
 }

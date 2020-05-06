@@ -9,7 +9,7 @@ namespace coReport.Data
 {
     public static class DbInitializer
     {
-        public static async Task CreateAdmin(IServiceProvider serviceProvider, IConfiguration Configuration)
+        public static async Task Initialize(IServiceProvider serviceProvider, IConfiguration Configuration)
         {
             var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<short>>>();
             var UserManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();

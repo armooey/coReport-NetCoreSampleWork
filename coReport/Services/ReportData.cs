@@ -1,6 +1,6 @@
 ﻿using coReport.Auth;
 using coReport.Data;
-using coReport.Models.Report;
+using coReport.Models.ReportModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

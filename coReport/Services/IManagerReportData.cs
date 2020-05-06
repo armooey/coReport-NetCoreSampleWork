@@ -1,4 +1,4 @@
-﻿using coReport.Models.Report;
+﻿using coReport.Models.ReportModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,9 +1,9 @@
 ﻿using coReport.Auth;
 using coReport.Models;
 using coReport.Models.HomeViewModels;
-using coReport.Models.Message;
+using coReport.Models.MessageModels;
 using coReport.Models.Operations;
-using coReport.Models.Report;
+using coReport.Models.ReportModels;
 using coReport.Models.ReportViewModel;
 using coReport.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -79,7 +79,7 @@ namespace coReport.Controllers
                 {
                     Title = model.Title,
                     Text = model.Text,
-                    ProjectName = model.ProjectName,
+                    //ProjectName = model.ProjectName,
                     Author = author,
                     EnterTime = model.EnterTime,
                     ExitTime = model.ExitTime,
@@ -121,7 +121,7 @@ namespace coReport.Controllers
                 Id = report.Id,
                 EnterTime = report.EnterTime,
                 ExitTime = report.ExitTime,
-                ProjectName = report.ProjectName,
+                //ProjectName = report.ProjectName,
                 Managers = _managerData.GetManagers(author.Id).ToList(),
                 ProjectManagerIds = report.ProjectManagers.Select(pm => pm.ManagerId).ToList(),
                 Title = report.Title,
@@ -155,7 +155,7 @@ namespace coReport.Controllers
                 var report = _reportData.Get(model.Id);
                 report.Title = model.Title;
                 report.Text = model.Text;
-                report.ProjectName = model.ProjectName;
+                //report.ProjectName = model.ProjectName;
                 report.EnterTime = model.EnterTime;
                 report.ExitTime = model.ExitTime;
                 report.Date = DateTime.Now;
@@ -226,7 +226,7 @@ namespace coReport.Controllers
                     Text = element.Text ?? null,
                     IsAccepted = element != null ? element.IsAcceptable:false,
                     IsViewableByUser = element != null ? element.IsViewable : false,
-                    ProjectName = report.ProjectName
+                    //ProjectName = report.ProjectName
                 });
             }
             var managerReportModel = new ManagerReportViewModel
@@ -338,7 +338,7 @@ namespace coReport.Controllers
                     Text = element.Text,
                     Author = element.Report.Author,
                     WorkHour = element.Report.ExitTime.Subtract(element.Report.EnterTime),
-                    ProjectName = element.Report.ProjectName
+                    //ProjectName = element.Report.ProjectName
                 });
             }
             var model = new ManagerReportViewModel { 

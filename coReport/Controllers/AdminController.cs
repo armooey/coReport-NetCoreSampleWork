@@ -3,10 +3,12 @@ using coReport.Models;
 using coReport.Models.AccountViewModels;
 using coReport.Models.AdminViewModels;
 using coReport.Models.HomeViewModels;
-using coReport.Models.Message;
+using coReport.Models.MessageModels;
 using coReport.Models.MessageViewModels;
 using coReport.Models.Operations;
-using coReport.Models.Report;
+using coReport.Models.ProjectModels;
+using coReport.Models.ProjectViewModels;
+using coReport.Models.ReportModels;
 using coReport.Models.ReportViewModel;
 using coReport.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -31,13 +33,15 @@ namespace coReport.Controllers
         private RoleManager<IdentityRole<short>> _roleManager;
         private IManagerData _managerData;
         private IMessageService _messageService;
+        private IProjectService _projectService;
 
         public AdminController(UserManager<ApplicationUser> userManager, IReportData reportData,
             IManagerReportData managerReportData,
             IWebHostEnvironment webHostEnvironment,
             RoleManager<IdentityRole<short>> roleManager,
             IManagerData managerData,
-            IMessageService messageService)
+            IMessageService messageService,
+            IProjectService projectService)
         {
             _userManager = userManager;
             _reportData = reportData;
@@ -46,6 +50,7 @@ namespace coReport.Controllers
             _roleManager = roleManager;
             _managerData = managerData;
             _messageService = messageService;
+            _projectService = projectService;
         }
 
         public IActionResult AdminPanel()
@@ -54,11 +59,13 @@ namespace coReport.Controllers
             //prepare datas for chart
             short ADMIN_ID = 1;
             var userMessages = _messageService.GetReceivedMessages(ADMIN_ID);
+            var projects = _projectService.GetAll();
             var today = DateTime.Now.Date;
             var userReportCount = new List<int>();
             var managerReportCount = new List<int>();
             var messageViewModels = new List<MessageViewModel>();
-
+            var projectViewModels = new List<ProjectViewModel>();
+            
             //creating a list of the last 7 days
             var days = new List<String> { 
                 today.AddDays(-6).ToString("MM/dd"),
@@ -76,6 +83,7 @@ namespace coReport.Controllers
                 userReportCount.Add(_reportData.GetReportsCountByDate(day));
                 managerReportCount.Add(_managerReportData.GetReportsCountByDate(day));
             }
+
             foreach (var userMessage in userMessages)
             {
                 messageViewModels.Add(new MessageViewModel
@@ -89,8 +97,20 @@ namespace coReport.Controllers
                     IsViewed = userMessage.IsViewd
                 });
             }
+
+            foreach (var project in projects)
+            {
+                projectViewModels.Add(new ProjectViewModel { 
+                    Id = project.Id,
+                    Title = project.Title,
+                    CreateDate = project.CreateDate,
+                    EndDate = project.EndDate
+                });
+            }
+
             var adminPanelModel = new AdminPanelViewModel { 
                 Days = days,
+                Projects = projectViewModels,
                 UsersReportCount = userReportCount,
                 ManagersReportCount = managerReportCount,
                 Messages = messageViewModels
@@ -225,6 +245,32 @@ namespace coReport.Controllers
                 ModelState.AddModelError("", "Cannot find user :/");
             }
             return RedirectToAction("ManageUsers");
+        }
+
+        public IActionResult AddProject(String projectName)
+        {
+            try
+            {
+                _projectService.Add(new Project
+                {
+                    Title = projectName,
+                    CreateDate = DateTime.Now
+                });
+            }
+            catch (Exception e)
+            {
+                 var errorModel = new ErrorViewModel
+                    {
+                        Error = e.Message
+                    };
+                    return RedirectToAction("Error", "Home", errorModel);
+            }
+            return RedirectToAction("AdminPanel");
+        }
+
+        public void EndProject(short id)
+        {
+            _projectService.EndProject(id);
         }
     }
 }

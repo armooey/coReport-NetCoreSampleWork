@@ -1,11 +1,12 @@
 ﻿using coReport.Auth;
+using coReport.Models.ProjectModels;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace coReport.Models.Report
+namespace coReport.Models.ReportModels
 {
     public class Report
     {
@@ -17,7 +18,8 @@ namespace coReport.Models.Report
         public virtual ApplicationUser Author { get; set; }
 
         public String Text { get; set; }
-        public String ProjectName { get; set; }
+        public short ProjectId { get; set; }
+        public virtual Project Project { get; set; }
 
         public DateTime Date { get; set; }
         public DateTime EnterTime { get; set; }

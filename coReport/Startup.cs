@@ -50,6 +50,7 @@ namespace coReport
             services.AddTransient<IManagerReportData, ManagerReportData>();
             services.AddTransient<IManagerData, ManagerData>();
             services.AddTransient<IMessageService, MessageService>();
+            services.AddTransient<IProjectService, ProjectService>();
             services.AddRazorPages();
         }
 
@@ -81,7 +82,7 @@ namespace coReport
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
-            DbInitializer.CreateAdmin(services, Configuration).Wait();
+            DbInitializer.Initialize(services, Configuration).Wait();
         }
     }
 }

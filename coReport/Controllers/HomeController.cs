@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using coReport.Models;
 using coReport.Services;
-using coReport.Models.Report;
+using coReport.Models.ReportModels;
 using Microsoft.AspNetCore.Identity;
 using coReport.Auth;
 using coReport.Models.HomeViewModels;

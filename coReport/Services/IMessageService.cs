@@ -1,4 +1,4 @@
-﻿using coReport.Models.Message;
+﻿using coReport.Models.MessageModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;

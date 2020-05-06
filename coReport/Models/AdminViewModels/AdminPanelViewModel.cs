@@ -1,4 +1,5 @@
 ﻿using coReport.Models.MessageViewModels;
+using coReport.Models.ProjectViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace coReport.Models.AdminViewModels
         public List<String> Days { get; set; }
         public List<int> UsersReportCount { get; set; }
         public List<int> ManagersReportCount { get; set; }
+        public List<ProjectViewModel> Projects { get; set; }
         public IEnumerable<MessageViewModel> Messages { get; set; }
     }
 }

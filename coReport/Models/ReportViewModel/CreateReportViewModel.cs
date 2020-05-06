@@ -1,5 +1,5 @@
 ﻿using coReport.Auth;
-using coReport.Models.Manager;
+using coReport.Models.ManagerModels;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using System;

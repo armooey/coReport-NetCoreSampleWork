@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace coReport.Models.Report
+namespace coReport.Models.ReportModels
 {
     public class ManagerReport
     {

@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 using coReport.Auth;
-using coReport.Models.Manager;
-using coReport.Models.Message;
-using coReport.Models.Report;
+using coReport.Models.ManagerModels;
+using coReport.Models.MessageModels;
+using coReport.Models.ProjectModels;
+using coReport.Models.ReportModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,7 @@ namespace coReport.Data
             : base(options)
         {
         }
+        public DbSet<Project> Projects { get; set; }
         public DbSet<Report> Reports { get; set; }
         public DbSet<ManagerReport> ManagerReports { get; set; }
         public DbSet<ManagerReportElement> ManagerReportElements { get; set; }
@@ -37,6 +39,11 @@ namespace coReport.Data
                 .HasMany(a => a.ManagerReports)
                 .WithOne(mr => mr.Author)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            //Project and Report Relation Configuration
+            modelBuilder.Entity<Project>()
+                .HasMany(p => p.Reports)
+                .WithOne(r => r.Project);
 
             //Report and Project manager relation
             modelBuilder.Entity<ProjectManager>()

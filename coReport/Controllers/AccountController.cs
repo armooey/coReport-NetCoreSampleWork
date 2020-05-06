@@ -1,24 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using coReport.Auth;
 using coReport.Models.AccountViewModels;
-using coReport.Models.Message;
+using coReport.Models.MessageModels;
 using coReport.Models.MessageViewModels;
 using coReport.Models.Operations;
 using coReport.Models.ReportViewModel;
 using coReport.Services;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Logging;
 
 namespace coReport.Controllers
 {
@@ -178,8 +171,7 @@ namespace coReport.Controllers
             {
                 reportViewModels.Add(new ReportViewModel { 
                     Id = report.Id,
-                    Title = report.Title,
-                    ProjectName = report.ProjectName
+                    Title = report.Title
                 });
             }
             foreach (var userMessage in userMessages)

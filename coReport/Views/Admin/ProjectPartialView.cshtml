@@ -1,0 +1,20 @@
+﻿@using coReport.Models.ProjectViewModels
+@model ProjectViewModel
+
+<div class="border border-dark p-3 rounded user-card">
+    <div class="col">
+        <span> <b>@Model.Title</b></span>
+        <span class="span-control"><i class="fas fa-calendar-alt"></i> @Model.CreateDate.Date.ToString("MM/dd/yyyy")</span>
+        @if (Model.EndDate != null)
+        {
+            <span class="span-control"><i class="fas fa-calendar-alt"></i> @Model.EndDate.Value.Date.ToString("MM/dd/yyyy") </span>
+        }
+        else
+        {
+            <span class="span-control"><i class="fas fa-tasks"></i> در حال انجام</span>
+            <button onclick="EndProject(@Model.Id)" class="btn btn-success float-left span-control" style="margin-top:-6px">
+                 پایان پروژه</button>
+        }
+
+    </div>
+</div>

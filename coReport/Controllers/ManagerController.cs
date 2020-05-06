@@ -1,9 +1,9 @@
 ﻿using coReport.Auth;
 using coReport.Models;
 using coReport.Models.HomeViewModels;
-using coReport.Models.Message;
+using coReport.Models.MessageModels;
 using coReport.Models.MessageViewModels;
-using coReport.Models.Report;
+using coReport.Models.ReportModels;
 using coReport.Models.ReportViewModel;
 using coReport.Services;
 using Microsoft.AspNetCore.Hosting;
@@ -53,7 +53,7 @@ namespace coReport.Controllers
                     Title = report.Title,
                     Author = report.Author,
                     Text = report.Text,
-                    ProjectName = report.ProjectName,
+                    //ProjectName = report.ProjectName,
                     EnterTime = report.EnterTime,
                     ExitTime = report.ExitTime,
                     Date = report.Date
@@ -70,7 +70,7 @@ namespace coReport.Controllers
                     Date = report.Date
                 });
             }
-            var reportsViewModel = new ReportsViewModel
+            var reportsViewModel = new UserAndManagerReportViewModel
             {
                 UserReports = userReportViewModels,
                 ManagerReports = managerReportsViewModel
@@ -94,7 +94,7 @@ namespace coReport.Controllers
                     Id = report.Id,
                     Title = report.Title,
                     Author = report.Author,
-                    ProjectName = report.ProjectName,
+                    //ProjectName = report.ProjectName,
                     Text = report.Text,
                     EnterTime = report.EnterTime,
                     ExitTime = report.ExitTime,
