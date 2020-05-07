@@ -37,95 +37,31 @@ namespace coReport.Controllers
         public async Task<IActionResult> ManageReports(String nav)
         {
             var manager = await _userManager.FindByNameAsync(User.Identity.Name);
-            var userReports = new List<Report>();
-            //Getting report data based on navigation
-            if (nav == "unseen")
-                userReports = _reportData.GetUnseenReports(manager.Id).ToList();
-            else if (nav == "today")
-                userReports = _reportData.GetTodayReports(manager.Id).ToList();
+            var userReports = _reportData.GetAllReports(manager.Id);
+            
             var userReportViewModels = new List<ReportViewModel>();
 
             foreach (var report in userReports)
             {
                 userReportViewModels.Add(new ReportViewModel
                 {
-                    Id = report.Id,
-                    Title = report.Title,
-                    Author = report.Author,
-                    Text = report.Text,
-                    ProjectName = report.Project.Title,
-                    EnterTime = report.EnterTime,
-                    ExitTime = report.ExitTime,
-                    Date = report.Date
+                    Id = report.Report.Id,
+                    Title = report.Report.Title,
+                    Author = report.Report.Author,
+                    Text = report.Report.Text,
+                    ProjectName = report.Report.Project.Title,
+                    EnterTime = report.Report.EnterTime,
+                    ExitTime = report.Report.ExitTime,
+                    Date = report.Report.Date,
+                    IsViewed = report.IsViewd
                 });
             }
           
-            var managerReports = _managerReportData.GetAll(manager.Id);
-            var managerReportsViewModel = new List<ManagerReportViewModel>();
-            foreach (ManagerReport report in managerReports)
-            {
-                managerReportsViewModel.Add(new ManagerReportViewModel
-                {
-                    Id = report.Id,
-                    Date = report.Date
-                });
-            }
             var reportsViewModel = new UserAndManagerReportViewModel
             {
-                UserReports = userReportViewModels,
-                ManagerReports = managerReportsViewModel
+                UserReports = userReportViewModels
             };
-            ViewData["Navigation"] = nav;
             return View(reportsViewModel);
-        }
-
-        /*
-         * View user reports
-         */
-        public async Task<IActionResult> ViewReport(short id)
-        {
-            var report = _reportData.Get(id);
-            var manager = await _userManager.FindByNameAsync(User.Identity.Name);
-            if (report != null)
-            {
-                _reportData.SetViewed(id, manager.Id);
-                var reportModel = new ReportViewModel
-                {
-                    Id = report.Id,
-                    Title = report.Title,
-                    Author = report.Author,
-                    ProjectName = report.Project.Title,
-                    Text = report.Text,
-                    EnterTime = report.EnterTime,
-                    ExitTime = report.ExitTime,
-                    Date = report.Date,
-                    AttachmentName = report.AttachmentExtension != null ?
-                            String.Format("{0}-{1}{2}", report.Author.UserName, report.Id, report.AttachmentExtension) : null
-                };
-                return View(reportModel);
-            }
-            return NotFound();
-        }
-
-
-        /*
-         * Deleting the manager report
-         */
-        public IActionResult DeleteReport(short id)
-        {
-            try
-            {
-                _managerReportData.Delete(id);
-            }
-            catch (Exception e)
-            {
-                var errorModel = new ErrorViewModel
-                {
-                    Error = e.Message
-                };
-                return RedirectToAction("Error", "Home", errorModel);
-            }
-            return RedirectToAction("ManageReports", new { nav = "unseen" });
         }
     }
 }

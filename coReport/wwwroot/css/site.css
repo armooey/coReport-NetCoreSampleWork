@@ -110,9 +110,18 @@ label{
     margin-bottom: 20px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
-.chart-container {
-    position: relative;
-    margin: auto;
-    height: 300px;
-    width: 500px;
+.box-widget-scrollable {
+    background: white;
+    display: block;
+    margin-right: 20px;
+    margin-bottom: 20px;
+    height: 400px;
+    max-height: 400px;
+    overflow-y: scroll;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    -ms-overflow-style: none;
 }
+
+    .box-widget-scrollable::-webkit-scrollbar {
+        display: none;
+    }

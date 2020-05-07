@@ -13,12 +13,10 @@
             <span><b>فعالیت کاربران</b></span>
             <a class="btn btn-primary btn-sm float-left" asp-action="ManageUsers" asp-controller="Admin">مدیریت کاربران</a>
             <hr />
-            <div class="chart-container">
-                <canvas id="reportsChart"></canvas>
-            </div>
+            <canvas height="300" width="500" id="reportsChart"></canvas>
         </div>
 
-        <div class="col-md border border-dark p-2 box-widget">
+        <div class="col-md border border-dark p-2 box-widget-scrollable">
             <span><b>پروژه ها</b></span>
             <button class="btn btn-primary btn-sm float-left" data-toggle="modal" data-target="#createProject">ایجاد پروژه جدید</button>
             <hr />
@@ -36,7 +34,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md border border-dark p-2 box-widget">
+        <div class="col-md border border-dark p-2 box-widget-scrollable">
             <h6><b>پیام ها</b></h6>
             <hr />
             @if (Model.Messages.Count() == 0)
@@ -113,8 +111,7 @@
             ]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
+
             scales: {
                 yAxes: [{
                     ticks: {
@@ -188,10 +185,10 @@
 
     $(document).ready(function(){
         $('[data-toggle="popover"]').popover();
-        $('.seen-False').attr('style', 'background-color:lightgray');
+        $('.seen-False').attr('style', 'border: 2px solid !important');
         $('.ended-True').attr('style', 'background-color:lightgray');
         $('[data-toggle="popover"]').click(function () {
-            $(this).parent().parent().attr('style', 'background-color:white');
+            $(this).parent().parent().attr('style', 'border: 1px solid');
         });
     });
     </script>

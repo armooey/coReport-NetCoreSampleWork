@@ -5,11 +5,10 @@
     ViewData["Title"] = "گزارشات";
 }
 
-<div class="text-left"><a asp-action="Create" asp-controller="Report" class="btn btn-primary">ایجاد گزارش</a></div>
-<hr />
 <div class="row">
-    <div class="col-md p-3 box-widget">
-        <h6><b>گزارشات</b></h6>
+    <div class="col-md p-3 box-widget-scrollable" style="height:600px; max-height:600px">
+        <span><b>گزارشات</b></span>
+        <a asp-action="Create" asp-controller="Report" class="btn btn-primary btn-sm float-left">ایجاد گزارش</a>
         <hr />
         @if (Model.Reports.Count() == 0)
         {
@@ -24,7 +23,7 @@
             }
         }
     </div>
-    <div class="col-md p-3 box-widget">
+    <div class="col-md p-3 box-widget-scrollable" style="height:600px; max-height:600px">
         <h6><b>پیام ها</b></h6>
         <hr />
         @if (Model.Messages.Count() == 0)
@@ -52,9 +51,9 @@
         
         $(document).ready(function(){
             $('[data-toggle="popover"]').popover();
-            $('.seen-False').attr('style', 'background-color:lightgray');
+            $('.seen-False').attr('style', 'border: 2px solid !important');
             $('[data-toggle="popover"]').click(function () {
-                $(this).parent().parent().attr('style', 'background-color:white');
+                $(this).parent().parent().attr('style', 'border: 1px solid');
             });
 
         });

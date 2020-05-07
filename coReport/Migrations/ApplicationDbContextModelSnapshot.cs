@@ -333,35 +333,25 @@ namespace coReport.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.Property<bool>("IsCommentViewableByUser")
+                        .HasColumnType("bit");
 
-                    b.HasIndex("AuthorId");
+                    b.Property<bool>("IsUserReportAcceptable")
+                        .HasColumnType("bit");
 
-                    b.ToTable("ManagerReports");
-                });
-
-            modelBuilder.Entity("coReport.Models.ReportModels.ManagerReportElement", b =>
-                {
                     b.Property<short>("ReportId")
                         .HasColumnType("smallint");
-
-                    b.Property<short>("ManagerReportId")
-                        .HasColumnType("smallint");
-
-                    b.Property<bool>("IsAcceptable")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsViewable")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Text")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("ReportId", "ManagerReportId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("ManagerReportId");
+                    b.HasIndex("AuthorId");
 
-                    b.ToTable("ManagerReportElements");
+                    b.HasIndex("ReportId");
+
+                    b.ToTable("ManagerReports");
                 });
 
             modelBuilder.Entity("coReport.Models.ReportModels.ProjectManager", b =>
@@ -519,18 +509,9 @@ namespace coReport.Migrations
                         .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("coReport.Models.ReportModels.ManagerReportElement", b =>
-                {
-                    b.HasOne("coReport.Models.ReportModels.ManagerReport", "ManagerReport")
-                        .WithMany("ManagerReportElements")
-                        .HasForeignKey("ManagerReportId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
 
                     b.HasOne("coReport.Models.ReportModels.Report", "Report")
-                        .WithMany("ManagerReportElements")
+                        .WithMany("ManagerReports")
                         .HasForeignKey("ReportId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();

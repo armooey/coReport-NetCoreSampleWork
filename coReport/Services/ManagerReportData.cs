@@ -22,72 +22,36 @@ namespace coReport.Services
             {
                 _context.ManagerReports.Add(report);
                 _context.SaveChanges();
+                CheckUserReportAcceptability(report.ReportId, report.Id);
+                return report;
             }
             catch (Exception e)
             {
                 throw e;
             }
-            return report;
+        }
+        public void Update(ManagerReport report)
+        {
+            try
+            {
+                _context.ManagerReports.Update(report);
+                _context.SaveChanges();
+                CheckUserReportAcceptability(report.ReportId, report.Id);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
-        public IEnumerable<ManagerReport> GetAll()
+        public IEnumerable<ManagerReport> GetAll(short managerId)
         {
-            return  _context.ManagerReports
-                .Include(r => r.ManagerReportElements)
+            return  _context.ManagerReports.Where(mr => mr.AuthorId == managerId)
                 .OrderByDescending(r => r.Date)
                 .ToList();
         }
 
 
-        public ManagerReport Get(short id)
-        {
-            return _context.ManagerReports.Where(mr => mr.Id == id)
-              .Include(mr => mr.ManagerReportElements)
-                .ThenInclude(mre => mre.Report)
-                    .ThenInclude(r => r.Author)
-              .ToList().FirstOrDefault();
-        }
-
-        public void Delete(short id)
-        {
-            try
-            {
-                _context.ManagerReportElements.Where(mre => mre.ManagerReportId == id).Delete();//Delete related manager report elements
-                _context.ManagerReports.Where(r => r.Id == id).Delete();
-                _context.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-
-        public void AddManagerReportElements(IEnumerable<ManagerReportElement> elements)
-        {
-            try
-            {
-                foreach (var element in elements)
-                {
-                    //update existing element
-                    if (_context.ManagerReportElements
-                        .Any(mre => mre.ManagerReportId == element.ManagerReportId && mre.ReportId == element.ReportId))
-                    {
-                        _context.ManagerReportElements.Where(mre => mre.ManagerReportId == element.ManagerReportId && mre.ReportId == element.ReportId)
-                            .Update(mre => new ManagerReportElement { Text = element.Text, IsAcceptable = element.IsAcceptable, IsViewable = element.IsViewable});
-
-                    }
-                    else //insert new element
-                        _context.ManagerReportElements.Add(element);
-                    _context.SaveChanges();
-                    CheckUserReportAcceptability(element.ReportId, element.ManagerReportId);
-                }
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
 
         private void CheckUserReportAcceptability(short reportId, short managerReportId)
         {
@@ -95,7 +59,7 @@ namespace coReport.Services
             {
                 var report = _context.Reports.FirstOrDefault(r => r.Id == reportId);
                 var noOfProjectManagers = _context.ProjectManagers.Count(pm => pm.ReportId == reportId);
-                var noOfNotAcceptedReports = _context.ManagerReportElements.Count(mre => mre.ReportId == reportId && mre.IsAcceptable == false);
+                var noOfNotAcceptedReports = _context.ManagerReports.Count(mr => mr.ReportId == reportId && mr.IsUserReportAcceptable == false);
                 if ((noOfNotAcceptedReports / noOfProjectManagers) > 0.5)
                 {
                     var message = new Message
@@ -117,23 +81,16 @@ namespace coReport.Services
             }
         }
 
-        public ManagerReport GetTodayReport(short authorId)
-        {
-            return _context.ManagerReports.Where(r => r.Date == DateTime.Now.Date && r.AuthorId == authorId)
-                .Include(mr => mr.ManagerReportElements).FirstOrDefault();
-        }
-
-        public IEnumerable<ManagerReport> GetAll(short managerId)
-        {
-            return _context.ManagerReports.Where(mr => mr.AuthorId == managerId)
-                .Include(r => r.ManagerReportElements)
-                .OrderByDescending(r => r.Date)
-                .ToList();
-        }
-
         public int GetReportsCountByDate(DateTime date)
         {
-            return _context.ManagerReports.Count(r => r.Date.Date == date);
+            return _context.ManagerReports.Count(mr => mr.Date.Date == date);
         }
+
+        public ManagerReport GetManagerReportByUserReportId(short id, short managerId)
+        {
+            return _context.ManagerReports.FirstOrDefault(mr => mr.ReportId == id && mr.AuthorId == managerId);
+        }
+
+
     }
 }

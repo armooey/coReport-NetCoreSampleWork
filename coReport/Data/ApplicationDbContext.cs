@@ -21,7 +21,6 @@ namespace coReport.Data
         public DbSet<Project> Projects { get; set; }
         public DbSet<Report> Reports { get; set; }
         public DbSet<ManagerReport> ManagerReports { get; set; }
-        public DbSet<ManagerReportElement> ManagerReportElements { get; set; }
         public DbSet<ProjectManager> ProjectManagers { get; set; }
         public DbSet<UserManager> UserManagers { get; set; }
         public DbSet<Message> Messages { get; set; }
@@ -62,19 +61,9 @@ namespace coReport.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             //relation between MangerReport and Report
-            modelBuilder.Entity<ManagerReportElement>()
-                .HasKey(mre => new {mre.ReportId, mre.ManagerReportId });
-
-            modelBuilder.Entity<ManagerReportElement>()
-                .HasOne(mre => mre.Report)
-                .WithMany(r => r.ManagerReportElements)
-                .HasForeignKey(mre => mre.ReportId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ManagerReportElement>()
-                .HasOne(mre => mre.ManagerReport)
-                .WithMany(mre => mre.ManagerReportElements)
-                .HasForeignKey(mre => mre.ManagerReportId)
+            modelBuilder.Entity<ManagerReport>()
+                .HasOne(mr => mr.Report)
+                .WithMany(r => r.ManagerReports)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //Configuring User-Manager Many To Many relation

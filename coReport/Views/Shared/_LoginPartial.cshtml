@@ -20,7 +20,7 @@
                     }
                     else if (User.IsInRole("مدیر"))
                     {
-                        <a class="dropdown-item" asp-action="Index" asp-controller="Manage" asp-route-userName="@User.Identity.Name" asp-route-returnUrl="@Url.Action("ManageReports", "Manager", new {nav = "unseen" })"
+                        <a class="dropdown-item" asp-action="Index" asp-controller="Manage" asp-route-userName="@User.Identity.Name" asp-route-returnUrl="@Url.Action("ManageReports", "Manager")"
                             title="Manage"><i class="fas fa-cog"></i> تنظیمات</a>
                     }
                     else

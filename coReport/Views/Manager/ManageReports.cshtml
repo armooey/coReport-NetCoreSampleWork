@@ -7,61 +7,64 @@
 
 
 
-<a asp-action="CreateManagerReport" asp-controller="Report" class="btn btn-primary float-left">ثبت گزارش</a>
 
 
-<ul class="nav nav-tabs">
-    <li class="nav-item">
-        @if (ViewData["Navigation"].Equals("today"))
-        {
-            <a class="nav-link active">گزارشات امروز</a>
-        }
-        else
-        {
-            <a class="nav-link" asp-action="ManageReports" asp-route-nav="today">گزارشات امروز</a>
-        }
-    </li>
-    <li class="nav-item">
-        @if (ViewData["Navigation"].Equals("unseen"))
-        {
-            <a class="nav-link active">گزارشات دیده ‌نشده</a>
-        }
-        else
-        {
-            <a class="nav-link" asp-action="ManageReports" asp-route-nav="unseen">گزارشات دیده ‌نشده</a>
-        }
 
-    </li>
-</ul>
-<br />
 <div class="row">
-    <div class="col-md-7">
+    <div class="col-md p-3 box-widget-scrollable" style="height:600px; max-height:600px">
 
-        <h6 class="text-center">گزارشات کاربران</h6>
-        @if (Model.UserReports.Count() == 0)
-        {
-            <div class="text-lg-center"><b>هیچ گزارشی یافت نشد.</b></div>
-        }
-        else
-        {
-            @foreach (ReportViewModel report in Model.UserReports)
-            {
-                <partial name="UserReportPartialView" model="report" />
-            }
-        }
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#allReports">گزارشات امروز</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#unseenReports">گزارشات دیده ‌نشده</a>
+            </li>
+        </ul>
+        <hr />
+        <div class="tab-content">
+            <div id="allReports" class="tab-pane fade">
+                @if (!Model.UserReports.Any())
+                {
+                    <div class="text-lg-center"><b>هیچ گزارشی یافت نشد.</b></div>
+                }
+                else
+                {
+                    @foreach (ReportViewModel report in Model.UserReports)
+                    {
+                        <partial name="UserReportPartialView" model="report" />
+                    }
+                }
+            </div>
+            <div id="unseenReports" class="tab-pane fade show active">
+                @if (!Model.UserReports.Any(ur => ur.IsViewed == false))
+                {
+                    <div class="text-lg-center"><b>هیچ گزارشی یافت نشد.</b></div>
+                }
+                else
+                {
+                    @foreach (ReportViewModel report in Model.UserReports.Where(ur => ur.IsViewed == false))
+                    {
+                        <partial name="UserReportPartialView" model="report" />
+                    }
+                }
+            </div>
+        </div>
     </div>
-    <div class="col-md-5 col-md-offset-2">
-        <h6 class="text-center">گزارشات مدیر</h6>
-        @if (Model.ManagerReports.Count() == 0)
+    <div class="col-md p-3 box-widget-scrollable" style="height:600px; max-height:600px">
+        <h6><b>پیام ها</b></h6>
+        <hr />
+        @if (true)
         {
-            <div class="text-lg-center"><b>هیچ گزارشی یافت نشد.</b></div>
+            <div class="text-lg-center"><b>پیامی موجود نیست.</b></div>
         }
         else
         {
-            @foreach (var report in Model.ManagerReports)
+
+            @*@foreach (var message in Model.Messages)
             {
-                <partial name="ManagerReportPartialView" model="report" />
-            }
+                <partial name="_MessagePartialView" model="message" />
+            }*@
         }
     </div>
 </div>

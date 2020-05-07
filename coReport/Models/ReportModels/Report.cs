@@ -26,6 +26,6 @@ namespace coReport.Models.ReportModels
         public DateTime ExitTime { get; set; }
         public String AttachmentExtension { get; set; }
         public ICollection<ProjectManager> ProjectManagers { get; set; }
-        public ICollection<ManagerReportElement> ManagerReportElements { get; set; }
+        public ICollection<ManagerReport> ManagerReports { get; set; }
     }
 }

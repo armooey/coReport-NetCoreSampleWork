@@ -41,7 +41,7 @@ namespace coReport.Services
             try
             {
                 _context.ProjectManagers.Where(pm => pm.ReportId == id).Delete();//Delete related project manager rows
-                _context.ManagerReportElements.Where(mre => mre.ReportId == id).Delete();//Delete related manager report element
+                _context.ManagerReports.Where(mre => mre.ReportId == id).Delete();//Delete related manager reports
                 _context.Reports.Where(r => r.Id == id).Delete();
                 _context.SaveChanges();
             }
@@ -55,7 +55,7 @@ namespace coReport.Services
         {
             return _context.Reports.Where(r => r.Id == id)
                 .Include(r => r.Author)
-                .Include(r => r.ManagerReportElements)
+                .Include(r => r.ManagerReports)
                 .Include(r => r.ProjectManagers)
                 .Include(r => r.Project)
                 .FirstOrDefault();
@@ -76,23 +76,12 @@ namespace coReport.Services
                 OrderBy(r=>r.Date).ToList();
         }
 
-        public IEnumerable<Report> GetTodayReports(short managerId)
+        public IEnumerable<ProjectManager> GetAllReports(short managerId)
         {
-            return _context.ProjectManagers.Where(pm => pm.ManagerId == managerId && pm.Report.Date.Date == DateTime.Now.Date)
+            return _context.ProjectManagers.Where(pm => pm.ManagerId == managerId)
                 .Include(pm => pm.Report)
                     .ThenInclude(r => r.Author)
-                    .Include(pm => pm.Report.Project)
-                .Select(pm => pm.Report);
-        }
-
-
-        public IEnumerable<Report> GetUnseenReports(short managerId)
-        {
-            return _context.ProjectManagers.Where(pm => pm.ManagerId == managerId && pm.IsViewd == false)
-                .Include(pm => pm.Report)
-                    .ThenInclude(r => r.Author)
-                    .Include(pm => pm.Report.Project)
-                .Select(pm => pm.Report);
+                    .Include(pm => pm.Report.Project);
         }
 
         
@@ -104,9 +93,9 @@ namespace coReport.Services
             {
                 //Deleting elements that manager will be deleted or elements that report author will be deleted.
                 _context.ProjectManagers.Where(pm => pm.ManagerId == id || pm.Report.AuthorId == id).Delete();
-                //Deleting Manager report elements that manager report author will be deleted or elements that report author will be deleted.
-                _context.ManagerReportElements.Where(mre => mre.ManagerReport.AuthorId == id || mre.Report.AuthorId == id).Delete();
-                //Deleting rows that manager will be deleted or author will be deleted.
+                //Deleting Manager reports that manager report author will be deleted or elements that report author will be deleted.
+                _context.ManagerReports.Where(mr => mr.AuthorId == id || mr.Report.AuthorId == id).Delete();
+                //Deleting rows that manager will be deleted or user will be deleted.
                 _context.UserManagers.Where(um => um.ManagerId == id || um.UserId == id).Delete();
                 //Deleting rows that receiver is this user or sender is the user
                 _context.UserMessages.Where(um => um.ReceiverId == id || um.Message.SenderId == id).Delete();
@@ -126,7 +115,7 @@ namespace coReport.Services
             try
             {
                 //update managers if no one of them submited report
-                if (report.ManagerReportElements == null || !report.ManagerReportElements.Any())
+                if (report.ManagerReports == null || !report.ManagerReports.Any())
                 {
                     var projectManagers = _context.ProjectManagers.Where(pm => pm.ReportId == report.Id);
                     foreach(var projectManager in projectManagers)
@@ -183,6 +172,11 @@ namespace coReport.Services
         public int GetReportsCountByDate(DateTime date)
         {
             return _context.Reports.Count(r => r.Date.Date == date);
+        }
+
+        public bool IsViewd(short reportId)
+        {
+            return _context.ProjectManagers.FirstOrDefault(pm => pm.ReportId == reportId).IsViewd;
         }
     }
 }

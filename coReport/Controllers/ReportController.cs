@@ -173,7 +173,7 @@ namespace coReport.Controllers
                 ProjectManagerIds = report.ProjectManagers.Select(pm => pm.ManagerId).ToList(),
                 Title = report.Title,
                 Text = report.Text,
-                IsSubmitedByManager = report.ManagerReportElements != null && report.ManagerReportElements.Any() ? true : false, //If any of project managers submited report with this report
+                IsSubmitedByManager = report.ManagerReports != null && report.ManagerReports.Any() ? true : false, //If any of project managers submited report with this report
                 AttachmentName = report.AttachmentExtension != null ? 
                                 String.Format("{0}-{1}{2}", report.Author.UserName, report.Id, report.AttachmentExtension): null
             };
@@ -251,60 +251,70 @@ namespace coReport.Controllers
         }
 
    
-        [HttpGet]
+        /*
+         * View user reports
+         */
         [Authorize(Roles = "مدیر")]
-        public async Task<IActionResult> CreateManagerReport()
+        public async Task<IActionResult> CheckUserReport(short id)
         {
+            var report = _reportData.Get(id);
             var manager = await _userManager.FindByNameAsync(User.Identity.Name);
-            var managerReport = _managerReportData.GetTodayReport(manager.Id);
-            var reports = _reportData.GetTodayReports(manager.Id);
-            List<ManagerReportElementViewModel> elements = new List<ManagerReportElementViewModel>();
-            foreach (Report report in reports)
+            var managerReport = _managerReportData.GetManagerReportByUserReportId(id, manager.Id);
+            if (report != null)
             {
-                var managerReportElement = report.ManagerReportElements;
-                var element = new ManagerReportElement();
-                if(managerReportElement != null)
-                    element = managerReportElement.FirstOrDefault(mre => mre.ManagerReportId == managerReport.Id);
-                elements.Add(new ManagerReportElementViewModel
+                var reportModel = new ReportViewModel
                 {
-                    ReportId = report.Id,
+                    Id = report.Id,
+                    Title = report.Title,
                     Author = report.Author,
-                    WorkHour = report.ExitTime.Subtract(report.EnterTime),
-                    Text = element.Text ?? null,
-                    IsAccepted = element != null ? element.IsAcceptable:false,
-                    IsViewableByUser = element != null ? element.IsViewable : false,
-                    ProjectName = report.Project.Title
-                });
+                    ProjectName = report.Project.Title,
+                    Text = report.Text,
+                    EnterTime = report.EnterTime,
+                    ExitTime = report.ExitTime,
+                    Date = report.Date,
+                    AttachmentName = report.AttachmentExtension != null ?
+                            String.Format("{0}-{1}{2}", report.Author.UserName, report.Id, report.AttachmentExtension) : null
+                };
+                var managerReportViewModel = new ManagerReportViewModel { UserReport = reportModel };
+                if (managerReport != null)
+                {
+                    managerReportViewModel.Id = managerReport.Id;
+                    managerReportViewModel.Text = managerReport.Text;
+                    managerReportViewModel.IsAcceptable = managerReport.IsUserReportAcceptable;
+                    managerReportViewModel.IsViewableByUser = managerReport.IsCommentViewableByUser;
+                }
+                return View(managerReportViewModel);
             }
-            var managerReportModel = new ManagerReportViewModel
-            {
-                ReportElements = elements
-
-            };
-            return View(managerReportModel);
-
+            return NotFound();
         }
 
-        [HttpPost]
+
+
         [Authorize(Roles = "مدیر")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateManagerReport(ManagerReportViewModel model)
         {
             var manager = await _userManager.FindByNameAsync(User.Identity.Name);
+            var managerReport = _managerReportData.GetManagerReportByUserReportId(model.UserReport.Id, manager.Id);
+            ManagerReport savedManagerReport;
             if (ModelState.IsValid)
             {
-                var managerReport = _managerReportData.GetTodayReport(manager.Id);
-                ManagerReport savedManagerReport;
                 if (managerReport == null) //means that user creating a new manager report
                 {
                     managerReport = new ManagerReport
                     {
                         Date = DateTime.Now.Date,
-                        Author = manager
+                        Author = manager,
+                        Text = model.Text,
+                        IsUserReportAcceptable = model.IsAcceptable,
+                        IsCommentViewableByUser = model.IsViewableByUser,
+                        ReportId = model.UserReport.Id
                     };
                     try
                     {
                         savedManagerReport = _managerReportData.Add(managerReport);
+                        //Change the report status to viewd
+                        _reportData.SetViewed(model.UserReport.Id, manager.Id);
                     }
                     catch (Exception e)
                     {
@@ -315,48 +325,46 @@ namespace coReport.Controllers
                         return RedirectToAction("Error", "Home", errorModel);
                     }
                 }
-                else //means user editing manager report
+                else //means user updating manager report
                 {
                     savedManagerReport = managerReport;
-                }
-
-                //Saving report Elements
-                var managerReportElements = new List<ManagerReportElement>();
-                foreach(var element in model.ReportElements)
-                {
-                    if (element.Text != null)
+                    managerReport.Text = model.Text;
+                    managerReport.IsUserReportAcceptable = model.IsAcceptable;
+                    managerReport.IsCommentViewableByUser = model.IsViewableByUser;
+                    try
                     {
-                        managerReportElements.Add(new ManagerReportElement { 
-                            ManagerReportId = savedManagerReport.Id,
-                            ReportId = element.ReportId,
-                            Text = element.Text,
-                            IsAcceptable = element.IsAccepted,
-                            IsViewable = element.IsViewableByUser
-                        });
-                        //Notify user if manager report is viewable by user
-                        if (element.IsViewableByUser)
+                        _managerReportData.Update(managerReport);
+                    }
+                    catch (Exception e)
+                    {
+                        var errorModel = new ErrorViewModel
                         {
-                            var message = new Message
-                            {
-                                Title = "گزارش مدیر",
-                                Text = element.Text,
-                                Sender = manager,
-                                Type = MessageType.Manager_Report_Notification,
-                                Time = DateTime.Now,
-                                HelperId = String.Concat(savedManagerReport.Id,"-",element.ReportId)
-                            };
-                            var reportAuthor = _reportData.Get(element.ReportId).Author;
-                            _messageService.AddManagerReviewMessage(message, reportAuthor.Id);
-                        }
-                        else
-                        {
-                            _messageService.DeleteManagerReviewMessage(String.Concat(savedManagerReport.Id,"-",element.ReportId));
-                        }
+                            Error = e.Message
+                        };
+                        return RedirectToAction("Error", "Home", errorModel);
                     }
                 }
-                try
+                try 
                 {
-                    _managerReportData.AddManagerReportElements(managerReportElements);
+
+                    //Notify user if manager report is viewable by user
+                    if (model.IsViewableByUser)
+                    {
+                        var message = new Message
+                        {
+                            Title = "گزارش مدیر",
+                            Text = model.Text,
+                            Sender = manager,
+                            Type = MessageType.Manager_Report_Notification,
+                            Time = DateTime.Now,
+                            HelperId = String.Concat(savedManagerReport.Id, "-", model.UserReport.Id)
+                        };
+                        _messageService.AddManagerReviewMessage(message, model.UserReport.Author.Id);
+                    }
+                    else
+                    {
+                        _messageService.DeleteManagerReviewMessage(String.Concat(savedManagerReport.Id, "-", model.UserReport.Id));
+                    }
                 }
                 catch (Exception e)
                 {
@@ -364,36 +372,13 @@ namespace coReport.Controllers
                     {
                         Error = e.Message
                     };
-                    return RedirectToAction("Error","Home",errorModel);
+                    return RedirectToAction("Error", "Home", errorModel);
                 }
-                return RedirectToAction("ManageReports", "Manager",new {nav = "unseen" });
+                return RedirectToAction("ManageReports", "Manager");
             }
             return View(model);
         }
 
-
-
-        [Authorize(Roles = "مدیر")]
-        public IActionResult ViewManagerReport(short id)
-        {
-            var managerReport = _managerReportData.Get(id);
-            var reportElements = new List<ManagerReportElementViewModel>();
-            foreach (var element in managerReport.ManagerReportElements)
-            {
-                reportElements.Add(new ManagerReportElementViewModel
-                {
-                    Text = element.Text,
-                    Author = element.Report.Author,
-                    WorkHour = element.Report.ExitTime.Subtract(element.Report.EnterTime),
-                    ProjectName = element.Report.Project.Title
-                });
-            }
-            var model = new ManagerReportViewModel { 
-                Date = managerReport.Date,
-                ReportElements = reportElements
-            };
-            return View(model);
-        }
 
         [HttpGet("download")]
         public ActionResult DownloadReportAttachment(String fileName)
