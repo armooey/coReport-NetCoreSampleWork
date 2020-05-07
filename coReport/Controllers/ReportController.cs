@@ -1,8 +1,10 @@
 ﻿using coReport.Auth;
 using coReport.Models;
+using coReport.Models.AccountViewModels;
 using coReport.Models.HomeViewModels;
 using coReport.Models.MessageModels;
 using coReport.Models.Operations;
+using coReport.Models.ProjectViewModels;
 using coReport.Models.ReportModels;
 using coReport.Models.ReportViewModel;
 using coReport.Services;
@@ -27,12 +29,14 @@ namespace coReport.Controllers
         private IWebHostEnvironment _webHostEnvironment;
         private IManagerData _managerData;
         private IMessageService _messageService;
+        private IProjectService _projectService;
 
         public ReportController(IReportData reportData, IManagerReportData adminReportData,
             UserManager<ApplicationUser> userManager,
             IWebHostEnvironment webHostEnvironment,
             IManagerData managerData,
-            IMessageService messageService)
+            IMessageService messageService,
+            IProjectService projectService)
         {
             _reportData = reportData;
             _userManager = userManager;
@@ -40,6 +44,7 @@ namespace coReport.Controllers
             _webHostEnvironment = webHostEnvironment;
             _managerData = managerData;
             _messageService = messageService;
+            _projectService = projectService;
         }
 
 
@@ -51,9 +56,29 @@ namespace coReport.Controllers
         public async Task<IActionResult> Create()
         {
             var author = await _userManager.FindByNameAsync(User.Identity.Name);
+            var managers = _managerData.GetManagers(author.Id);
+            var projects = _projectService.GetInProgressProjects();
+            var managerViewModels = new List<UserViewModel>();
+            var projectViewModels = new List<ProjectViewModel>();
+            foreach (var manager in managers)
+            {
+                managerViewModels.Add(new UserViewModel { 
+                    FirstName = manager.FirstName,
+                    LastName = manager.LastName,
+                    Id = manager.Id
+                });
+            }
+            foreach (var project in projects)
+            {
+                projectViewModels.Add(new ProjectViewModel { 
+                    Id = project.Id,
+                    Title = project.Title
+                });
+            }
             var model = new CreateReportViewModel
             {
-                Managers = _managerData.GetManagers(author.Id).ToList()//List of all managers of this user
+                Managers = managerViewModels ,//List of all managers of this user
+                Projects = projectViewModels //All in progress projects
             };
             return View(model);
         }
@@ -79,7 +104,7 @@ namespace coReport.Controllers
                 {
                     Title = model.Title,
                     Text = model.Text,
-                    //ProjectName = model.ProjectName,
+                    ProjectId = model.ProjectId,
                     Author = author,
                     EnterTime = model.EnterTime,
                     ExitTime = model.ExitTime,
@@ -116,17 +141,39 @@ namespace coReport.Controllers
         {
             var report = _reportData.Get(id);
             var author = await _userManager.FindByNameAsync(User.Identity.Name);
+            var projects = _projectService.GetInProgressProjects();
+            var projectViewModels = new List<ProjectViewModel>();
+            var managers = _managerData.GetManagers(author.Id);
+            var managerViewModels = new List<UserViewModel>();
+            foreach (var manager in managers)
+            {
+                managerViewModels.Add(new UserViewModel
+                {
+                    FirstName = manager.FirstName,
+                    LastName = manager.LastName,
+                    Id = manager.Id
+                });
+            }
+            foreach (var project in projects)
+            {
+                projectViewModels.Add(new ProjectViewModel
+                {
+                    Id = project.Id,
+                    Title = project.Title
+                });
+            }
             var model = new CreateReportViewModel
             {
                 Id = report.Id,
                 EnterTime = report.EnterTime,
                 ExitTime = report.ExitTime,
-                //ProjectName = report.ProjectName,
-                Managers = _managerData.GetManagers(author.Id).ToList(),
+                ProjectId = report.ProjectId,
+                Projects = projectViewModels,
+                Managers = managerViewModels,
                 ProjectManagerIds = report.ProjectManagers.Select(pm => pm.ManagerId).ToList(),
                 Title = report.Title,
                 Text = report.Text,
-                IsSubmitedByAdmin = report.ManagerReportElements != null && report.ManagerReportElements.Any() ? true : false, //If any of project managers submited report with this report
+                IsSubmitedByManager = report.ManagerReportElements != null && report.ManagerReportElements.Any() ? true : false, //If any of project managers submited report with this report
                 AttachmentName = report.AttachmentExtension != null ? 
                                 String.Format("{0}-{1}{2}", report.Author.UserName, report.Id, report.AttachmentExtension): null
             };
@@ -155,7 +202,7 @@ namespace coReport.Controllers
                 var report = _reportData.Get(model.Id);
                 report.Title = model.Title;
                 report.Text = model.Text;
-                //report.ProjectName = model.ProjectName;
+                report.ProjectId = model.ProjectId;
                 report.EnterTime = model.EnterTime;
                 report.ExitTime = model.ExitTime;
                 report.Date = DateTime.Now;
@@ -226,7 +273,7 @@ namespace coReport.Controllers
                     Text = element.Text ?? null,
                     IsAccepted = element != null ? element.IsAcceptable:false,
                     IsViewableByUser = element != null ? element.IsViewable : false,
-                    //ProjectName = report.ProjectName
+                    ProjectName = report.Project.Title
                 });
             }
             var managerReportModel = new ManagerReportViewModel
@@ -338,7 +385,7 @@ namespace coReport.Controllers
                     Text = element.Text,
                     Author = element.Report.Author,
                     WorkHour = element.Report.ExitTime.Subtract(element.Report.EnterTime),
-                    //ProjectName = element.Report.ProjectName
+                    ProjectName = element.Report.Project.Title
                 });
             }
             var model = new ManagerReportViewModel { 

@@ -1,5 +1,7 @@
 ﻿using coReport.Auth;
+using coReport.Models.AccountViewModels;
 using coReport.Models.ManagerModels;
+using coReport.Models.ProjectViewModels;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -14,8 +16,8 @@ namespace coReport.Models.ReportViewModel
     {
 
         public short Id { get; set; }
-        public List<ApplicationUser> Managers { get; set; }
-
+        public List<UserViewModel> Managers { get; set; }
+        public List<ProjectViewModel> Projects { get; set; }
 
         [Required(ErrorMessage = "تکمیل فیلد عنوان اجباری است.")]
         [Display(Name = "عنوان")]
@@ -24,13 +26,14 @@ namespace coReport.Models.ReportViewModel
         [Required(ErrorMessage = "تکمیل فیلد گزارش اجباری است.")]
         public String Text { get; set; }
 
-        [Required(ErrorMessage = "تکمیل فیلد نام پروژه اجباری است.")]
-        [Display(Name ="نام پروژه")]
-        public String ProjectName { get; set; }
+        [Required(ErrorMessage = "تکمیل فیلد پروژه اجباری است.")]
+        [Display(Name ="پروژه")]
+        public short ProjectId { get; set; }
 
         [Required(ErrorMessage = "تکمیل فیلد مدیران پروژه اجباری است.")]
         [Display(Name = "مدیران پروژه")]
         public List<short> ProjectManagerIds { get; set; }
+
 
 
         [Required(ErrorMessage = "تکمیل فیلد زمان ورود اجباری است.")]
@@ -48,6 +51,6 @@ namespace coReport.Models.ReportViewModel
 
         public String AttachmentName { get; set; }
 
-        public bool IsSubmitedByAdmin { get; set; }
+        public bool IsSubmitedByManager { get; set; }
     }
 }

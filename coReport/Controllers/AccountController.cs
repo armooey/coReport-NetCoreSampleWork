@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using coReport.Auth;
 using coReport.Models.AccountViewModels;
@@ -171,6 +172,7 @@ namespace coReport.Controllers
             {
                 reportViewModels.Add(new ReportViewModel { 
                     Id = report.Id,
+                    ProjectName = report.Project.Title,
                     Title = report.Title
                 });
             }
@@ -194,7 +196,7 @@ namespace coReport.Controllers
 
 
         /*
-         * Used to get current user profile image. Used in Layout.
+         * Used for getting current user profile image in Layout.
          */
         public IActionResult GetUserImage() 
         {
@@ -202,12 +204,12 @@ namespace coReport.Controllers
             byte[] image;
             try
             {
-                var imagePath = string.Format("{0}\\UserData\\Images\\{1}.jpg", _webHostEnvironment.ContentRootPath, username);
+                var imagePath = Path.Combine(_webHostEnvironment.ContentRootPath, "UserData", "Images", String.Concat(username, ".jpg"));
                 image = System.IO.File.ReadAllBytes(imagePath);
             }
             catch
             {
-                var imagePath = string.Format("{0}\\Images\\user.png", _webHostEnvironment.WebRootPath);
+                var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "user.png");
                 image = System.IO.File.ReadAllBytes(imagePath);
             }
             return File(image, "image/jpeg");

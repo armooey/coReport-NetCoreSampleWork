@@ -57,6 +57,7 @@ namespace coReport.Services
                 .Include(r => r.Author)
                 .Include(r => r.ManagerReportElements)
                 .Include(r => r.ProjectManagers)
+                .Include(r => r.Project)
                 .FirstOrDefault();
         }
 
@@ -71,6 +72,7 @@ namespace coReport.Services
         {
             return _context.Reports.Where(r => r.Author.Id == id).
                 Include(r => r.Author).
+                Include(r => r.Project).
                 OrderBy(r=>r.Date).ToList();
         }
 
@@ -78,7 +80,8 @@ namespace coReport.Services
         {
             return _context.ProjectManagers.Where(pm => pm.ManagerId == managerId && pm.Report.Date.Date == DateTime.Now.Date)
                 .Include(pm => pm.Report)
-                 .ThenInclude(r => r.Author)
+                    .ThenInclude(r => r.Author)
+                    .Include(pm => pm.Report.Project)
                 .Select(pm => pm.Report);
         }
 
@@ -87,7 +90,8 @@ namespace coReport.Services
         {
             return _context.ProjectManagers.Where(pm => pm.ManagerId == managerId && pm.IsViewd == false)
                 .Include(pm => pm.Report)
-                 .ThenInclude(r => r.Author)
+                    .ThenInclude(r => r.Author)
+                    .Include(pm => pm.Report.Project)
                 .Select(pm => pm.Report);
         }
 

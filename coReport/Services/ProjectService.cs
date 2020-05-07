@@ -44,7 +44,12 @@ namespace coReport.Services
 
         public IEnumerable<Project> GetAll()
         {
-            return _context.Projects.OrderBy(p => p.CreateDate).ToList();
+            return _context.Projects.OrderBy(p => p.EndDate).ThenBy(p => p.CreateDate);
+        }
+
+        public IEnumerable<Project> GetInProgressProjects()
+        {
+            return _context.Projects.Where(p => p.EndDate == null);
         }
     }
 }

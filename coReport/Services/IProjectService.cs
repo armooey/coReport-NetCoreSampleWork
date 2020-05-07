@@ -11,5 +11,6 @@ namespace coReport.Services
         public void Add(Project project);
         public IEnumerable<Project> GetAll();
         public void EndProject(short id);
+        public IEnumerable<Project> GetInProgressProjects();
     }
 }

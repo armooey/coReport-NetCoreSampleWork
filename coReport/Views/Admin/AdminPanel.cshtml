@@ -101,13 +101,13 @@
                 {
                     data: userReportCount,
                     label: "گزارشات کارمندان",
-                    borderColor: "#FF2D00",
+                    backgroundColor: "#483b9b",
                     fill: true
                 },
                 {
                     data: managerReportCount,
                     label: "گزارشات مدیران",
-                    borderColor: "#0072FF",
+                    backgroundColor: "#b2812c",
                     fill: true
                 }
             ]
@@ -189,6 +189,7 @@
     $(document).ready(function(){
         $('[data-toggle="popover"]').popover();
         $('.seen-False').attr('style', 'background-color:lightgray');
+        $('.ended-True').attr('style', 'background-color:lightgray');
         $('[data-toggle="popover"]').click(function () {
             $(this).parent().parent().attr('style', 'background-color:white');
         });

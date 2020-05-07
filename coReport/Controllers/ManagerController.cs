@@ -53,7 +53,7 @@ namespace coReport.Controllers
                     Title = report.Title,
                     Author = report.Author,
                     Text = report.Text,
-                    //ProjectName = report.ProjectName,
+                    ProjectName = report.Project.Title,
                     EnterTime = report.EnterTime,
                     ExitTime = report.ExitTime,
                     Date = report.Date
@@ -94,7 +94,7 @@ namespace coReport.Controllers
                     Id = report.Id,
                     Title = report.Title,
                     Author = report.Author,
-                    //ProjectName = report.ProjectName,
+                    ProjectName = report.Project.Title,
                     Text = report.Text,
                     EnterTime = report.EnterTime,
                     ExitTime = report.ExitTime,

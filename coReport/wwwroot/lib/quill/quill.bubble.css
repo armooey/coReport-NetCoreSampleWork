@@ -30,17 +30,17 @@
   padding: 0;
 }
 .ql-editor {
-  box-sizing: border-box;
-  line-height: 1.42;
-  height: 100%;
-  outline: auto;
-  overflow-y: auto;
-  padding: 12px 15px;
-  tab-size: 4;
-  text-align: left;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  background: white;
+    box-sizing: border-box;
+    line-height: 1.42;
+    height: 100%;
+    border: 1px solid;
+    overflow-y: auto;
+    padding: 12px 15px;
+    tab-size: 4;
+    text-align: left;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background: white;
 }
 .ql-editor > * {
   cursor: text;
