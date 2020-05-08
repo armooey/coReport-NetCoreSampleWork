@@ -1,4 +1,6 @@
 ﻿using coReport.Auth;
+using coReport.Models.AccountViewModels;
+using coReport.Models.ProjectViewModels;
 using coReport.Models.ReportViewModel;
 using coReport.Services;
 using Microsoft.AspNetCore.Hosting;
@@ -9,7 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace coReport.Models.Operations
+namespace coReport.Operations
 {
     public static class UserOperations
     {
@@ -40,7 +42,7 @@ namespace coReport.Models.Operations
         }
 
 
-        public static async void SaveReportAttachment(IWebHostEnvironment webHostEnvironment, IFormFile file, String username,
+        public static async void SaveReportAttachment(IWebHostEnvironment webHostEnvironment, IFormFile file, short userId,
             int savedReportId, String lastSavedExtension = null)
         {
             var fileDirectoryPath = Path.Combine(webHostEnvironment.ContentRootPath, "UserData", "Files");
@@ -49,19 +51,50 @@ namespace coReport.Models.Operations
             {
                 Directory.CreateDirectory(fileDirectoryPath);
             }
-            var filePath = Path.Combine(fileDirectoryPath, String.Format("{0}-{1}{2}", username, savedReportId, lastSavedExtension));
+            var filePath = Path.Combine(fileDirectoryPath, String.Format("{0}-{1}{2}", userId, savedReportId, lastSavedExtension));
             //Deleting Existing File with the same name
             if (System.IO.File.Exists(filePath))
             {
                 System.IO.File.Delete(filePath);
             }
-            filePath = Path.Combine(fileDirectoryPath, String.Format("{0}-{1}{2}", username, savedReportId, Path.GetExtension(file.FileName)));
+            filePath = Path.Combine(fileDirectoryPath, String.Format("{0}-{1}{2}", userId, savedReportId, Path.GetExtension(file.FileName)));
             //Retriving file data from stream and saving to server
             using (var localFile = System.IO.File.Create(filePath))
             using (var uploadedFile = file.OpenReadStream())
             {
                 await uploadedFile.CopyToAsync(localFile);
             }
+        }
+
+        public static List<UserViewModel> GetProjectManagerViewModels(short userId, IManagerData managerData)
+        {
+            var managers = managerData.GetManagers(userId);
+            var managerViewModels = new List<UserViewModel>();
+            foreach (var manager in managers)
+            {
+                managerViewModels.Add(new UserViewModel
+                {
+                    FirstName = manager.FirstName,
+                    LastName = manager.LastName,
+                    Id = manager.Id
+                });
+            }
+            return managerViewModels;
+        }
+
+        public static List<ProjectViewModel> GetInProgressProjectViewModels(IProjectService projectService)
+        {
+            var projects = projectService.GetInProgressProjects();
+            var projectViewModels = new List<ProjectViewModel>();
+            foreach (var project in projects)
+            {
+                projectViewModels.Add(new ProjectViewModel
+                {
+                    Id = project.Id,
+                    Title = project.Title
+                });
+            }
+            return projectViewModels;
         }
     }
 }

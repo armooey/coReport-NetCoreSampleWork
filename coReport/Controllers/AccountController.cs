@@ -6,8 +6,8 @@ using coReport.Auth;
 using coReport.Models.AccountViewModels;
 using coReport.Models.MessageModels;
 using coReport.Models.MessageViewModels;
-using coReport.Models.Operations;
 using coReport.Models.ReportViewModel;
+using coReport.Operations;
 using coReport.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -164,16 +164,17 @@ namespace coReport.Controllers
         {
 
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
-            var reports = _reportData.GetByAuthorId(user.Id);
+            var reportManagers = _reportData.GetByAuthorId(user.Id);
             var userMessages = _messageService.GetReceivedMessages(user.Id);
             var reportViewModels = new List<ReportViewModel>();
             var messageViewModels = new List<MessageViewModel>();
-            foreach(var report in reports)
+            foreach(var report in reportManagers)
             {
                 reportViewModels.Add(new ReportViewModel { 
-                    Id = report.Id,
-                    ProjectName = report.Project.Title,
-                    Title = report.Title
+                    Id = report.Report.Id,
+                    ProjectName = report.Report.Project.Title,
+                    Title = report.Report.Title,
+                    IsViewed = report.IsViewd
                 });
             }
             foreach (var userMessage in userMessages)

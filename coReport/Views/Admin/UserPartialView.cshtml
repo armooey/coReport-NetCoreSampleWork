@@ -21,7 +21,7 @@
                     <i class="fas fa-trash-alt"></i> حذف
                 </button>
                 <a class="float-left btn btn-primary span-control" style="margin-top:-10px" asp-action="Index" asp-controller="Manage" 
-                   asp-route-userName="@Model.Username" asp-route-returnUrl="@Url.Action("ManageUsers","Admin")"><i class="fas fa-pencil-alt"></i> ویرایش
+                   asp-route-userName="@Model.Username" asp-route-returnUrl="@Url.Action("ManageUsers","Admin")"><i class="fas fa-edit"></i> ویرایش
                 </a>
                 @if (!Model.IsActive)
                 {

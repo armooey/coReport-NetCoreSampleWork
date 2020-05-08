@@ -1,16 +1,17 @@
-﻿using coReport.Auth;
+﻿using coReport.CustomValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace coReport.Models.ManageViewModels
 {
     public class IndexViewModel
     {
         public String Username { get; set; }
+        [Display(Name = "عکس پروفایل")]
+        [ImageValidation(ErrorMessage = "فرمت مناسبی برای تصویر انتخاب کنید.")]
+        public IFormFile Image { get; set; }
 
         [Display(Name = "شماره تلفن")]
         [Phone]
@@ -24,5 +25,7 @@ namespace coReport.Models.ManageViewModels
         [Required(ErrorMessage = "تکمیل فیلد نام خانوادگی اجباری است.")]
         [Display(Name = "نام خانوادگی")]
         public String LastName { get; set; }
+
+        public byte[] ImageByte { get; set; } //Byte data of user image
     }
 }

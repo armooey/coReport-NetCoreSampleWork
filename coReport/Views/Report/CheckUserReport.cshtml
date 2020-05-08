@@ -44,16 +44,22 @@
         @if (Model.UserReport.AttachmentName != null)
         {
             <div>
-                <a class="btn btn-link" asp-controller="Report" asp-action="DownloadReportAttachment" asp-route-fileName="@Model.UserReport.AttachmentName">
-                    <i class="fas fa-paperclip"></i> دانلود ضمیمه
-                </a>
+                @{
+                    Html.BeginForm("DownloadReportAttachment", "Report", FormMethod.Get);
+                    {
+                        <input type="hidden" value="@Model.UserReport.AttachmentName" name="fileName" />
+                        <button class="btn btn-link" type="submit"><i class="fas fa-paperclip"></i> دانلود ضمیمه</button>
+                    }
+                    Html.EndForm();
+                }
             </div>
         }
         else
         {
-            <div class="text-muted">ضمیمه‌ای موجود نیست.</div>
+            <div class="text-muted"><small>ضمیمه‌ای موجود نیست.</small></div>
         }
-        <hr />
+
+        <hr style="border: 1px solid gray"/>
         <form asp-controller="Report" asp-action="CreateManagerReport" method="post" class="form-horizontal" role="form">
             <input asp-for="UserReport.Id" type="hidden" />
             <input asp-for="UserReport.Author.Id" type="hidden" />
@@ -64,7 +70,7 @@
                     <span asp-validation-for="Text" class="text-danger"></span>
                 </div>
             </div>
-            <div class="row">
+            <div class="row form-group">
                 <div class="form-group">
                     <label asp-for="IsAcceptable" class="col-md control-label"></label>
                     <div class="col-md">
@@ -84,6 +90,8 @@
                     </div>
                 </div>
             </div>
+
+
             <button type="submit" class="btn btn-primary">ثبت</button>
             <a class="btn btn-secondary" asp-controller="Manager" asp-action="ManageReports">بازگشت</a>
         </form>

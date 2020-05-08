@@ -18,6 +18,12 @@ namespace coReport.Services
             _context = context;
         }
 
+        public IEnumerable<ApplicationUser> GetEmployees(short managerId)
+        {
+            return _context.UserManagers.Where(um => um.ManagerId == managerId)
+                .Include(um => um.User).Select(um => um.User);
+        }
+
         public IEnumerable<ApplicationUser> GetManagers(short userId)
         {
             return _context.UserManagers.Where(um => um.UserId == userId)

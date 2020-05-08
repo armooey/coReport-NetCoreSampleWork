@@ -15,7 +15,7 @@ namespace coReport.Models.ReportViewModel
         public String Text { get; set; }
         [Display(Name = "وضعیت گزارش کارمند")]
         public bool IsAcceptable { get; set; }
-        [Display(Name = "مشاهده‌پذیری")]
+        [Display(Name = "مشاهده‌پذیری گزارش مدیر")]
         public bool IsViewableByUser { get; set; }
         public ReportViewModel UserReport { get; set; }
     }

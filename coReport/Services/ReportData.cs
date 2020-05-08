@@ -68,12 +68,12 @@ namespace coReport.Services
                 .OrderBy(r => r.Date).ToList();
         }
 
-        public IEnumerable<Report> GetByAuthorId(short id)
+        public IEnumerable<ProjectManager> GetByAuthorId(short id)
         {
-            return _context.Reports.Where(r => r.Author.Id == id).
-                Include(r => r.Author).
-                Include(r => r.Project).
-                OrderBy(r=>r.Date).ToList();
+            return _context.ProjectManagers.Where(r => r.Report.Author.Id == id)
+                .Include(r => r.Report.Author)
+                .Include(r => r.Report.Project)
+                .OrderByDescending(r=>r.Report.Date).ToList();
         }
 
         public IEnumerable<ProjectManager> GetAllReports(short managerId)
@@ -81,7 +81,8 @@ namespace coReport.Services
             return _context.ProjectManagers.Where(pm => pm.ManagerId == managerId)
                 .Include(pm => pm.Report)
                     .ThenInclude(r => r.Author)
-                    .Include(pm => pm.Report.Project);
+                    .Include(pm => pm.Report.Project)
+                    .OrderByDescending(pm => pm.Report.Date);
         }
 
         
@@ -174,9 +175,9 @@ namespace coReport.Services
             return _context.Reports.Count(r => r.Date.Date == date);
         }
 
-        public bool IsViewd(short reportId)
+        public IEnumerable<Report> GetTodayReportsOfUser(short id)
         {
-            return _context.ProjectManagers.FirstOrDefault(pm => pm.ReportId == reportId).IsViewd;
+            return _context.Reports.Where(r => r.AuthorId == id && r.Date.Date == DateTime.Now.Date);
         }
     }
 }

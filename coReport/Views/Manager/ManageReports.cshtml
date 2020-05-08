@@ -1,21 +1,35 @@
 ﻿@using coReport.Models.ReportViewModel
-@model UserAndManagerReportViewModel
+@model ReportsManagementViewModel
 
 @{
     ViewData["Title"] = "گزارشات";
 }
 
-
-
-
-
-
+    <div class="row">
+        @{
+            Html.BeginForm("GetDailyReport", "Manager", FormMethod.Get);
+            {
+                <input type="hidden" value="@Model.ManagerId" name="managerId" />
+                <button class="btn btn-info" style="margin-right:30px" type="submit">گزارش روزانه</button>
+            }
+            Html.EndForm();
+        }
+        @{
+            Html.BeginForm("GetMonthlyReport", "Manager", FormMethod.Get);
+            {
+                <input type="hidden" value="@Model.ManagerId" name="managerId" />
+                <button class="btn btn-info" style="margin-right:5px" type="submit">گزارش ماهانه</button>
+            }
+            Html.EndForm();
+        }
+    </div>
+<hr />
 <div class="row">
-    <div class="col-md p-3 box-widget-scrollable" style="height:600px; max-height:600px">
+    <div class="col-md p-3 box-widget-scrollable" style="height:550px; max-height:550px">
 
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#allReports">گزارشات امروز</a>
+                <a class="nav-link" data-toggle="tab" href="#allReports">همه گزارشات</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link active" data-toggle="tab" href="#unseenReports">گزارشات دیده ‌نشده</a>
@@ -51,20 +65,20 @@
             </div>
         </div>
     </div>
-    <div class="col-md p-3 box-widget-scrollable" style="height:600px; max-height:600px">
+    <div class="col-md p-3 box-widget-scrollable" style="height:550px; max-height:550px">
         <h6><b>پیام ها</b></h6>
         <hr />
-        @if (true)
+        @if (!Model.Messages.Any())
         {
             <div class="text-lg-center"><b>پیامی موجود نیست.</b></div>
         }
         else
         {
 
-            @*@foreach (var message in Model.Messages)
+            @foreach (var message in Model.Messages)
             {
                 <partial name="_MessagePartialView" model="message" />
-            }*@
+            }
         }
     </div>
 </div>

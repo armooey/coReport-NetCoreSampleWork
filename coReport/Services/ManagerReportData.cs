@@ -47,8 +47,19 @@ namespace coReport.Services
         public IEnumerable<ManagerReport> GetAll(short managerId)
         {
             return  _context.ManagerReports.Where(mr => mr.AuthorId == managerId)
+                .Include(r => r.Report)
+                    .ThenInclude(r => r.Author)
+                    .Include(r => r.Report.Project)
                 .OrderByDescending(r => r.Date)
                 .ToList();
+        }
+        public IEnumerable<ManagerReport> GetTodayReports(short managerId)
+        {
+            return  _context.ManagerReports.Where(mr => mr.AuthorId == managerId && mr.Date.Date == DateTime.Now.Date)
+                .Include(r => r.Report)
+                    .ThenInclude(r => r.Author)
+                    .Include(r => r.Report.Project)
+                .OrderByDescending(r => r.Date);
         }
 
 

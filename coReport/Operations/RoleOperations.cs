@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace coReport.Models.Operations
+namespace coReport.Operations
 {
     public static class RoleOperations
     {

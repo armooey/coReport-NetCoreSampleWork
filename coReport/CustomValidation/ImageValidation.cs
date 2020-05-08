@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace coReport.Models.CustomValidation
+namespace coReport.CustomValidation
 {
     //Custom Validation for Image Extension
     public class ImageValidation: ValidationAttribute

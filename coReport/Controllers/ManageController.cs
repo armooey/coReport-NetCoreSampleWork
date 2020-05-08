@@ -1,13 +1,14 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using coReport.Auth;
 using coReport.Models.ManageViewModels;
-using coReport.Models.Operations;
+using coReport.Operations;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace coReport.Controllers
 {
@@ -18,15 +19,18 @@ namespace coReport.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole<short>> _roleManager;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         public ManageController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        RoleManager<IdentityRole<short>> roleManager)
+        RoleManager<IdentityRole<short>> roleManager,
+        IWebHostEnvironment webHostEnvironment)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _webHostEnvironment = webHostEnvironment;
         }
 
 
@@ -40,12 +44,24 @@ namespace coReport.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             var user = await _userManager.FindByNameAsync(userName);
             ViewData["UserName"] = userName;
+            byte[] image;
+            try
+            {
+                var imagePath = Path.Combine(_webHostEnvironment.ContentRootPath, "UserData", "Images", String.Format("{0}.jpg", user.UserName));
+                image = System.IO.File.ReadAllBytes(imagePath);
+            }
+            catch
+            {
+                image = null;
+            }
+
             var model = new IndexViewModel
             {
                 Username = user.UserName,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                PhoneNumber = user.PhoneNumber
+                PhoneNumber = user.PhoneNumber,
+                ImageByte = image
                
             };
             return View(model);
@@ -61,8 +77,12 @@ namespace coReport.Controllers
             user.LastName = model.LastName;
             user.PhoneNumber = model.PhoneNumber;
             var result = await _userManager.UpdateAsync(user);
-            if(result.Succeeded)
-                return RedirectToAction("Index",new {userName = model.Username });
+            if (result.Succeeded)
+            { 
+                if(model.Image != null)
+                    UserOperations.SaveProfileImage(_webHostEnvironment, model.Image, model.Username);
+                return RedirectToAction("Index",new {userName = model.Username, returnUrl = returnUrl });
+            }
             ModelState.AddModelError(String.Empty, "مشکل در بروزرسانی اطلاعات کاربر.");
             return View(model);
         }
@@ -97,7 +117,7 @@ namespace coReport.Controllers
                 user.Email = model.Email;
                 var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)
-                    return RedirectToAction("Index", new { userName = model.Username });
+                    return RedirectToAction("Index", new { userName = model.Username, returnUrl = returnUrl });
                 ModelState.AddModelError(String.Empty, "مشکل در بروزرسانی اطلاعات کاربر.");
                 return View(model);
             }
@@ -151,7 +171,7 @@ namespace coReport.Controllers
                 //applying user update
                 var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)
-                    return RedirectToAction("Index", new { userName = model.Username });
+                    return RedirectToAction("Index", new { userName = model.Username, returnUrl = returnUrl });
                 ModelState.AddModelError(String.Empty, "مشکل در بروزرسانی اطلاعات کاربر.");
                 return View(model);
             }
@@ -186,7 +206,7 @@ namespace coReport.Controllers
                 if (result.Succeeded)
                 {
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction(nameof(Index), new {userName =  model.Username });
+                    return RedirectToAction(nameof(Index), new {userName =  model.Username, returnUrl = returnUrl });
                 }
                 ModelState.AddModelError(String.Empty, "مشکل در بروزرسانی اطلاعات کاربر.");
                 return View(model);

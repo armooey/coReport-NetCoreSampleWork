@@ -57,6 +57,17 @@
             });
 
         });
+        function NotDeletableAlert()
+        {
+            bootbox.alert({
+                message: "به دلیل ثبت گزارش مدیر، امکان حذف وجود ندارد.",
+                buttons: {
+                    ok: {
+                        label: 'بستن'
+                    }
+                }
+            });
+        }
 
         function DeleteReport(id) {
             bootbox.confirm({

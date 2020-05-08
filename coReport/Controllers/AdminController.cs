@@ -1,15 +1,12 @@
 ﻿using coReport.Auth;
-using coReport.Models;
 using coReport.Models.AccountViewModels;
 using coReport.Models.AdminViewModels;
 using coReport.Models.HomeViewModels;
 using coReport.Models.MessageModels;
 using coReport.Models.MessageViewModels;
-using coReport.Models.Operations;
 using coReport.Models.ProjectModels;
 using coReport.Models.ProjectViewModels;
-using coReport.Models.ReportModels;
-using coReport.Models.ReportViewModel;
+using coReport.Operations;
 using coReport.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;

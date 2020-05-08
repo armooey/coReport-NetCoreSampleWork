@@ -19,6 +19,7 @@ namespace coReport.Models.ReportViewModel
         public List<UserViewModel> Managers { get; set; }
         public List<ProjectViewModel> Projects { get; set; }
 
+        public short AuthorId { get; set; }
         [Required(ErrorMessage = "تکمیل فیلد عنوان اجباری است.")]
         [Display(Name = "عنوان")]
         public String Title { get; set; }

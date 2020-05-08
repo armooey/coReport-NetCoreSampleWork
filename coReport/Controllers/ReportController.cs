@@ -1,12 +1,11 @@
 ﻿using coReport.Auth;
-using coReport.Models;
 using coReport.Models.AccountViewModels;
 using coReport.Models.HomeViewModels;
 using coReport.Models.MessageModels;
-using coReport.Models.Operations;
 using coReport.Models.ProjectViewModels;
 using coReport.Models.ReportModels;
 using coReport.Models.ReportViewModel;
+using coReport.Operations;
 using coReport.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -56,46 +55,30 @@ namespace coReport.Controllers
         public async Task<IActionResult> Create()
         {
             var author = await _userManager.FindByNameAsync(User.Identity.Name);
-            var managers = _managerData.GetManagers(author.Id);
-            var projects = _projectService.GetInProgressProjects();
-            var managerViewModels = new List<UserViewModel>();
-            var projectViewModels = new List<ProjectViewModel>();
-            foreach (var manager in managers)
-            {
-                managerViewModels.Add(new UserViewModel { 
-                    FirstName = manager.FirstName,
-                    LastName = manager.LastName,
-                    Id = manager.Id
-                });
-            }
-            foreach (var project in projects)
-            {
-                projectViewModels.Add(new ProjectViewModel { 
-                    Id = project.Id,
-                    Title = project.Title
-                });
-            }
             var model = new CreateReportViewModel
             {
-                Managers = managerViewModels ,//List of all managers of this user
-                Projects = projectViewModels //All in progress projects
+                AuthorId = author.Id,
+                Managers = UserOperations.GetProjectManagerViewModels(author.Id, _managerData) ,//List of all managers of this user
+                Projects = UserOperations.GetInProgressProjectViewModels(_projectService) //All in progress projects
             };
             return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateReportViewModel model)
+        public IActionResult Create(CreateReportViewModel model)
         {
+            model.Managers = UserOperations.GetProjectManagerViewModels(model.AuthorId, _managerData);
+            model.Projects = UserOperations.GetInProgressProjectViewModels(_projectService);
             if (ModelState.IsValid)
             {
-                var author = await _userManager.FindByNameAsync(User.Identity.Name);
-                if (author == null)
+                var todayReports = _reportData.GetTodayReportsOfUser(model.AuthorId);
+                if (todayReports.Any(r => r.ProjectId == model.ProjectId))
                 {
-                    ModelState.AddModelError("", "نمی‌توان گزارش را ثبت کرد!");
+                    ModelState.AddModelError("", "امکان ثبت گزارش به دلیل وجود گزارشی به تاریخ امروز برای این پروژه وجود ندارد.");
                     return View(model);
                 }
-                if (model.EnterTime > model.ExitTime)
+                if (model.EnterTime >= model.ExitTime)
                 {
                     ModelState.AddModelError("", "زمان ورود و خروج را بررسی کنید.");
                     return View(model);
@@ -105,7 +88,7 @@ namespace coReport.Controllers
                     Title = model.Title,
                     Text = model.Text,
                     ProjectId = model.ProjectId,
-                    Author = author,
+                    AuthorId = model.AuthorId,
                     EnterTime = model.EnterTime,
                     ExitTime = model.ExitTime,
                     Date = DateTime.Now
@@ -116,7 +99,7 @@ namespace coReport.Controllers
                     //Save report Attachment
                     if (model.Attachment != null)
                     {
-                        UserOperations.SaveReportAttachment(_webHostEnvironment, model.Attachment, author.UserName, savedReport.Id);
+                        UserOperations.SaveReportAttachment(_webHostEnvironment, model.Attachment, model.AuthorId, savedReport.Id);
                         _reportData.UpdateAttachment(savedReport.Id, Path.GetExtension(model.Attachment.FileName));
                     }
                 }
@@ -137,45 +120,25 @@ namespace coReport.Controllers
          * Edit user report
          */
         [HttpGet]
-        public async Task<IActionResult> Edit(short id)
+        public IActionResult Edit(short id)
         {
             var report = _reportData.Get(id);
-            var author = await _userManager.FindByNameAsync(User.Identity.Name);
-            var projects = _projectService.GetInProgressProjects();
-            var projectViewModels = new List<ProjectViewModel>();
-            var managers = _managerData.GetManagers(author.Id);
-            var managerViewModels = new List<UserViewModel>();
-            foreach (var manager in managers)
-            {
-                managerViewModels.Add(new UserViewModel
-                {
-                    FirstName = manager.FirstName,
-                    LastName = manager.LastName,
-                    Id = manager.Id
-                });
-            }
-            foreach (var project in projects)
-            {
-                projectViewModels.Add(new ProjectViewModel
-                {
-                    Id = project.Id,
-                    Title = project.Title
-                });
-            }
+            
             var model = new CreateReportViewModel
             {
                 Id = report.Id,
+                AuthorId = report.AuthorId,
                 EnterTime = report.EnterTime,
                 ExitTime = report.ExitTime,
                 ProjectId = report.ProjectId,
-                Projects = projectViewModels,
-                Managers = managerViewModels,
+                Managers = UserOperations.GetProjectManagerViewModels(report.AuthorId, _managerData),
+                Projects = UserOperations.GetInProgressProjectViewModels(_projectService),
                 ProjectManagerIds = report.ProjectManagers.Select(pm => pm.ManagerId).ToList(),
                 Title = report.Title,
                 Text = report.Text,
                 IsSubmitedByManager = report.ManagerReports != null && report.ManagerReports.Any() ? true : false, //If any of project managers submited report with this report
                 AttachmentName = report.AttachmentExtension != null ? 
-                                String.Format("{0}-{1}{2}", report.Author.UserName, report.Id, report.AttachmentExtension): null
+                                String.Format("{0}-{1}{2}", report.AuthorId, report.Id, report.AttachmentExtension): null
             };
            
 
@@ -184,17 +147,13 @@ namespace coReport.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(CreateReportViewModel model)
+        public IActionResult Edit(CreateReportViewModel model)
         {
+            model.Managers = UserOperations.GetProjectManagerViewModels(model.AuthorId, _managerData);
+            model.Projects = UserOperations.GetInProgressProjectViewModels(_projectService);
             if (ModelState.IsValid)
             {
-                var author = await _userManager.FindByNameAsync(User.Identity.Name);
-                if (author == null)
-                {
-                    ModelState.AddModelError("", "نمی‌توان گزارش را ثبت کرد!");
-                    return View(model);
-                }
-                if (model.EnterTime > model.ExitTime)
+                if (model.EnterTime >= model.ExitTime)
                 {
                     ModelState.AddModelError("", "زمان ورود و خروج را بررسی کنید.");
                     return View(model);
@@ -213,7 +172,7 @@ namespace coReport.Controllers
                     //update attachment if user provided new one
                     if (model.Attachment != null)
                     {
-                        UserOperations.SaveReportAttachment(_webHostEnvironment, model.Attachment, author.UserName, report.Id, report.AttachmentExtension);
+                        UserOperations.SaveReportAttachment(_webHostEnvironment, model.Attachment, model.AuthorId, report.Id, report.AttachmentExtension);
                         _reportData.UpdateAttachment(report.Id, Path.GetExtension(model.Attachment.FileName));
                     }
                 }
@@ -273,7 +232,7 @@ namespace coReport.Controllers
                     ExitTime = report.ExitTime,
                     Date = report.Date,
                     AttachmentName = report.AttachmentExtension != null ?
-                            String.Format("{0}-{1}{2}", report.Author.UserName, report.Id, report.AttachmentExtension) : null
+                            String.Format("{0}-{1}{2}", report.AuthorId, report.Id, report.AttachmentExtension) : null
                 };
                 var managerReportViewModel = new ManagerReportViewModel { UserReport = reportModel };
                 if (managerReport != null)

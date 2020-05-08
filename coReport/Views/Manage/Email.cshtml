@@ -7,13 +7,7 @@
 
 <form asp-controller="Manage" asp-action="Email" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal" role="form">
     <div asp-validation-summary="All" class="text-danger"></div>
-    <div hidden="hidden" class="form-group">
-        <label asp-for="Username" class="col-md-2 control-label"></label>
-        <div class="col-md-4">
-            <input asp-for="Username" class="form-control" />
-            <span asp-validation-for="Username" class="text-danger"></span>
-        </div>
-    </div>
+    <input asp-for="Username" hidden="hidden" class="form-control" />
 
     <div class="form-group">
         <label asp-for="Email" class="col-md-2 control-label"></label>
