@@ -17,5 +17,6 @@ namespace coReport.Models.ReportModels
         public DateTime Date { get; set; }
         public bool IsUserReportAcceptable { get; set; }
         public bool IsCommentViewableByUser { get; set; }
+        public short ReviewMessageId  { get; set; }
     }
 }

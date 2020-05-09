@@ -68,12 +68,13 @@ namespace coReport.Services
                 .OrderBy(r => r.Date).ToList();
         }
 
-        public IEnumerable<ProjectManager> GetByAuthorId(short id)
+        public IEnumerable<Report> GetByAuthorId(short id)
         {
-            return _context.ProjectManagers.Where(r => r.Report.Author.Id == id)
-                .Include(r => r.Report.Author)
-                .Include(r => r.Report.Project)
-                .OrderByDescending(r=>r.Report.Date).ToList();
+            return _context.Reports.Where(r => r.Author.Id == id)
+                .Include(r => r.Author)
+                .Include(r => r.Project)
+                .Include(r => r.ProjectManagers)
+                .OrderByDescending(r=>r.Date).ToList();
         }
 
         public IEnumerable<ProjectManager> GetAllReports(short managerId)

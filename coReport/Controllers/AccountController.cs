@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using coReport.Auth;
 using coReport.Models.AccountViewModels;
 using coReport.Models.MessageModels;
-using coReport.Models.MessageViewModels;
 using coReport.Models.ReportViewModel;
 using coReport.Operations;
 using coReport.Services;
@@ -164,33 +164,22 @@ namespace coReport.Controllers
         {
 
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
-            var reportManagers = _reportData.GetByAuthorId(user.Id);
-            var userMessages = _messageService.GetReceivedMessages(user.Id);
+            var reports = _reportData.GetByAuthorId(user.Id);
             var reportViewModels = new List<ReportViewModel>();
-            var messageViewModels = new List<MessageViewModel>();
-            foreach(var report in reportManagers)
+            foreach(var report in reports)
             {
                 reportViewModels.Add(new ReportViewModel { 
-                    Id = report.Report.Id,
-                    ProjectName = report.Report.Project.Title,
-                    Title = report.Report.Title,
-                    IsViewed = report.IsViewd
+                    Id = report.Id,
+                    ProjectName = report.Project.Title,
+                    Date = report.Date,
+                    Title = report.Title,
+                    IsViewed = report.ProjectManagers.Any(pm => pm.IsViewd == true)
                 });
             }
-            foreach (var userMessage in userMessages)
-            {
-                messageViewModels.Add(new MessageViewModel { 
-                    Id = userMessage.Message.Id,
-                    Title = userMessage.Message.Title,
-                    Text = userMessage.Message.Text,
-                    AuthorName = String.Concat(userMessage.Message.Sender.FirstName," ", userMessage.Message.Sender.LastName),
-                    Type = userMessage.Message.Type,
-                    IsViewed = userMessage.IsViewd
-                });
-            }
+
             var userReportViewModel = new UserReportViewModel { 
                 Reports = reportViewModels,
-                Messages = messageViewModels
+                Messages = UserOperations.GetMessageViewModels(_messageService, user.Id)
             };
             return View(userReportViewModel);
         }

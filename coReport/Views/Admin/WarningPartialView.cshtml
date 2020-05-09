@@ -1,0 +1,18 @@
+﻿@using coReport.Models.AdminViewModels
+@model WarningViewModel
+
+<div class="border border-dark p-2 rounded user-card">
+    <div class="col">
+        <h6 style="color:red"><i class="fas fa-exclamation-triangle"></i> <b>@Model.Title</b></h6>
+        <span class="span-control"><small><i class="far fa-clock"></i> @Model.ElapsedTime ساعت از ایجاد اخطار گذشته</small></span>
+        @if (Model.IsViewed)
+        {
+            <span class="span-control">مشاهده شده </span>
+        }
+        else
+        {
+            <span class="span-control text-danger">مشاهده نشده </span>
+        }
+        <span class="span-control"><i class="fas fa-user"></i> @Model.ReceiverName</span>
+    </div>
+</div>

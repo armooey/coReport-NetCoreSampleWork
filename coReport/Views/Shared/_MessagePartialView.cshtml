@@ -2,31 +2,45 @@
 @using coReport.Models.MessageModels
 @model MessageViewModel
 
-<div class="border border-dark p-3 rounded user-card seen-@Model.IsViewed">
+<div class="border border-dark p-2 rounded user-card seen-@Model.IsViewed">
     <div class="col">
-        @if (Model.Type == MessageType.System_Notification || Model.Type == MessageType.Manager_Report_Notification)
+        @if (Model.Type == MessageType.System_Notification || Model.Type == MessageType.Manager_Review_Notification)
         {
-            <span><i class="fas fa-desktop"></i> <b>@Model.Title</b></span>
+            <h6><i class="fas fa-desktop"></i> <b>@Model.Title</b></h6>
         }
-        else if(Model.Type == MessageType.Warning)
+        else if (Model.Type == MessageType.Warning)
         {
-            <span style="color:red"><i class="fas fa-exclamation-triangle"></i> <b>@Model.Title</b></span>
+            <h6 style="color:red"><i class="fas fa-exclamation-triangle"></i> <b>@Model.Title</b></h6>
         }
 
-        @if (Model.Type == MessageType.Manager_Report_Notification)
+        @if (Model.Type == MessageType.Manager_Review_Notification)
         {
             <span class="span-control"><i class="fas fa-user-tie"></i> @Model.AuthorName</span>
         }
-        else
-        { 
+        else if (Model.Type != MessageType.Warning)
+        {
             <span class="span-control"> @Model.AuthorName</span>
         }
+        <span class="span-control"><small><i class="fas fa-calendar-alt"></i> @Model.Time.ToString("MM/dd/yyyy")</small></span>
+        <span><small><i class="far fa-clock"></i> @Model.Time.TimeOfDay.ToString("hh\\:mm")</small></span>
 
-        <button onclick="ViewMessage(@Model.Id)" data-toggle="popover" data-trigger="focus" title="@Model.Title" data-content="@Model.Text"
-                class="btn btn-primary float-left span-control" style="margin-top: -6px">
-            <i class="far fa-eye"></i> مشاهده
-        </button>
-        <button class="btn btn-danger float-left span-control" onclick="DeleteMessage(@Model.Id)" style="margin-top:-6px">
+
+        @if (Model.IsViewed)
+        {
+            <button data-toggle="popover" data-trigger="focus" title="@Model.Title" data-content="@Model.Text"
+                    class="btn btn-primary float-left span-control" style="margin-top: -15px">
+                <i class="far fa-eye"></i> مشاهده
+            </button>
+        }
+        else
+        {
+            <button onclick="ViewMessage(@Model.Id)" data-toggle="popover" data-trigger="focus" title="@Model.Title" data-content="@Model.Text"
+                    class="btn btn-primary float-left span-control" style="margin-top: -15px">
+                <i class="far fa-eye"></i> مشاهده
+            </button>
+        }
+
+        <button class="btn btn-danger float-left span-control" onclick="DeleteMessage(@Model.Id)" style="margin-top:-15px">
             <i class="fas fa-trash-alt"></i> حذف
         </button>
     </div>

@@ -38,19 +38,32 @@ namespace coReport.Services
             }
         }
 
-        public void AddManagerReviewMessage(Message message, short receiverId)
+        public void AddManagerReviewMessage(Message message, short managerReportId, short receiverId)
         {
             try
             {
-                if (_context.Messages.Any(m => m.HelperId == message.HelperId && m.Title == "گزارش مدیر"))
-                    _context.Messages.Where(m => m.HelperId == message.HelperId).Update(m => new Message { Text = message.Text, Time = DateTime.Now });
-                else
+                var managerReport = _context.ManagerReports.FirstOrDefault(mr => mr.Id == managerReportId);
+                if (managerReport != null)
                 {
-                    _context.Messages.Add(message);
-                    _context.SaveChanges();
-                    _context.UserMessages.Add(new UserMessage { MessageId = message.Id, ReceiverId = receiverId });
+                    //Check if review message exists then update message
+                    if (managerReport != null && _context.Messages.Any(m => m.Id == managerReport.ReviewMessageId))
+                    {
+                        _context.Messages.Where(m => m.Id == managerReport.ReviewMessageId)
+                            .Update(m => new Message { Text = message.Text, Time = DateTime.Now });
+                        _context.UserMessages.Where(um => um.MessageId == managerReport.ReviewMessageId
+                                                            && um.ReceiverId == receiverId)
+                            .Update(um => new UserMessage { IsViewd = false });
+                    }
+                    else //Create new review message
+                    {
+                        _context.Messages.Add(message);
+                        _context.SaveChanges();
+                        _context.UserMessages.Add(new UserMessage { MessageId = message.Id, ReceiverId = receiverId });
+                        managerReport.ReviewMessageId = message.Id;
+                        _context.ManagerReports.Update(managerReport);
+                    }
+                    _context.SaveChanges(); 
                 }
-                _context.SaveChanges();
             }
             catch (Exception e)
             {
@@ -62,46 +75,11 @@ namespace coReport.Services
         {
             try
             {
+                const short ADMIN_ID = 1;
                 _context.Messages.Add(message);
                 _context.SaveChanges();
-                _context.UserMessages.Add(new UserMessage { MessageId = message.Id, ReceiverId = 1 });
+                _context.UserMessages.Add(new UserMessage { MessageId = message.Id, ReceiverId = ADMIN_ID });
                 _context.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-        }
-
-        public void CreateSystemNotifications()
-        {
-            try
-            {
-                var unseenAlerts = _context.UserMessages.Where(um => um.Message.Type == MessageType.Warning && um.IsViewd == false
-                                                                     && um.Message.Time <= DateTime.Now.AddHours(-12))
-                                                        .Include(um => um.Receiver).Include(um => um.Message).ToList();
-
-                foreach (var unseenAlert in unseenAlerts)
-                {
-                    if (!_context.Messages.Any(m => m.HelperId == unseenAlert.Message.HelperId && m.Title == "اخطار مشاهده نشده"))
-                    {
-                        var alertReceiver = unseenAlert.Receiver;
-                        var message = new Message
-                        {
-                            Title = "اخطار مشاهده نشده",
-                            Text = String.Format("کاربر {0} یک اخطار مشاهده نشده با عنوان {1} دارد که از زمان آن 12 ساعت می‌گذرد.",
-                                    String.Concat(alertReceiver.FirstName, " ", alertReceiver.LastName), unseenAlert.Message.Title),
-                            Time = DateTime.Now,
-                            Type = MessageType.System_Notification,
-                            SenderId = 1,
-                            HelperId = unseenAlert.Message.HelperId
-                        };
-                        _context.Messages.Add(message);
-                        _context.SaveChanges();
-                        _context.UserMessages.Add(new UserMessage { MessageId = message.Id, ReceiverId = 1, IsViewd = false });
-                        _context.SaveChanges();
-                    }
-                }
             }
             catch (Exception e)
             {
@@ -123,13 +101,19 @@ namespace coReport.Services
             }
         }
 
-        public void DeleteManagerReviewMessage(String helpertId)
+        public void DeleteManagerReviewMessage(short managerReportId)
         {
             try
             {
-                _context.UserMessages.Where(um => um.Message.HelperId == helpertId && um.Message.Title == "گزارش مدیر").Delete();
-                _context.Messages.Where(m => m.HelperId == helpertId && m.Title == "گزارش مدیر").Delete();
-                _context.SaveChanges();
+                var managerReport = _context.ManagerReports.FirstOrDefault(mr => mr.Id == managerReportId);
+                if(managerReport != null)
+                {
+                    _context.UserMessages.Where(um => um.Message.Id == managerReport.ReviewMessageId).Delete();
+                    _context.Messages.Where(m => m.Id == managerReport.ReviewMessageId).Delete();
+                    managerReport.ReviewMessageId = 0;
+                    _context.ManagerReports.Update(managerReport);
+                    _context.SaveChanges(); 
+                }
             }
             catch(Exception e)
             {
@@ -149,6 +133,14 @@ namespace coReport.Services
                 .Include(um => um.Message)
                     .ThenInclude(m => m.Sender)
                 .OrderByDescending(m => m.Message.Time);
+        }
+
+        public IEnumerable<UserMessage> GetWarnings()
+        {
+            return _context.UserMessages.Where(um => um.Message.Type == MessageType.Warning)
+                                        .Include(um => um.Message)
+                                        .Include(um => um.Receiver)
+                                        .OrderByDescending(um => um.Message.Time);
         }
 
         public int GetWarningsCount(short userId)

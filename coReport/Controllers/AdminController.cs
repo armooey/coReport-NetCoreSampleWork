@@ -2,8 +2,6 @@
 using coReport.Models.AccountViewModels;
 using coReport.Models.AdminViewModels;
 using coReport.Models.HomeViewModels;
-using coReport.Models.MessageModels;
-using coReport.Models.MessageViewModels;
 using coReport.Models.ProjectModels;
 using coReport.Models.ProjectViewModels;
 using coReport.Operations;
@@ -52,18 +50,17 @@ namespace coReport.Controllers
 
         public IActionResult AdminPanel()
         {
-            _messageService.CreateSystemNotifications();
             //prepare datas for chart
             short ADMIN_ID = 1;
-            var userMessages = _messageService.GetReceivedMessages(ADMIN_ID);
             var projects = _projectService.GetAll();
             var today = DateTime.Now.Date;
             var userReportCount = new List<int>();
             var managerReportCount = new List<int>();
-            var messageViewModels = new List<MessageViewModel>();
             var projectViewModels = new List<ProjectViewModel>();
+            var warnings = _messageService.GetWarnings();
+            var warningViewModels = new List<WarningViewModel>();
             
-            //creating a list of the last 7 days
+            //creating list of the last 7 days
             var days = new List<String> { 
                 today.AddDays(-6).ToString("MM/dd"),
                 today.AddDays(-5).ToString("MM/dd"),
@@ -81,19 +78,6 @@ namespace coReport.Controllers
                 managerReportCount.Add(_managerReportData.GetReportsCountByDate(day));
             }
 
-            foreach (var userMessage in userMessages)
-            {
-                messageViewModels.Add(new MessageViewModel
-                {
-                    Id = userMessage.Message.Id,
-                    Title = userMessage.Message.Title,
-                    Text = userMessage.Message.Text,
-                    AuthorName = userMessage.Message.Type == MessageType.System_Notification ? "پیام سیستمی" :
-                                String.Concat(userMessage.Message.Sender.FirstName, " ", userMessage.Message.Sender.LastName),
-                    Type = userMessage.Message.Type,
-                    IsViewed = userMessage.IsViewd
-                });
-            }
 
             foreach (var project in projects)
             {
@@ -104,13 +88,23 @@ namespace coReport.Controllers
                     EndDate = project.EndDate
                 });
             }
+            foreach (var warning in warnings)
+            {
+                warningViewModels.Add(new WarningViewModel { 
+                    ReceiverName = String.Concat(warning.Receiver.FirstName," ",warning.Receiver.LastName),
+                    Title = warning.Message.Title,
+                    IsViewed = warning.IsViewd,
+                    ElapsedTime = DateTime.Now.Subtract(warning.Message.Time).Hours
+                });
+            }
 
             var adminPanelModel = new AdminPanelViewModel { 
                 Days = days,
                 Projects = projectViewModels,
                 UsersReportCount = userReportCount,
                 ManagersReportCount = managerReportCount,
-                Messages = messageViewModels
+                Warnings = warningViewModels,
+                Messages = UserOperations.GetMessageViewModels(_messageService, ADMIN_ID)
             };
             return View(adminPanelModel);
         }

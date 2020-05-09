@@ -242,6 +242,12 @@ namespace coReport.Migrations
                     b.Property<short>("UserId")
                         .HasColumnType("smallint");
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.HasKey("ManagerId", "UserId");
 
                     b.HasIndex("UserId");
@@ -255,9 +261,6 @@ namespace coReport.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("smallint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("HelperId")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<short>("SenderId")
                         .HasColumnType("smallint");
@@ -342,6 +345,9 @@ namespace coReport.Migrations
                     b.Property<short>("ReportId")
                         .HasColumnType("smallint");
 
+                    b.Property<short>("ReviewMessageId")
+                        .HasColumnType("smallint");
+
                     b.Property<string>("Text")
                         .HasColumnType("nvarchar(max)");
 
@@ -393,6 +399,9 @@ namespace coReport.Migrations
 
                     b.Property<DateTime>("ExitTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<short>("InvalidReportMessageId")
+                        .HasColumnType("smallint");
 
                     b.Property<short>("ProjectId")
                         .HasColumnType("smallint");

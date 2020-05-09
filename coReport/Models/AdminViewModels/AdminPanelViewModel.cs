@@ -13,6 +13,7 @@ namespace coReport.Models.AdminViewModels
         public List<int> UsersReportCount { get; set; }
         public List<int> ManagersReportCount { get; set; }
         public List<ProjectViewModel> Projects { get; set; }
-        public IEnumerable<MessageViewModel> Messages { get; set; }
+        public List<MessageViewModel> Messages { get; set; }
+        public List<WarningViewModel> Warnings { get; set; }
     }
 }

@@ -25,6 +25,7 @@ namespace coReport.Models.ReportModels
         public DateTime EnterTime { get; set; }
         public DateTime ExitTime { get; set; }
         public String AttachmentExtension { get; set; }
+        public short InvalidReportMessageId { get; set; }
         public ICollection<ProjectManager> ProjectManagers { get; set; }
         public ICollection<ManagerReport> ManagerReports { get; set; }
     }

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Z.EntityFramework.Plus;
 
 namespace coReport.Services
 {
@@ -20,13 +21,13 @@ namespace coReport.Services
 
         public IEnumerable<ApplicationUser> GetEmployees(short managerId)
         {
-            return _context.UserManagers.Where(um => um.ManagerId == managerId)
+            return _context.UserManagers.Where(um => um.ManagerId == managerId && um.IsActive == true)
                 .Include(um => um.User).Select(um => um.User);
         }
 
         public IEnumerable<ApplicationUser> GetManagers(short userId)
         {
-            return _context.UserManagers.Where(um => um.UserId == userId)
+            return _context.UserManagers.Where(um => um.UserId == userId && um.IsActive == true)
                 .Include(um => um.Manager).Select(um => um.Manager);
         }
 
@@ -37,7 +38,46 @@ namespace coReport.Services
             {
                 foreach (var id in managerIds)
                 {
-                    _context.UserManagers.Add(new UserManager { UserId = userId, ManagerId = id });
+
+                    _context.UserManagers.Add(new UserManager
+                    {
+                        UserId = userId,
+                        ManagerId = id,
+                        Date = DateTime.Now,
+                        IsActive = true
+                    });
+                }
+                _context.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+        public void UpdateManagers(short userId, List<short> managerIds)
+        {
+            try
+            {
+                //Deactive all rows related to this user
+                _context.UserManagers.Where(um => um.UserId == userId).Update(um => new UserManager { IsActive = false });
+                foreach (var id in managerIds)
+                {
+                    if (_context.UserManagers.Any(um => um.UserId == userId && um.ManagerId == id))
+                    {
+                        //If row exists activate the row
+                        _context.UserManagers.Where(um => um.UserId == userId && um.ManagerId == id)
+                            .Update(um => new UserManager { IsActive = true });
+                    }
+                    else
+                    {
+                        _context.UserManagers.Add(new UserManager
+                        {
+                            UserId = userId,
+                            ManagerId = id,
+                            Date = DateTime.Now,
+                            IsActive = true
+                        });
+                    }
                 }
                 _context.SaveChanges();
             }

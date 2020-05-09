@@ -15,7 +15,6 @@ namespace coReport.Models.MessageModels
         public ApplicationUser Sender { get; set; }
         public MessageType Type { get; set; }
         public String Text { get; set; }
-        public String HelperId { get; set; } //Used for purposes like manager report notifiacations
         public ICollection<UserMessage> Receivers { get; set; }
     }
 }

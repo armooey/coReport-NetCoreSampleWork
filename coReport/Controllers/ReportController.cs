@@ -1,8 +1,6 @@
 ﻿using coReport.Auth;
-using coReport.Models.AccountViewModels;
 using coReport.Models.HomeViewModels;
 using coReport.Models.MessageModels;
-using coReport.Models.ProjectViewModels;
 using coReport.Models.ReportModels;
 using coReport.Models.ReportViewModel;
 using coReport.Operations;
@@ -12,7 +10,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -314,15 +311,14 @@ namespace coReport.Controllers
                             Title = "گزارش مدیر",
                             Text = model.Text,
                             Sender = manager,
-                            Type = MessageType.Manager_Report_Notification,
+                            Type = MessageType.Manager_Review_Notification,
                             Time = DateTime.Now,
-                            HelperId = String.Concat(savedManagerReport.Id, "-", model.UserReport.Id)
                         };
-                        _messageService.AddManagerReviewMessage(message, model.UserReport.Author.Id);
+                        _messageService.AddManagerReviewMessage(message,savedManagerReport.Id, model.UserReport.Author.Id);
                     }
                     else
                     {
-                        _messageService.DeleteManagerReviewMessage(String.Concat(savedManagerReport.Id, "-", model.UserReport.Id));
+                        _messageService.DeleteManagerReviewMessage(savedManagerReport.Id);
                     }
                 }
                 catch (Exception e)

@@ -49,6 +49,21 @@
                 }
             }
         </div>
+        <div class="col-md border border-dark p-2 box-widget-scrollable">
+            <h6><b>اخطار ها</b></h6>
+            <hr />
+            @if (Model.Messages.Count() == 0)
+            {
+                <div class="text-center"><b>اخطاری موجود نیست.</b></div>
+            }
+            else
+            {
+                foreach (var warning in Model.Warnings)
+                {
+                    <partial name="WarningPartialView" model="warning" />
+                }
+            }
+        </div>
     </div>
 </div>
 

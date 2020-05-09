@@ -12,7 +12,7 @@ namespace coReport.Services
         public IEnumerable<Report> GetAll();
         public Report Get(short id);
         public int GetReportsCountByDate(DateTime date);
-        public IEnumerable<ProjectManager> GetByAuthorId(short id);
+        public IEnumerable<Report> GetByAuthorId(short id);
 
         public IEnumerable<ProjectManager> GetAllReports(short managerId);
         public Report Add(Report report, IEnumerable<short> managerIds);

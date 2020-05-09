@@ -10,6 +10,6 @@ namespace coReport.Models.MessageModels
         Message,
         System_Notification,
         Warning,
-        Manager_Report_Notification
+        Manager_Review_Notification
     }
 }

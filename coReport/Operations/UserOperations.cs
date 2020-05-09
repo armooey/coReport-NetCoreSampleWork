@@ -1,5 +1,7 @@
 ﻿using coReport.Auth;
 using coReport.Models.AccountViewModels;
+using coReport.Models.MessageModels;
+using coReport.Models.MessageViewModels;
 using coReport.Models.ProjectViewModels;
 using coReport.Models.ReportViewModel;
 using coReport.Services;
@@ -96,5 +98,26 @@ namespace coReport.Operations
             }
             return projectViewModels;
         }
+        public static List<MessageViewModel> GetMessageViewModels(IMessageService messageService, short userId)
+        {
+            var messages = messageService.GetReceivedMessages(userId);
+            var messageViewModels = new List<MessageViewModel>();
+            foreach (var userMessage in messages)
+            {
+                messageViewModels.Add(new MessageViewModel
+                {
+                    Id = userMessage.Message.Id,
+                    Title = userMessage.Message.Title,
+                    Text = userMessage.Message.Text,
+                    AuthorName = userMessage.Message.Type == MessageType.System_Notification ? "پیام سیستمی" :
+                                String.Concat(userMessage.Message.Sender.FirstName, " ", userMessage.Message.Sender.LastName),
+                    Type = userMessage.Message.Type,
+                    Time = userMessage.Message.Time,
+                    IsViewed = userMessage.IsViewd
+                });
+            }
+            return messageViewModels;
+        }
+
     }
 }
