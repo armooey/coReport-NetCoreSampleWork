@@ -340,3 +340,4 @@ ASALocalRun/
 healthchecksdb
 /coReport/UserData
 /coReport/Migrations
+/coReport/Migrations/ApplicationDbContextModelSnapshot.cs
