@@ -7,7 +7,7 @@ Can submit reports based on their daily activity .
 
 ------------------------------------------------
 ### Managers   
-Submit reports based on employee reports, Get Daily & Monthly excell report. 
+Submit reports based on employee reports, Get Daily & Monthly excel report. 
 
 ------------------------------------------------
 ### Admin   
