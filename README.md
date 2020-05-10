@@ -1,4 +1,4 @@
-# coReport-NetCoreSampleWork
+## coReport-NetCoreSampleWork
 A web app for management of employees  
 
 ------------------------------------------------  
