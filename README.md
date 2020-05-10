@@ -2,11 +2,11 @@
 A web app for management of employees  
 
 ------------------------------------------------  
-## Employees  
+### Employees   
 Can submit reports based on their daily activity  
 ------------------------------------------------
-## Managers  
+### Managers   
 Submit reports based on employee reports, Get Daily & Monthly excell report.  
 ------------------------------------------------
-## Admin  
+### Admin   
 Can see user activities, Manage projects and users.  
