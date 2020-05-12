@@ -2,6 +2,7 @@
 using coReport.Models.MessageViewModels;
 using coReport.Models.ReportModels;
 using coReport.Models.ReportViewModel;
+using coReport.Operations;
 using coReport.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -55,7 +56,7 @@ namespace coReport.Controllers
                     ProjectName = report.Report.Project.Title,
                     EnterTime = report.Report.EnterTime,
                     ExitTime = report.Report.ExitTime,
-                    Date = report.Report.Date,
+                    Date = report.Report.Date.ToHijri(),
                     IsViewed = report.IsViewd
                 });
             }
@@ -74,6 +75,7 @@ namespace coReport.Controllers
         {
             var reports = _managerReportData.GetTodayReports(managerId).ToList();
             var stream = new MemoryStream();
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             using (var package = new ExcelPackage(stream))
             {
                 //Basic styling of worksheet

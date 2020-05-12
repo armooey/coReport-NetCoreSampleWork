@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -17,7 +18,7 @@ namespace coReport.Operations
 {
     public static class UserOperations
     {
-
+        static PersianCalendar persianCalender = new PersianCalendar();
         public static async void SaveProfileImage(IWebHostEnvironment webHostEnvironment, IFormFile file, String username )
         {
             if (file != null)
@@ -112,11 +113,18 @@ namespace coReport.Operations
                     AuthorName = userMessage.Message.Type == MessageType.System_Notification ? "پیام سیستمی" :
                                 String.Concat(userMessage.Message.Sender.FirstName, " ", userMessage.Message.Sender.LastName),
                     Type = userMessage.Message.Type,
-                    Time = userMessage.Message.Time,
+                    Time = userMessage.Message.Time.ToHijri(),
                     IsViewed = userMessage.IsViewd
                 });
             }
             return messageViewModels;
+        }
+
+        public static DateTime ToHijri(this DateTime time)
+        {
+            return new DateTime(persianCalender.GetYear(time),
+                persianCalender.GetMonth(time), persianCalender.GetDayOfMonth(time),
+                time.Hour, time.Minute, time.Second);
         }
 
     }

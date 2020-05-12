@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -162,7 +163,6 @@ namespace coReport.Controllers
 
         public async Task<IActionResult> ManageReports()
         {
-
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
             var reports = _reportData.GetByAuthorId(user.Id);
             var reportViewModels = new List<ReportViewModel>();
@@ -171,7 +171,7 @@ namespace coReport.Controllers
                 reportViewModels.Add(new ReportViewModel { 
                     Id = report.Id,
                     ProjectName = report.Project.Title,
-                    Date = report.Date,
+                    Date = report.Date.ToHijri(),
                     Title = report.Title,
                     IsViewed = report.ProjectManagers.Any(pm => pm.IsViewd == true)
                 });
