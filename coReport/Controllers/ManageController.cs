@@ -80,7 +80,7 @@ namespace coReport.Controllers
             if (result.Succeeded)
             { 
                 if(model.Image != null)
-                    UserOperations.SaveProfileImage(_webHostEnvironment, model.Image, model.Username);
+                    SystemOperations.SaveProfileImage(_webHostEnvironment, model.Image, model.Username);
                 return RedirectToAction("Index",new {userName = model.Username, returnUrl = returnUrl });
             }
             ModelState.AddModelError(String.Empty, "مشکل در بروزرسانی اطلاعات کاربر.");

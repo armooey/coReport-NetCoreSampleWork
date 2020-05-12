@@ -55,8 +55,8 @@ namespace coReport.Controllers
             var model = new CreateReportViewModel
             {
                 AuthorId = author.Id,
-                Managers = UserOperations.GetProjectManagerViewModels(author.Id, _managerData) ,//List of all managers of this user
-                Projects = UserOperations.GetInProgressProjectViewModels(_projectService) //All in progress projects
+                Managers = SystemOperations.GetProjectManagerViewModels(author.Id, _managerData) ,//List of all managers of this user
+                Projects = SystemOperations.GetInProgressProjectViewModels(_projectService) //All in progress projects
             };
             return View(model);
         }
@@ -65,8 +65,8 @@ namespace coReport.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(CreateReportViewModel model)
         {
-            model.Managers = UserOperations.GetProjectManagerViewModels(model.AuthorId, _managerData);
-            model.Projects = UserOperations.GetInProgressProjectViewModels(_projectService);
+            model.Managers = SystemOperations.GetProjectManagerViewModels(model.AuthorId, _managerData);
+            model.Projects = SystemOperations.GetInProgressProjectViewModels(_projectService);
             if (ModelState.IsValid)
             {
                 var todayReports = _reportData.GetTodayReportsOfUser(model.AuthorId);
@@ -96,7 +96,7 @@ namespace coReport.Controllers
                     //Save report Attachment
                     if (model.Attachment != null)
                     {
-                        UserOperations.SaveReportAttachment(_webHostEnvironment, model.Attachment, model.AuthorId, savedReport.Id);
+                        SystemOperations.SaveReportAttachment(_webHostEnvironment, model.Attachment, model.AuthorId, savedReport.Id);
                         _reportData.UpdateAttachment(savedReport.Id, Path.GetExtension(model.Attachment.FileName));
                     }
                 }
@@ -128,8 +128,8 @@ namespace coReport.Controllers
                 EnterTime = report.EnterTime,
                 ExitTime = report.ExitTime,
                 ProjectId = report.ProjectId,
-                Managers = UserOperations.GetProjectManagerViewModels(report.AuthorId, _managerData),
-                Projects = UserOperations.GetInProgressProjectViewModels(_projectService),
+                Managers = SystemOperations.GetProjectManagerViewModels(report.AuthorId, _managerData),
+                Projects = SystemOperations.GetInProgressProjectViewModels(_projectService),
                 ProjectManagerIds = report.ProjectManagers.Select(pm => pm.ManagerId).ToList(),
                 Title = report.Title,
                 Text = report.Text,
@@ -146,8 +146,8 @@ namespace coReport.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(CreateReportViewModel model)
         {
-            model.Managers = UserOperations.GetProjectManagerViewModels(model.AuthorId, _managerData);
-            model.Projects = UserOperations.GetInProgressProjectViewModels(_projectService);
+            model.Managers = SystemOperations.GetProjectManagerViewModels(model.AuthorId, _managerData);
+            model.Projects = SystemOperations.GetInProgressProjectViewModels(_projectService);
             if (ModelState.IsValid)
             {
                 if (model.EnterTime >= model.ExitTime)
@@ -169,7 +169,7 @@ namespace coReport.Controllers
                     //update attachment if user provided new one
                     if (model.Attachment != null)
                     {
-                        UserOperations.SaveReportAttachment(_webHostEnvironment, model.Attachment, model.AuthorId, report.Id, report.AttachmentExtension);
+                        SystemOperations.SaveReportAttachment(_webHostEnvironment, model.Attachment, model.AuthorId, report.Id, report.AttachmentExtension);
                         _reportData.UpdateAttachment(report.Id, Path.GetExtension(model.Attachment.FileName));
                     }
                 }

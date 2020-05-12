@@ -104,7 +104,7 @@ namespace coReport.Controllers
                 UsersReportCount = userReportCount,
                 ManagersReportCount = managerReportCount,
                 Warnings = warningViewModels,
-                Messages = UserOperations.GetMessageViewModels(_messageService, ADMIN_ID)
+                Messages = SystemOperations.GetMessageViewModels(_messageService, ADMIN_ID)
             };
             return View(adminPanelModel);
         }

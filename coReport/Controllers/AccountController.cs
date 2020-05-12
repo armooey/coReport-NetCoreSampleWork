@@ -132,7 +132,7 @@ namespace coReport.Controllers
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, model.Role);
-                    UserOperations.SaveProfileImage(_webHostEnvironment, model.Image, model.Username);
+                    SystemOperations.SaveProfileImage(_webHostEnvironment, model.Image, model.Username);
                     var message = new Message {
                         Text = String.Format("{0} {1} با نام کاربری {2} حساب کاربری جدیدی ایجاد کرده است. لطفا نسبت به فعالسازی آن اقدام فرمایید.", 
                                model.FirstName, model.LastName, model.Username),
@@ -179,7 +179,7 @@ namespace coReport.Controllers
 
             var userReportViewModel = new UserReportViewModel { 
                 Reports = reportViewModels,
-                Messages = UserOperations.GetMessageViewModels(_messageService, user.Id)
+                Messages = SystemOperations.GetMessageViewModels(_messageService, user.Id)
             };
             return View(userReportViewModel);
         }

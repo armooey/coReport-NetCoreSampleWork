@@ -8,6 +8,7 @@ using coReport.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -16,9 +17,10 @@ using System.Linq;
 
 namespace coReport.Operations
 {
-    public static class UserOperations
+    public static class SystemOperations
     {
-        static PersianCalendar persianCalender = new PersianCalendar();
+        public static readonly PersianCalendar persianCalender = new PersianCalendar();
+
         public static async void SaveProfileImage(IWebHostEnvironment webHostEnvironment, IFormFile file, String username )
         {
             if (file != null)
@@ -120,12 +122,16 @@ namespace coReport.Operations
             return messageViewModels;
         }
 
+        public static SelectList GetRolesSelectList(this RoleManager<IdentityRole<short>> roleManager)
+        {
+            return new SelectList(roleManager.Roles.Where(r => r.Name != "ادمین").Select(r => r.Name).ToList());
+        }
+
         public static DateTime ToHijri(this DateTime time)
         {
             return new DateTime(persianCalender.GetYear(time),
                 persianCalender.GetMonth(time), persianCalender.GetDayOfMonth(time),
                 time.Hour, time.Minute, time.Second);
         }
-
     }
 }
