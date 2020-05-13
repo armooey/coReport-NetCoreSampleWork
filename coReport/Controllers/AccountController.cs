@@ -118,6 +118,7 @@ namespace coReport.Controllers
             model.Roles = _roleManager.GetRolesSelectList();
             if (ModelState.IsValid)
             {
+                var imageName = await SystemOperations.SaveProfileImage(_webHostEnvironment, model.Image);
                 var user = new ApplicationUser { 
                     UserName = model.Username,
                     FirstName = model.FirstName,
@@ -125,14 +126,15 @@ namespace coReport.Controllers
                     RegisterDate = DateTime.Now,
                     IsActive = false,
                     IsBanned = false,
-                    Email = model.Email };
+                    Email = model.Email,
+                    ProfileImageName = imageName
+                };
 
 
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, model.Role);
-                    SystemOperations.SaveProfileImage(_webHostEnvironment, model.Image, model.Username);
                     var message = new Message {
                         Text = String.Format("{0} {1} با نام کاربری {2} حساب کاربری جدیدی ایجاد کرده است. لطفا نسبت به فعالسازی آن اقدام فرمایید.", 
                                model.FirstName, model.LastName, model.Username),
@@ -163,6 +165,27 @@ namespace coReport.Controllers
             return View(model);
         }
 
+        //A remote validation to check if username is exits or not
+        [AllowAnonymous]
+        [AcceptVerbs("Get","Post")]
+        public async Task<IActionResult> CheckUsernameExistance(string username)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+                return Json(true);
+            return Json("این نام کاربری قبلا در سیستم ثبت شده است.");
+        }
+
+        //A remote validation to check if email is exits or not
+        [AllowAnonymous]
+        [AcceptVerbs("Get", "Post")]
+        public async Task<IActionResult> CheckEmailExistance(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                return Json(true);
+            return Json("این ایمیل قبلا در سیستم ثبت شده است.");
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -200,14 +223,15 @@ namespace coReport.Controllers
         /*
          * Used for getting current user profile image in Layout.
          */
-        public IActionResult GetUserImage() 
+        public async Task<IActionResult> GetUserImage() 
         {
-            var username = User.Identity.Name;
+            var user = await _userManager.GetUserAsync(User);
             byte[] image;
             try
             {
-                var imagePath = Path.Combine(_webHostEnvironment.ContentRootPath, "UserData", "Images", String.Concat(username, ".jpg"));
-                image = System.IO.File.ReadAllBytes(imagePath);
+                var imagePath = Path.Combine(_webHostEnvironment.ContentRootPath, "UserData", "Images",
+                    String.Concat(user.ProfileImageName, ".jpg"));
+                image = await System.IO.File.ReadAllBytesAsync(imagePath);
             }
             catch
             {

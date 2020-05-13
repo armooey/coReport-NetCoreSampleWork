@@ -109,7 +109,7 @@ namespace coReport.Controllers
             return View(adminPanelModel);
         }
 
-        public IActionResult ManageUsers()
+        public async Task<IActionResult> ManageUsers()
         {
             var users = _userManager.Users.Where(user=>user.UserName != "admin").OrderByDescending(u => u.RegisterDate);
             var userViewModelList = new List<UserViewModel>();
@@ -119,8 +119,9 @@ namespace coReport.Controllers
                 byte[] image;
                 try
                 {
-                    var imagePath = Path.Combine(_webHostEnvironment.ContentRootPath, "UserData", "Images", String.Format("{0}.jpg",user.UserName));
-                    image = System.IO.File.ReadAllBytes(imagePath);
+                    var imagePath = Path.Combine(_webHostEnvironment.ContentRootPath, "UserData", "Images",
+                        String.Format("{0}.jpg",user.ProfileImageName));
+                    image = await System.IO.File.ReadAllBytesAsync(imagePath);
                 }
                 catch
                 {

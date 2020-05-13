@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace coReport.Operations
 {
@@ -21,7 +22,7 @@ namespace coReport.Operations
     {
         public static readonly PersianCalendar persianCalender = new PersianCalendar();
 
-        public static async void SaveProfileImage(IWebHostEnvironment webHostEnvironment, IFormFile file, String username )
+        public static async Task<string> SaveProfileImage(IWebHostEnvironment webHostEnvironment, IFormFile file)
         {
             if (file != null)
             {
@@ -31,7 +32,8 @@ namespace coReport.Operations
                 {
                     Directory.CreateDirectory(imageDirectoryPath);
                 }
-                var ImageName = Path.Combine(imageDirectoryPath, String.Format("{0}.jpg", username));
+                var imageId = Guid.NewGuid().ToString();
+                var ImageName = Path.Combine(imageDirectoryPath, String.Format("{0}.jpg", imageId));
                 //Deleting Existing File with the same name
                 if (System.IO.File.Exists(ImageName))
                 {
@@ -43,7 +45,9 @@ namespace coReport.Operations
                 {
                     await uploadedImage.CopyToAsync(localFile);
                 }
+                return imageId;
             }
+            return null;
         }
 
 

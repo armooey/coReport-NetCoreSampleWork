@@ -42,13 +42,14 @@ namespace coReport.Controllers
         public async Task<IActionResult> Index(string userName, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
-            var user = await _userManager.FindByNameAsync(userName);
             ViewData["UserName"] = userName;
+            var user = await _userManager.FindByNameAsync(userName);
             byte[] image;
             try
             {
-                var imagePath = Path.Combine(_webHostEnvironment.ContentRootPath, "UserData", "Images", String.Format("{0}.jpg", user.UserName));
-                image = System.IO.File.ReadAllBytes(imagePath);
+                var imagePath = Path.Combine(_webHostEnvironment.ContentRootPath, "UserData", "Images", 
+                    String.Format("{0}.jpg", user.ProfileImageName));
+                image = await System.IO.File.ReadAllBytesAsync(imagePath);
             }
             catch
             {
@@ -76,11 +77,11 @@ namespace coReport.Controllers
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
             user.PhoneNumber = model.PhoneNumber;
+            if (model.Image != null)
+                user.ProfileImageName = await SystemOperations.SaveProfileImage(_webHostEnvironment, model.Image);
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
             { 
-                if(model.Image != null)
-                    SystemOperations.SaveProfileImage(_webHostEnvironment, model.Image, model.Username);
                 return RedirectToAction("Index",new {userName = model.Username, returnUrl = returnUrl });
             }
             ModelState.AddModelError(String.Empty, "مشکل در بروزرسانی اطلاعات کاربر.");

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using coReport.CustomValidation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace coReport.Models.AccountViewModels
@@ -10,6 +11,7 @@ namespace coReport.Models.AccountViewModels
     public class RegisterViewModel
     {
         [Required(ErrorMessage = "تکمیل فیلد نام کاربری اجباری است.")]
+        [Remote("CheckUsernameExistance", "Account")]
         [Display(Name = "نام کاربری")]
         public String Username { get; set; }
 
@@ -23,6 +25,7 @@ namespace coReport.Models.AccountViewModels
 
 
         [Required(ErrorMessage ="تکمیل فیلد ایمیل اجباری است.")]
+        [Remote("CheckEmailExistance", "Account")]
         [EmailAddress(ErrorMessage = "لطفا یک ایمیل صحیح وارد کنید.")]
         [Display(Name = "ایمیل")]
         public String Email { get; set; }

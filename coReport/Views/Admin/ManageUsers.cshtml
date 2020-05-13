@@ -23,25 +23,27 @@ else
 }
 
 <div id="selectManager" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
 
         <div class="modal-content">
             <div class="modal-header">
                 <h6>انتخاب مدیران</h6>
             </div>
-            <form asp-action="ActivateUser" asp-route-userId="@UserId" method="post" role="form">
+            <form asp-action="ActivateUser" method="post" role="form">
                 @* A dummy element for saving user id from partial*@
                 @Html.Hidden("UserId", UserId)
-                <div class="text-center" style="margin-top:20px;margin-bottom:20px">
-                    <select id="manager_multiselect" asp-for="ManagerIds" style="width:75%" multiple="multiple">
-                        <option></option>
-                        @foreach (var user in Model.Users.Where(r => r.Role == "مدیر"))
-                        {
-                            <option value="@user.Id">@user.FirstName @user.LastName</option>
-                        }
-                    </select>
-                    <br />
-                    <span asp-validation-for="ManagerIds" class="text-danger"></span>
+                <div class="form-group" style="margin-top: 10px">
+                    <label class="col-md control-label"> مدیران را انتخاب کنید:</label>
+                    <div class="col-md">
+                        <select id="manager_multiselect" asp-for="ManagerIds" style="width: 100%" multiple="multiple">
+                            @foreach (var user in Model.Users.Where(r => r.Role == "مدیر"))
+                            {
+                                <option value="@user.Id">@user.FirstName @user.LastName</option>
+                            }
+                        </select>
+                        <br />
+                        <span asp-validation-for="ManagerIds" class="text-danger"></span>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
@@ -62,8 +64,6 @@ else
     <script>
         $(document).ready(function () {
             $('#manager_multiselect').select2({
-                placeholder: 'انتخاب کنید...',
-                width: 'resolve',
                 dir: 'rtl',
                 language: 'fa'
             });

@@ -16,7 +16,7 @@ namespace coReport.Auth
         public String LastName { get; set; }
         public DateTime RegisterDate { get; set; }
         public bool IsActive { get; set; }
-
+        public String ProfileImageName { get; set; }
         public bool IsBanned { get; set; }
         public DateTime BanEndTime { get; set; }
         public ICollection<Report> Reports { get; set; }
