@@ -179,9 +179,9 @@ namespace coReport.Services
             }
         }
 
-        public int GetReportsCountByDate(DateTime date)
+        public IEnumerable<Report> GetReportsOfLastSevenDays()
         {
-            return _context.Reports.Count(r => r.Date.Date == date);
+            return _context.Reports.Where(r => r.Date.Date >= DateTime.Now.Date.AddDays(-7));
         }
 
         public IEnumerable<Report> GetTodayReportsOfUser(short id)

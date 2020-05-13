@@ -109,9 +109,9 @@ namespace coReport.Services
             }
         }
 
-        public int GetReportsCountByDate(DateTime date)
+        public IEnumerable<ManagerReport> GetReportsOfLastSevenDays()
         {
-            return _context.ManagerReports.Count(mr => mr.Date.Date == date);
+            return _context.ManagerReports.Where(mr => mr.Date.Date >= DateTime.Now.Date.AddDays(-7));
         }
 
         public ManagerReport GetManagerReportByUserReportId(short id, short managerId)

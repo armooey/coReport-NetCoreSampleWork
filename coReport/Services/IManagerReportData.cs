@@ -13,6 +13,6 @@ namespace coReport.Services
         public IEnumerable<ManagerReport> GetTodayReports(short managerId);
         public ManagerReport GetManagerReportByUserReportId(short id, short managerId);
         public void Update(ManagerReport report);
-        public int GetReportsCountByDate(DateTime date);
+        public IEnumerable<ManagerReport> GetReportsOfLastSevenDays();
     }
 }

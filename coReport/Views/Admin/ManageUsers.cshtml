@@ -8,7 +8,10 @@
 
 
 <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
-<a asp-action="AddUser" class="btn btn-primary">اضافه کردن کاربر جدید</a>
+<div>
+    <a asp-action="AddUser" class="btn btn-primary">اضافه کردن کاربر جدید</a>
+    <input type="text" id="search_field" placeholder="جستجو"  class="float-left"/>
+</div>
 <hr />
 @if (!Model.Users.Any())
 {
@@ -16,10 +19,12 @@
 }
 else
 {
-    @foreach (var userViewModel in Model.Users)
-    {
-        <partial name="UserPartialView" model="userViewModel" />
-    }
+    <div id="user_list">   
+        @foreach (var userViewModel in Model.Users)
+        {
+            <partial name="UserPartialView" model="userViewModel" />
+        }
+    </div>
 }
 
 <div id="selectManager" class="modal fade" role="dialog">
@@ -66,6 +71,22 @@ else
             $('#manager_multiselect').select2({
                 dir: 'rtl',
                 language: 'fa'
+            });
+
+            function Contains(fisrtText, secondText)
+            {
+                if (fisrtText.indexOf(secondText) != -1)
+                    return true;
+            }
+            $("#search_field").keyup(function () {
+                var searchText = $("#search_field").val().toLowerCase();
+                $(".card-widget").each(function ()
+                {
+                    if (Contains($(this).text().toLowerCase(), searchText))
+                        $(this).show();
+                    else
+                        $(this).hide();
+                });
             });
         });
 

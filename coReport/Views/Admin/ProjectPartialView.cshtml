@@ -3,7 +3,7 @@
 @{
     var isEnded = Model.EndDate != null;
  }
-<div class="border border-dark p-3 rounded user-card ended-@isEnded">
+<div class="border border-dark p-3 rounded card-widget ended-@isEnded">
     <div class="col">
         <span> <b>@Model.Title</b></span>
         <span class="span-control"><i class="fas fa-calendar-alt"></i> @Model.CreateDate.Date.ToString("MM/dd/yyyy")</span>

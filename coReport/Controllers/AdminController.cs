@@ -53,29 +53,24 @@ namespace coReport.Controllers
             //prepare datas for chart
             short ADMIN_ID = 1;
             var projects = _projectService.GetAll();
-            var today = DateTime.Now.Date;
+            var today = DateTime.Now;
+            var userReports = _reportData.GetReportsOfLastSevenDays();
+            var managerReports = _managerReportData.GetReportsOfLastSevenDays();
             var userReportCount = new List<int>();
             var managerReportCount = new List<int>();
             var projectViewModels = new List<ProjectViewModel>();
             var warnings = _messageService.GetWarnings();
             var warningViewModels = new List<WarningViewModel>();
             
-            //creating list of the last 7 days
-            var days = new List<String> { 
-                today.AddDays(-6).ToString("MM/dd"),
-                today.AddDays(-5).ToString("MM/dd"),
-                today.AddDays(-4).ToString("MM/dd"),
-                today.AddDays(-3).ToString("MM/dd"),
-                today.AddDays(-2).ToString("MM/dd"),
-                today.AddDays(-1).ToString("MM/dd"),
-                today.ToString("MM/dd")
-            };
+            //A list for the last 7 days
+            var days = new List<String>();
             //counting number of reports in the last 7 days
             for (int i = -6; i <= 0; i++)
             {
                 var day = today.AddDays(i); //finding the day that we want to count reports
-                userReportCount.Add(_reportData.GetReportsCountByDate(day));
-                managerReportCount.Add(_managerReportData.GetReportsCountByDate(day));
+                days.Add(day.ToHijri().ToString("MM/dd"));//Adding to days List
+                userReportCount.Add(userReports.Count(r => r.Date.Date == day.Date));
+                managerReportCount.Add(managerReports.Count(r => r.Date.Date == day.Date));
             }
 
 

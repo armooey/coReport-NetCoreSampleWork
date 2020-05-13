@@ -2,7 +2,7 @@
 @using coReport.Models.MessageModels
 @model MessageViewModel
 
-<div class="border border-dark p-2 rounded user-card seen-@Model.IsViewed">
+<div class="border border-dark p-2 rounded card-widget seen-@Model.IsViewed">
     <div class="col">
         @if (Model.Type == MessageType.System_Notification || Model.Type == MessageType.Manager_Review_Notification)
         {
