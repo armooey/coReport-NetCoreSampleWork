@@ -120,11 +120,19 @@ namespace coReport.Services
                 if (report.ManagerReports == null || !report.ManagerReports.Any())
                 {
                     var projectManagers = _context.ProjectManagers.Where(pm => pm.ReportId == report.Id);
-                    foreach(var projectManager in projectManagers)
+                    foreach (var projectManager in projectManagers)
                         _context.ProjectManagers.Remove(projectManager);
-                    foreach (var manager in managerIds)
+                    foreach (var managerId in managerIds)
                     {
-                        _context.ProjectManagers.Add(new ProjectManager { ReportId = report.Id, ManagerId = manager, IsViewd = false });
+                        _context.ProjectManagers.Add(new ProjectManager { ReportId = report.Id, ManagerId = managerId, IsViewd = false });
+                    }
+                }
+                else //Flag updated reports as unseen
+                {
+                    foreach (var managerId in managerIds)
+                    {
+                        _context.ProjectManagers.Where(pm => pm.ReportId == report.Id && pm.ManagerId == managerId)
+                            .Update(pm => new ProjectManager { IsViewd = false});
                     }
                 }
                 //update report

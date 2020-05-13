@@ -179,9 +179,9 @@ namespace coReport.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddUser(RegisterViewModel model, string returnUrl = null)
+        public async Task<IActionResult> AddUser(RegisterViewModel model)
         {
-            ViewData["ReturnUrl"] = returnUrl;
+            model.Roles = _roleManager.GetRolesSelectList();
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser
@@ -200,7 +200,21 @@ namespace coReport.Controllers
                     await _userManager.AddToRoleAsync(user, model.Role);
                     return RedirectToAction("ManageUsers");
                 }
-                ModelState.AddModelError("", "Cannot register this user.");
+                foreach (var error in result.Errors)
+                {
+                    switch (error.Code)
+                    {
+                        case "DuplicateUserName":
+                            ModelState.AddModelError("", "این نام کاربری قبلا ثبت شده است.");
+                            break;
+                        case "DuplicateEmail":
+                            ModelState.AddModelError("", "این ایمیل قبلا در سیستم ثبت شده است.");
+                            break;
+                        default:
+                            ModelState.AddModelError("", "مشکل در ثبت کاربر");
+                            break;
+                    }
+                }
             }
 
             return View(model);

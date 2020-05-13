@@ -144,10 +144,22 @@ namespace coReport.Controllers
                     _messageService.AddSystemNotificationForAdmin(message);
                     return View("Inactive");
                 }
-                ModelState.AddModelError(String.Empty,"مشکل در ساخت حساب کاربری.");
+                foreach (var error in result.Errors)
+                {
+                    switch (error.Code)
+                    {
+                        case "DuplicateUserName":
+                            ModelState.AddModelError("", "این نام کاربری قبلا ثبت شده است.");
+                            break;
+                        case "DuplicateEmail":
+                            ModelState.AddModelError("", "این ایمیل قبلا در سیستم ثبت شده است.");
+                            break;
+                        default:
+                            ModelState.AddModelError("", "مشکل در ایجاد حساب کاربری");
+                            break;
+                    }
+                }
             }
-
-
             return View(model);
         }
 

@@ -172,11 +172,11 @@ namespace coReport.Controllers
                 }
                 //fill cells with report datas
                 int cellIndex = 2;
-                foreach(var key in userReportHashMap)
+                foreach(var mapElement in userReportHashMap)
                 {
 
-                    workSheet.Cells[cellIndex, 1].Value = String.Format(key.Key.FirstName + " " + key.Key.LastName);
-                    foreach (var report in key.Value)
+                    workSheet.Cells[cellIndex, 1].Value = String.Format(mapElement.Key.FirstName + " " + mapElement.Key.LastName);
+                    foreach (var report in mapElement.Value)
                     {
                         var reportDate = report.Date.ToHijri();
                         workSheet.Cells[cellIndex, reportDate.Day+1].Value =
