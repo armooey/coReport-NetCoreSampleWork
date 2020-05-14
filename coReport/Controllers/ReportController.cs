@@ -90,22 +90,26 @@ namespace coReport.Controllers
                     ExitTime = model.ExitTime,
                     Date = DateTime.Now
                 };
-                try
+                var savedReport = _reportData.Add(report, model.ProjectManagerIds); //Saving Report
+                //Save report Attachment
+                if (model.Attachment != null)
                 {
-                    var savedReport = _reportData.Add(report, model.ProjectManagerIds); //Saving Report
-                    //Save report Attachment
-                    if (model.Attachment != null)
+                    try
                     {
-                        SystemOperations.SaveReportAttachment(_webHostEnvironment, model.Attachment, model.AuthorId, savedReport.Id);
-                        _reportData.UpdateAttachment(savedReport.Id, Path.GetExtension(model.Attachment.FileName));
+                        SystemOperations.SaveReportAttachment(_webHostEnvironment, model.Attachment
+                                                                , model.AuthorId, savedReport.Id);
                     }
-                }
-                catch (Exception e)
-                {
-                    var errorModel = new ErrorViewModel {
-                        Error = e.Message
-                    };
-                    return RedirectToAction("Error","Home",errorModel);
+                    catch
+                    {
+                        ModelState.AddModelError("", "مشکل در ذخیره‌سازی فایل پیوست.");
+                        return View(model);
+                    }
+                    var result = _reportData.UpdateAttachment(savedReport.Id, Path.GetExtension(model.Attachment.FileName));
+                    if (!result)
+                    {
+                        ModelState.AddModelError("", "مشکل در ذخیره‌سازی فایل پیوست.");
+                        return View(model);
+                    }
                 }
                 return RedirectToAction("ManageReports","Account");
             }
@@ -133,7 +137,8 @@ namespace coReport.Controllers
                 ProjectManagerIds = report.ProjectManagers.Select(pm => pm.ManagerId).ToList(),
                 Title = report.Title,
                 Text = report.Text,
-                IsSubmitedByManager = report.ManagerReports != null && report.ManagerReports.Any() ? true : false, //If any of project managers submited report with this report
+                IsSubmitedByManager = report.ManagerReports != null && report.ManagerReports.Any() 
+                                ? true : false, //If any of project managers submited report with this report
                 AttachmentName = report.AttachmentExtension != null ? 
                                 String.Format("{0}-{1}{2}", report.AuthorId, report.Id, report.AttachmentExtension): null
             };
@@ -162,24 +167,33 @@ namespace coReport.Controllers
                 report.EnterTime = model.EnterTime;
                 report.ExitTime = model.ExitTime;
                 report.Date = DateTime.Now;
-
-                try
+                var result = _reportData.Update(report, model.ProjectManagerIds);
+                if (!result)
                 {
-                    _reportData.Update(report, model.ProjectManagerIds);
-                    //update attachment if user provided new one
-                    if (model.Attachment != null)
-                    {
-                        SystemOperations.SaveReportAttachment(_webHostEnvironment, model.Attachment, model.AuthorId, report.Id, report.AttachmentExtension);
-                        _reportData.UpdateAttachment(report.Id, Path.GetExtension(model.Attachment.FileName));
-                    }
+                    ModelState.AddModelError("", "مشکل در بروزرسانی!");
+                    return View(model);
                 }
-                catch (Exception e)
+                //update attachment if user provided new one
+                if (model.Attachment != null)
                 {
-                    var errorModel = new ErrorViewModel
+                    try
                     {
-                        Error = e.Message
-                    };
-                    return RedirectToAction("Error","Home",errorModel);
+                        SystemOperations.SaveReportAttachment(_webHostEnvironment, model.Attachment, 
+                                                model.AuthorId, report.Id, report.AttachmentExtension);
+                    }
+                    catch
+                    {
+                        ModelState.AddModelError("", "مشکل در ذخیره فایل پیوست!");
+                        return View(model);
+                    }
+
+                    var attachmentUpdateResult = _reportData.UpdateAttachment(report.Id,
+                                Path.GetExtension(model.Attachment.FileName));
+                    if (!attachmentUpdateResult)
+                    {
+                        ModelState.AddModelError("", "مشکل در ذخیره فایل پیوست!");
+                        return View(model);
+                    }
                 }
                 return RedirectToAction("ManageReports","Account");
             }
@@ -191,19 +205,10 @@ namespace coReport.Controllers
          */
         public IActionResult Delete(short id)
         {
-            try
-            {
-                _reportData.Delete(id);
-            }
-            catch (Exception e)
-            {
-                var errorModel = new ErrorViewModel
-                {
-                    Error = e.Message
-                };
-                return RedirectToAction("Error","Home",errorModel);
-            }
-            return RedirectToAction("ManageReports","Account");
+            var result = _reportData.Delete(id);
+            if (result)
+                return Json(true);
+            return Json(false);
         }
 
    
@@ -266,20 +271,14 @@ namespace coReport.Controllers
                         IsCommentViewableByUser = model.IsViewableByUser,
                         ReportId = model.UserReport.Id
                     };
-                    try
+                    savedManagerReport = _managerReportData.Add(managerReport);
+                    if (savedManagerReport == null)
                     {
-                        savedManagerReport = _managerReportData.Add(managerReport);
-                        //Change the report status to viewd
-                        _reportData.SetViewed(model.UserReport.Id, manager.Id);
+                        ModelState.AddModelError("", "مشکل در ثبت گزارش!");
+                        return View(model);
                     }
-                    catch (Exception e)
-                    {
-                        var errorModel = new ErrorViewModel
-                        {
-                            Error = e.Message
-                        };
-                        return RedirectToAction("Error", "Home", errorModel);
-                    }
+                    //Change the report status to viewed
+                    _reportData.SetViewed(model.UserReport.Id, manager.Id);
                 }
                 else //means user updating manager report
                 {
@@ -287,47 +286,30 @@ namespace coReport.Controllers
                     managerReport.Text = model.Text;
                     managerReport.IsUserReportAcceptable = model.IsAcceptable;
                     managerReport.IsCommentViewableByUser = model.IsViewableByUser;
-                    try
+                    var result = _managerReportData.Update(managerReport);
+                    if (result == false)
                     {
-                        _managerReportData.Update(managerReport);
-                    }
-                    catch (Exception e)
-                    {
-                        var errorModel = new ErrorViewModel
-                        {
-                            Error = e.Message
-                        };
-                        return RedirectToAction("Error", "Home", errorModel);
+                        ModelState.AddModelError("", "مشکل در بروزرسانی!");
+                        return View(model);
                     }
                 }
-                try 
-                {
 
-                    //Notify user if manager report is viewable by user
-                    if (model.IsViewableByUser)
-                    {
-                        var message = new Message
-                        {
-                            Title = "گزارش مدیر",
-                            Text = model.Text,
-                            Sender = manager,
-                            Type = MessageType.Manager_Review_Notification,
-                            Time = DateTime.Now,
-                        };
-                        _messageService.AddManagerReviewMessage(message,savedManagerReport.Id, model.UserReport.Author.Id);
-                    }
-                    else
-                    {
-                        _messageService.DeleteManagerReviewMessage(savedManagerReport.Id);
-                    }
-                }
-                catch (Exception e)
+                //Notify user if manager report is viewable by user
+                if (model.IsViewableByUser)
                 {
-                    var errorModel = new ErrorViewModel
+                    var message = new Message
                     {
-                        Error = e.Message
+                        Title = "گزارش مدیر",
+                        Text = model.Text,
+                        Sender = manager,
+                        Type = MessageType.Manager_Review_Notification,
+                        Time = DateTime.Now,
                     };
-                    return RedirectToAction("Error", "Home", errorModel);
+                    _messageService.AddManagerReviewMessage(message,savedManagerReport.Id, model.UserReport.Author.Id);
+                }
+                else
+                {
+                    _messageService.DeleteManagerReviewMessage(savedManagerReport.Id);
                 }
                 return RedirectToAction("ManageReports", "Manager");
             }

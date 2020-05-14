@@ -15,37 +15,15 @@ namespace coReport.Controllers
         }
         public IActionResult DeleteMessage(short id)
         {
-            try
-            { 
-                _messageService.Delete(id);
-            }
-            catch (Exception e)
-            {
-                var errorModel = new ErrorViewModel
-                {
-                    Error = e.Message
-                };
-                return RedirectToAction("Error", "Home", errorModel);
-            }
-            return RedirectToAction("ManageReports", "Account");
+            var result = _messageService.Delete(id);
+            return Json(result);
         }
 
         //Marks the message as read
         public IActionResult SetViewed(short id)
         {
-            try
-            {
-                _messageService.SetViewed(id);
-            }
-            catch (Exception e)
-            {
-                var errorModel = new ErrorViewModel
-                {
-                    Error = e.Message
-                };
-                return RedirectToAction("Error", "Home", errorModel);
-            }
-            return RedirectToAction("ManageReports", "Account");
+            var result = _messageService.SetViewed(id);
+            return Json(result);
         }
     }
 }

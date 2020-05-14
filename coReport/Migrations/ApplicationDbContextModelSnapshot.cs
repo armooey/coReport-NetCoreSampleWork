@@ -182,6 +182,9 @@ namespace coReport.Migrations
                     b.Property<bool>("IsBanned")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
@@ -342,6 +345,9 @@ namespace coReport.Migrations
                     b.Property<bool>("IsCommentViewableByUser")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsUserReportAcceptable")
                         .HasColumnType("bit");
 
@@ -370,6 +376,9 @@ namespace coReport.Migrations
 
                     b.Property<short>("ReportId")
                         .HasColumnType("smallint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsViewd")
                         .HasColumnType("bit");
@@ -405,6 +414,9 @@ namespace coReport.Migrations
 
                     b.Property<short>("InvalidReportMessageId")
                         .HasColumnType("smallint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<short>("ProjectId")
                         .HasColumnType("smallint");

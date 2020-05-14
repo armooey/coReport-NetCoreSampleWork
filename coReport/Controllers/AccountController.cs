@@ -230,7 +230,7 @@ namespace coReport.Controllers
             try
             {
                 var imagePath = Path.Combine(_webHostEnvironment.ContentRootPath, "UserData", "Images",
-                    String.Concat(user.ProfileImageName, ".jpg"));
+                    user.ProfileImageName +".jpg");
                 image = await System.IO.File.ReadAllBytesAsync(imagePath);
             }
             catch

@@ -20,7 +20,7 @@ namespace coReport.Services
 
 
 
-        public void Add(Message message, IEnumerable<short> receivers)
+        public bool Add(Message message, IEnumerable<short> receivers)
         {
             try
             {
@@ -31,10 +31,11 @@ namespace coReport.Services
                     _context.UserMessages.Add(new UserMessage { MessageId = message.Id, ReceiverId = receiver, IsViewd = false });
                 }
                 _context.SaveChanges();
+                return true;
             }
-            catch (Exception e)
+            catch
             {
-                throw e;
+                return false;
             }
         }
 
@@ -62,7 +63,7 @@ namespace coReport.Services
                         managerReport.ReviewMessageId = message.Id;
                         _context.ManagerReports.Update(managerReport);
                     }
-                    _context.SaveChanges(); 
+                    _context.SaveChanges();
                 }
             }
             catch (Exception e)
@@ -87,21 +88,22 @@ namespace coReport.Services
             }
         }
 
-        public void Delete(short id)
+        public bool Delete(short id)
         {
             try
             {
                 _context.UserMessages.Where(um => um.MessageId == id).Delete();
                 _context.Messages.Where(m => m.Id == id).Delete();
                 _context.SaveChanges();
+                return true;
             }
-            catch (Exception e)
+            catch
             {
-                throw e;
+                return false;
             }
         }
 
-        public void DeleteManagerReviewMessage(short managerReportId)
+        public bool DeleteManagerReviewMessage(short managerReportId)
         {
             try
             {
@@ -114,10 +116,11 @@ namespace coReport.Services
                     _context.ManagerReports.Update(managerReport);
                     _context.SaveChanges(); 
                 }
+                return true;
             }
-            catch(Exception e)
+            catch
             {
-                throw e;
+                return false;
             }
         }
 
@@ -148,10 +151,18 @@ namespace coReport.Services
             return _context.UserMessages.Count(um => um.ReceiverId == userId && um.IsViewd == false && um.Message.Type == MessageType.Warning);
         }
 
-        public void SetViewed(short id)
+        public bool SetViewed(short id)
         {
-            _context.UserMessages.Where(um => um.MessageId == id).Update(m => new UserMessage { IsViewd = true });
-            _context.SaveChanges();
+            try
+            {
+                _context.UserMessages.Where(um => um.MessageId == id).Update(m => new UserMessage { IsViewd = true });
+                _context.SaveChanges();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

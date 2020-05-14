@@ -12,7 +12,7 @@ namespace coReport.Services
         public IEnumerable<ManagerReport> GetAll(short managerId);
         public IEnumerable<ManagerReport> GetTodayReports(short managerId);
         public ManagerReport GetManagerReportByUserReportId(short id, short managerId);
-        public void Update(ManagerReport report);
+        public bool Update(ManagerReport report);
         public IEnumerable<ManagerReport> GetReportsOfLastSevenDays();
     }
 }

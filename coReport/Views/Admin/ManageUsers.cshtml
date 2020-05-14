@@ -73,6 +73,7 @@ else
                 language: 'fa'
             });
 
+            //Perform dynamic search on users
             function Contains(fisrtText, secondText)
             {
                 if (fisrtText.indexOf(secondText) != -1)
@@ -82,7 +83,7 @@ else
                 var searchText = $("#search_field").val().toLowerCase();
                 $(".card-widget").each(function ()
                 {
-                    if (Contains($(this).text().toLowerCase(), searchText))
+                    if (Contains($(this).find("h5, span").text().toLowerCase(), searchText))
                         $(this).show();
                     else
                         $(this).hide();
@@ -93,6 +94,7 @@ else
 
         function DeleteUser(id) {
             bootbox.confirm({
+                closeButton: false,
                 message: "آیا می‌خواهید این کاربر را حذف کنید؟",
                 buttons: {
                     confirm: {
@@ -105,23 +107,28 @@ else
                     }
                 },
                 callback: function (result) {
-                    if (result)
+                    if (result) {
                         $.ajax({
-                            url: "DeleteUser",
+                            url: "@Url.Action("DeleteUser")",
                             data: { userId: id }
-                        }).done(function () {
-                            location.reload();
+                        }).done(function (ajaxResult) {
+                            if (ajaxResult)
+                                location.reload();
+                            else {
+                                bootbox.alert({
+                                    closeButton: false,
+                                    title: "خطا",
+                                    message: "هنگام حذف کاربر مشکلی پیش آمده لطفا مجددا سعی کنید.",
+                                    buttons: {
+                                        ok: {
+                                            label: 'بستن'
+                                        }
+                                    }
+                                });
+                            }
                         });
+                    }
                 }
-            });
-        }
-
-        function ActivateUser(id) {
-            $.ajax({
-                url: "ActivateUser",
-                data: { userId: id }
-            }).done(function () {
-                location.reload();
             });
         }
 

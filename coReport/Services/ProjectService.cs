@@ -16,29 +16,31 @@ namespace coReport.Services
         {
             _context = context;
         }
-        public void Add(Project project)
+        public bool Add(Project project)
         {
             try
             {
                 _context.Projects.Add(project);
                 _context.SaveChanges();
+                return true;
             }
-            catch (Exception e)
+            catch
             {
-                throw e;
+                return false;
             }
         }
 
-        public void EndProject(short id)
+        public bool EndProject(short id)
         {
             try
             {
                 _context.Projects.Where(p => p.Id == id).Update(p => new Project { EndDate = DateTime.Now});
                 _context.SaveChanges();
+                return true;
             }
-            catch (Exception e)
+            catch
             {
-                throw e;
+                return false;
             }
         }
 

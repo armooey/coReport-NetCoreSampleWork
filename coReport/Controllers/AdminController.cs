@@ -115,7 +115,7 @@ namespace coReport.Controllers
                 try
                 {
                     var imagePath = Path.Combine(_webHostEnvironment.ContentRootPath, "UserData", "Images",
-                        String.Format("{0}.jpg",user.ProfileImageName));
+                        user.ProfileImageName + ".jpg");
                     image = await System.IO.File.ReadAllBytesAsync(imagePath);
                 }
                 catch
@@ -151,11 +151,20 @@ namespace coReport.Controllers
             var result = await _userManager.UpdateAsync(user);
             if(result.Succeeded)
             {
-                if(model.ManagerIds != null)
-                    _managerData.SetManagers(userId, model.ManagerIds);
+                if (model.ManagerIds != null)
+                { 
+                    var setManagerResult = _managerData.SetManagers(userId, model.ManagerIds);
+                    if(!setManagerResult)
+                        return RedirectToAction("Error", "Home", new ErrorViewModel { 
+                            Error = "مشکل در فعالسازی حساب کاربری!"
+                        });
+                }
                 return RedirectToAction("ManageUsers");
             }
-            return View("ManageUsers");
+            return RedirectToAction("Error", "Home", new ErrorViewModel
+            {
+                Error = "مشکل در فعالسازی حساب کاربری!"
+            });
         }
 
 
@@ -220,51 +229,33 @@ namespace coReport.Controllers
 
         public async Task<IActionResult> DeleteUser(short userId)
         {
-            _reportData.PreprocessUserDelete(userId);
-            ApplicationUser user = await _userManager.FindByIdAsync(userId.ToString());
+            var preprocessDeleteResult = _reportData.PreprocessUserDelete(userId);
+            if (!preprocessDeleteResult)
+                return Json(false);
+            var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user != null)
             {
-                try
-                {
-                    IdentityResult result = await _userManager.DeleteAsync(user);
-                    if (result.Succeeded)
-                        return RedirectToAction("ManageUsers");
-                    else
-                        ModelState.AddModelError("", "Cannot delete this user!");
-                }
-                catch (Exception e)
-                {
-                    var errorModel = new ErrorViewModel
-                    {
-                        Error = e.Message
-                    };
-                    return RedirectToAction("Error", "Home", errorModel);
-                }
+                var result = await _userManager.DeleteAsync(user);
+                if (result.Succeeded)
+                    return Json(true);
+                else
+                    return Json(false);
             }
-            else
-            {
-                ModelState.AddModelError("", "Cannot find user :/");
-            }
-            return RedirectToAction("ManageUsers");
+            return Json(true);
         }
 
         public IActionResult AddProject(String projectName)
         {
-            try
+            var result = _projectService.Add(new Project
             {
-                _projectService.Add(new Project
-                {
-                    Title = projectName,
-                    CreateDate = DateTime.Now
+                Title = projectName,
+                CreateDate = DateTime.Now
+            });
+            if (!result)
+            {
+                return RedirectToAction("Error","Home",new ErrorViewModel { 
+                    Error = "مشکل در ایجاد پروژه جدید!"
                 });
-            }
-            catch (Exception e)
-            {
-                 var errorModel = new ErrorViewModel
-                    {
-                        Error = e.Message
-                    };
-                    return RedirectToAction("Error", "Home", errorModel);
             }
             return RedirectToAction("AdminPanel");
         }

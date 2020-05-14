@@ -9,6 +9,7 @@
     <div class="col-md p-3 box-widget-scrollable" style="height:600px; max-height:600px">
         <span><b>گزارشات</b></span>
         <a asp-action="Create" asp-controller="Report" class="btn btn-primary btn-sm float-left">ایجاد گزارش</a>
+        <input type="text" id="search_field" placeholder="جستجو" class="input-group-sm ml-1 float-left" />
         <hr />
         @if (Model.Reports.Count() == 0)
         {
@@ -52,14 +53,31 @@
         $(document).ready(function(){
             $('[data-toggle="popover"]').popover();
             $('.seen-False').attr('style', 'border: 2px solid !important');
-            $('[data-toggle="popover"]').click(function () {
-                $(this).parent().parent().attr('style', 'border: 1px solid');
-            });
 
+            //Perform dynamic search on reports
+            function Contains(fisrtText, secondText)
+            {
+                if (fisrtText.indexOf(secondText) != -1)
+                    return true;
+            }
+            $("#search_field").keyup(function () {
+                var searchText = $("#search_field").val().toLowerCase();
+                $(".report").each(function ()
+                {
+                    if (Contains($(this).find("h6, span").text().toLowerCase(), searchText))
+                        $(this).show();
+                    else {
+                        $(this).hide();
+                    }
+                });
+            });
         });
+
         function NotDeletableAlert()
         {
             bootbox.alert({
+                closeButton: false,
+                title: "خطا",
                 message: "به دلیل ثبت گزارش مدیر، امکان حذف وجود ندارد.",
                 buttons: {
                     ok: {
@@ -71,6 +89,7 @@
 
         function DeleteReport(id) {
             bootbox.confirm({
+                closeButton: false,
                 message: "آیا می‌خواهید این گزارش را حذف کنید؟",
                 buttons: {
                     confirm: {
@@ -85,10 +104,23 @@
                 callback: function (result) {
                     if (result)
                         $.ajax({
-                            url: "/Report/Delete",
+                            url: "@Url.Action("Delete","Report")",
                             data: { id: id }
-                        }).done(function () {
-                            location.reload();
+                        }).done(function(ajaxResult) {
+                            if (ajaxResult)
+                                location.reload();
+                            else
+                            {
+                                bootbox.alert({
+                                    closeButton: false,
+                                    message: "هنگام حذف گزارش مشکلی پیش آمده لطفا مجددا سعی کنید.",
+                                    buttons: {
+                                        ok: {
+                                            label: 'بستن'
+                                        }
+                                    }
+                                });
+                            }
                         });
                 }
             });
@@ -96,6 +128,7 @@
 
         function DeleteMessage(id) {
             bootbox.confirm({
+                closeButton: false,
                 message: "آیا می‌خواهید این پیام را حذف کنید؟",
                 buttons: {
                     confirm: {
@@ -108,22 +141,51 @@
                     }
                 },
                 callback: function (result) {
-                    if (result)
+                    if (result) {
                         $.ajax({
-                            url: "/Message/DeleteMessage",
+                            url: "@Url.Action("DeleteMessage","Message")",
                             data: { id: id }
-                        }).done(function () {
-                            location.reload();
+                        }).done(function (ajaxResult) {
+                            if (ajaxResult)
+                                location.reload();
+                            else {
+                                bootbox.alert({
+                                    closeButton: false,
+                                    title: "خطا",
+                                    message: "هنگام حذف پیام مشکلی پیش آمده لطفا مجددا سعی کنید.",
+                                    buttons: {
+                                        ok: {
+                                            label: 'بستن'
+                                        }
+                                    }
+                                });
+                            }
                         });
+                    }
                 }
             });
         }
 
-        function ViewMessage(id)
-        {
+        function ViewMessage(id) {
             $.ajax({
-                url: "/Message/SetViewed",
+                url: "@Url.Action("SetViewed","Message")",
                 data: { id: id }
+            }).done(function (ajaxResult) {
+                if (ajaxResult) {
+                    $('[data-toggle="popover"]').parent().parent().attr('style', 'border: 1px solid');
+                }
+                else {
+                    bootbox.alert({
+                        closeButton: false,
+                        title: "خطا",
+                        message: "هنگام مشاهده پیام مشکلی پیش آمده لطفا مجددا سعی کنید.",
+                        buttons: {
+                            ok: {
+                                label: 'بستن'
+                            }
+                        }
+                    });
+                }
             });
         }
 

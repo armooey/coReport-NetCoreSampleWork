@@ -10,32 +10,34 @@
             Html.BeginForm("GetDailyReport", "Manager", FormMethod.Get);
             {
                 <input type="hidden" value="@Model.ManagerId" name="managerId" />
-                <button class="btn btn-info" style="margin-right:30px" type="submit">گزارش روزانه</button>
+                <button class="btn btn-info mr-4" type="submit">گزارش روزانه</button>
             }
             Html.EndForm();
+
         }
         @{
             Html.BeginForm("GetMonthlyReport", "Manager", FormMethod.Get);
             {
                 <input type="hidden" value="@Model.ManagerId" name="managerId" />
-                <button class="btn btn-info" style="margin-right:5px" type="submit">گزارش ماهانه</button>
+                <button class="btn btn-info mr-1"  type="submit">گزارش ماهانه</button>
             }
             Html.EndForm();
         }
+        <input type="text" id="search_field" placeholder="جستجو" class="float-left mr-1" />
+
     </div>
 <hr />
 <div class="row">
     <div class="col-md p-3 box-widget-scrollable" style="height:550px; max-height:550px">
 
-        <ul class="nav nav-tabs">
+        <ul class="nav nav-tabs mb-4">
             <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" href="#allReports">همه گزارشات</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" href="#unseenReports">گزارشات دیده ‌نشده</a>
+                <a class="nav-link active" data-toggle="tab" href="#unseenReports">گزارشات بررسی ‌نشده</a>
             </li>
         </ul>
-        <hr />
         <div class="tab-content">
             <div id="allReports" class="tab-pane fade">
                 @if (!Model.UserReports.Any())
@@ -89,29 +91,24 @@
     <script src="~/lib/popper.js/umd/popper.min.js"></script>
     <script src="~/lib/bootbox.js/bootbox.min.js"></script>
     <script>
-        function DeleteReport(id) {
-            bootbox.confirm({
-                message: "آیا می‌خواهید این گزارش را حذف کنید؟",
-                buttons: {
-                    confirm: {
-                        label: 'بله',
-                        className: 'btn-primary'
-                    },
-                    cancel: {
-                        label: 'خیر',
-                        className: 'btn-secondary'
-                    }
-                },
-                callback: function (result) {
-                    if (result)
-                        $.ajax({
-                            url: "DeleteReport",
-                            data: { id: id }
-                        }).done(function () {
-                            location.reload();
-                        });
-                }
+
+        $(document).ready(function () {
+            //Perform dynamic search on users
+            function Contains(fisrtText, secondText)
+            {
+                if (fisrtText.indexOf(secondText) != -1)
+                    return true;
+            }
+            $("#search_field").keyup(function () {
+                var searchText = $("#search_field").val().toLowerCase();
+                $(".report").each(function ()
+                {
+                    if (Contains($(this).find("h6, span").text().toLowerCase(), searchText))
+                        $(this).show();
+                    else
+                        $(this).hide();
+                });
             });
-        }
+        });
     </script>
 }

@@ -13,5 +13,6 @@ namespace coReport.Models.ReportModels
         public short ManagerId { get; set; }
         public virtual ApplicationUser Manager { get; set; }
         public bool IsViewd { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

@@ -35,7 +35,7 @@ namespace coReport.Controllers
                 {
                     AlertsCount = alertsCount,
                     Name = userRole.FirstOrDefault() != "ادمین" ?
-                                                String.Concat(currentUser.FirstName, " ", currentUser.LastName) : "ادمین",
+                                                currentUser.FirstName +  " " + currentUser.LastName : "ادمین",
                     Role = userRole.FirstOrDefault()
                 };
                 return View(model);

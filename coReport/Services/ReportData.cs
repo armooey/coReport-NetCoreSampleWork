@@ -1,5 +1,6 @@
 ﻿using coReport.Auth;
 using coReport.Data;
+using coReport.Models.ManagerModels;
 using coReport.Models.ReportModels;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -25,35 +26,41 @@ namespace coReport.Services
                 _context.SaveChanges();
                 foreach (var manager in managerIds)
                 {
-                    _context.ProjectManagers.Add(new ProjectManager { ReportId = report.Id, ManagerId = manager, IsViewd = false });
+                    _context.ProjectManagers.Add(new ProjectManager { ReportId = report.Id, ManagerId = manager});
                 }
                 _context.SaveChanges();
                 return report;
             }
-            catch (Exception e)
+            catch
             {
-                throw e;
+                return null;
             }
         }
 
-        public void Delete(short id)
+        public bool Delete(short id)
         {
             try
             {
-                _context.ProjectManagers.Where(pm => pm.ReportId == id).Delete();//Delete related project manager rows
-                _context.ManagerReports.Where(mre => mre.ReportId == id).Delete();//Delete related manager reports
-                _context.Reports.Where(r => r.Id == id).Delete();
-                _context.SaveChanges();
+
+                if(!_context.ProjectManagers.Any(pm => pm.ReportId == id && pm.IsViewd))
+                {
+                    _context.ProjectManagers.Where(pm => pm.ReportId == id)
+                        .Update(pm => new ProjectManager { IsDeleted = true });//Delete related project manager rows
+                    _context.Reports.Where(r => r.Id == id)
+                        .Update(r => new Report { IsDeleted = true });
+                    _context.SaveChanges();
+                }
+                return true;
             }
-            catch (Exception e)
+            catch
             {
-                throw e;
+                return false;
             }
         }
 
         public Report Get(short id)
         {
-            return _context.Reports.Where(r => r.Id == id)
+            return _context.Reports.Where(r => r.Id == id && !r.IsDeleted)
                 .Include(r => r.Author)
                 .Include(r => r.ManagerReports)
                 .Include(r => r.ProjectManagers)
@@ -61,16 +68,9 @@ namespace coReport.Services
                 .FirstOrDefault();
         }
 
-        public IEnumerable<Report> GetAll()
-        {
-            return _context.Reports
-                .Include(r => r.Author)
-                .OrderBy(r => r.Date).ToList();
-        }
-
         public IEnumerable<Report> GetByAuthorId(short id)
         {
-            return _context.Reports.Where(r => r.Author.Id == id)
+            return _context.Reports.Where(r => r.Author.Id == id && !r.IsDeleted)
                 .Include(r => r.Author)
                 .Include(r => r.Project)
                 .Include(r => r.ProjectManagers)
@@ -79,7 +79,7 @@ namespace coReport.Services
 
         public IEnumerable<ProjectManager> GetAllReports(short managerId)
         {
-            return _context.ProjectManagers.Where(pm => pm.ManagerId == managerId)
+            return _context.ProjectManagers.Where(pm => pm.ManagerId == managerId && !pm.IsDeleted)
                 .Include(pm => pm.Report)
                     .ThenInclude(r => r.Author)
                     .Include(pm => pm.Report.Project)
@@ -89,30 +89,34 @@ namespace coReport.Services
         
 
 
-        public void PreprocessUserDelete(short id)
+        public bool PreprocessUserDelete(short id)
         {
             try
             {
-                //Deleting elements that manager will be deleted or elements that report author will be deleted.
-                _context.ProjectManagers.Where(pm => pm.ManagerId == id || pm.Report.AuthorId == id).Delete();
-                //Deleting Manager reports that manager report author will be deleted or elements that report author will be deleted.
-                _context.ManagerReports.Where(mr => mr.AuthorId == id || mr.Report.AuthorId == id).Delete();
-                //Deleting rows that manager will be deleted or user will be deleted.
-                _context.UserManagers.Where(um => um.ManagerId == id || um.UserId == id).Delete();
+                //Flag elements that manager will be deleted or elements that report author will be deleted.
+                _context.ProjectManagers.Where(pm => pm.ManagerId == id || pm.Report.AuthorId == id)
+                    .Update(pm => new ProjectManager { IsDeleted = true});
+                //Flag Manager reports that manager report author will be deleted or elements that report author will be deleted.
+                _context.ManagerReports.Where(mr => mr.AuthorId == id || mr.Report.AuthorId == id)
+                    .Update(mr => new ManagerReport { IsDeleted = true });
+                //Flag rows that manager will be deleted or user will be deleted.
+                _context.UserManagers.Where(um => um.ManagerId == id || um.UserId == id)
+                    .Update(um => new UserManager { IsActive = false});
                 //Deleting rows that receiver is this user or sender is the user
                 _context.UserMessages.Where(um => um.ReceiverId == id || um.Message.SenderId == id).Delete();
                 //Deleting messages that sender is this user
                 _context.Messages.Where(m => m.SenderId == id).Delete();
                 _context.SaveChanges();
+                return true;
             }
-            catch (Exception e)
+            catch
             {
-                throw e;
+                return false;
             }
         }
 
 
-        public void Update(Report report, IEnumerable<short> managerIds)
+        public bool Update(Report report, IEnumerable<short> managerIds)
         {
             try
             {
@@ -138,55 +142,60 @@ namespace coReport.Services
                 //update report
                 _context.Reports.Update(report);
                 _context.SaveChanges();
+                return true;
             }
-            catch (Exception e)
+            catch
             {
-                throw e;
+                return false;
             }
         }
 
 
-        public void UpdateAttachment(short id, string attachmentExtensions)
+        public bool UpdateAttachment(short id, string attachmentExtensions)
         {
             try
             {
                 _context.Reports.Where(r => r.Id == id).
                     Update(r => new Report { AttachmentExtension = attachmentExtensions });
                 _context.SaveChanges();
+                return true;
             }
-            catch (Exception e)
+            catch
             {
-                throw e;
+                return false;
             }
         }
 
 
 
-        public void SetViewed(short reportId, short managerId)
+        public bool SetViewed(short reportId, short managerId)
         {
-            var report = _context.ProjectManagers.Where(pm => pm.ReportId == reportId && pm.ManagerId == managerId);
-            if (!report.FirstOrDefault().IsViewd)
+            try
             {
-                report.Update(r => new ProjectManager { IsViewd = true });
-                try
+                var report = _context.ProjectManagers.FirstOrDefault(pm => pm.ReportId == reportId 
+                                            && pm.ManagerId == managerId);
+                if (report != null && !report.IsViewd)
                 {
+                    report.IsViewd = true;
+                    _context.ProjectManagers.Update(report);
                     _context.SaveChanges();
                 }
-                catch (Exception e)
-                {
-                    throw e;
-                }
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
 
         public IEnumerable<Report> GetReportsOfLastSevenDays()
         {
-            return _context.Reports.Where(r => r.Date.Date >= DateTime.Now.Date.AddDays(-7));
+            return _context.Reports.Where(r => !r.IsDeleted && r.Date.Date >= DateTime.Now.Date.AddDays(-7));
         }
 
         public IEnumerable<Report> GetTodayReportsOfUser(short id)
         {
-            return _context.Reports.Where(r => r.AuthorId == id && r.Date.Date == DateTime.Now.Date);
+            return _context.Reports.Where(r => !r.IsDeleted && r.AuthorId == id && r.Date.Date == DateTime.Now.Date);
         }
     }
 }

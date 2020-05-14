@@ -9,18 +9,17 @@ namespace coReport.Services
 {
     public interface IReportData
     {
-        public IEnumerable<Report> GetAll();
         public Report Get(short id);
         public IEnumerable<Report> GetReportsOfLastSevenDays();
         public IEnumerable<Report> GetByAuthorId(short id);
 
         public IEnumerable<ProjectManager> GetAllReports(short managerId);
         public Report Add(Report report, IEnumerable<short> managerIds);
-        public void Update(Report report, IEnumerable<short> managerIds);
-        public void UpdateAttachment(short id, String attachmentExtensions);
-        public void Delete(short id);
-        public void SetViewed(short reportId, short managerId);
-        public void PreprocessUserDelete(short id);
+        public bool Update(Report report, IEnumerable<short> managerIds);
+        public bool UpdateAttachment(short id, String attachmentExtensions);
+        public bool Delete(short id);
+        public bool SetViewed(short reportId, short managerId);
+        public bool PreprocessUserDelete(short id);
         public IEnumerable<Report> GetTodayReportsOfUser(short id);
     }
 }

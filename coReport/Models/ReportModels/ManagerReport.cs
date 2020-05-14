@@ -18,5 +18,6 @@ namespace coReport.Models.ReportModels
         public bool IsUserReportAcceptable { get; set; }
         public bool IsCommentViewableByUser { get; set; }
         public short ReviewMessageId  { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

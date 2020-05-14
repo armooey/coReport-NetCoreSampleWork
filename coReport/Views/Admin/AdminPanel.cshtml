@@ -138,8 +138,9 @@
         }
     });
 
-    function DeleteMessage(id) {
+        function DeleteMessage(id) {
             bootbox.confirm({
+                closeButton: false,
                 message: "آیا می‌خواهید این پیام را حذف کنید؟",
                 buttons: {
                     confirm: {
@@ -152,13 +153,27 @@
                     }
                 },
                 callback: function (result) {
-                    if (result)
+                    if (result) {
                         $.ajax({
-                            url: "/Message/DeleteMessage",
+                            url: "@Url.Action("DeleteMessage","Message")",
                             data: { id: id }
-                        }).done(function () {
-                            location.reload();
+                        }).done(function (ajaxResult) {
+                            if (ajaxResult)
+                                location.reload();
+                            else {
+                                bootbox.alert({
+                                    closeButton: false,
+                                    title: "خطا",
+                                    message: "هنگام حذف پیام مشکلی پیش آمده لطفا مجددا سعی کنید.",
+                                    buttons: {
+                                        ok: {
+                                            label: 'بستن'
+                                        }
+                                    }
+                                });
+                            }
                         });
+                    }
                 }
             });
         }
@@ -167,14 +182,32 @@
         function ViewMessage(id)
         {
             $.ajax({
-                url: "/Message/SetViewed",
+                url: "@Url.Action("SetViewed","Message")",
                 data: { id: id }
+            }).done(function (ajaxResult) {
+                if (ajaxResult)
+                {
+                    $('[data-toggle="popover"]').parent().parent().attr('style', 'border: 1px solid');
+                }
+                else {
+                    bootbox.alert({
+                        closeButton: false,
+                        title: "خطا",
+                        message: "هنگام مشاهده پیام مشکلی پیش آمده لطفا مجددا سعی کنید.",
+                        buttons: {
+                            ok: {
+                                label: 'بستن'
+                            }
+                        }
+                    });
+                }
             });
         }
 
         function EndProject(id)
         {
             bootbox.confirm({
+                closeButton: false,
                 message: "آیا مایلید به این پروژه خاتمه دهید؟",
                 buttons: {
                     confirm: {
@@ -187,13 +220,27 @@
                     }
                 },
                 callback: function (result) {
-                    if (result)
+                    if (result) {
                         $.ajax({
-                            url: "/Admin/EndProject",
+                            url: "@Url.Action("EndProject","Admin")",
                             data: { id: id }
-                        }).done(function () {
-                            location.reload();
+                        }).done(function (ajaxResult) {
+                            if (ajaxResult)
+                                location.reload();
+                            else {
+                                bootbox.alert({
+                                    closeButton: false,
+                                    title: "خطا",
+                                    message: "هنگام خاتمه پروژه مشکلی پیش آمده لطفا مجددا سعی کنید.",
+                                    buttons: {
+                                        ok: {
+                                            label: 'بستن'
+                                        }
+                                    }
+                                });
+                            }
                         });
+                    }
                 }
             });
         }
@@ -202,9 +249,6 @@
         $('[data-toggle="popover"]').popover();
         $('.seen-False').attr('style', 'border: 2px solid !important');
         $('.ended-True').attr('style', 'background-color:lightgray');
-        $('[data-toggle="popover"]').click(function () {
-            $(this).parent().parent().attr('style', 'border: 1px solid');
-        });
     });
     </script>
 }

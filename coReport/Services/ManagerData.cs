@@ -32,7 +32,7 @@ namespace coReport.Services
         }
 
 
-        public void SetManagers(short userId, List<short> managerIds)
+        public bool SetManagers(short userId, List<short> managerIds)
         {
             try
             {
@@ -48,10 +48,11 @@ namespace coReport.Services
                     });
                 }
                 _context.SaveChanges();
+                return true;
             }
-            catch (Exception e)
+            catch
             {
-                throw e;
+                return false;
             }
         }
         public void UpdateManagers(short userId, List<short> managerIds)

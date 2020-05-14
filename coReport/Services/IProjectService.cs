@@ -8,9 +8,9 @@ namespace coReport.Services
 {
     public interface IProjectService
     {
-        public void Add(Project project);
+        public bool Add(Project project);
         public IEnumerable<Project> GetAll();
-        public void EndProject(short id);
+        public bool EndProject(short id);
         public IEnumerable<Project> GetInProgressProjects();
     }
 }

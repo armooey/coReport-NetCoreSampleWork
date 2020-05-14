@@ -25,28 +25,29 @@ namespace coReport.Services
                 CheckUserReportAcceptability(managerReport.ReportId);
                 return managerReport;
             }
-            catch (Exception e)
+            catch
             {
-                throw e;
+                return null;
             }
         }
-        public void Update(ManagerReport managerReport)
+        public bool Update(ManagerReport managerReport)
         {
             try
             {
                 _context.ManagerReports.Update(managerReport);
                 _context.SaveChanges();
                 CheckUserReportAcceptability(managerReport.ReportId);
+                return true;
             }
-            catch (Exception e)
+            catch
             {
-                throw e;
+                return false;
             }
         }
 
         public IEnumerable<ManagerReport> GetAll(short managerId)
         {
-            return  _context.ManagerReports.Where(mr => mr.AuthorId == managerId)
+            return  _context.ManagerReports.Where(mr => mr.AuthorId == managerId && !mr.IsDeleted)
                 .Include(r => r.Report)
                     .ThenInclude(r => r.Author)
                     .Include(r => r.Report.Project)
@@ -55,7 +56,8 @@ namespace coReport.Services
         }
         public IEnumerable<ManagerReport> GetTodayReports(short managerId)
         {
-            return  _context.ManagerReports.Where(mr => mr.AuthorId == managerId && mr.Date.Date == DateTime.Now.Date)
+            return  _context.ManagerReports.Where(mr => mr.AuthorId == managerId && !mr.IsDeleted
+                                                        && mr.Date.Date == DateTime.Now.Date)
                 .Include(r => r.Report)
                     .ThenInclude(r => r.Author)
                     .Include(r => r.Report.Project)
@@ -111,7 +113,7 @@ namespace coReport.Services
 
         public IEnumerable<ManagerReport> GetReportsOfLastSevenDays()
         {
-            return _context.ManagerReports.Where(mr => mr.Date.Date >= DateTime.Now.Date.AddDays(-7));
+            return _context.ManagerReports.Where(mr => !mr.IsDeleted && mr.Date.Date >= DateTime.Now.Date.AddDays(-7));
         }
 
         public ManagerReport GetManagerReportByUserReportId(short id, short managerId)

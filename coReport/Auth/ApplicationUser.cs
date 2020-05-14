@@ -19,6 +19,7 @@ namespace coReport.Auth
         public String ProfileImageName { get; set; }
         public bool IsBanned { get; set; }
         public DateTime BanEndTime { get; set; }
+        public bool IsDeleted { get; set; }
         public ICollection<Report> Reports { get; set; }
         public ICollection<ManagerReport> ManagerReports { get; set; }
         public ICollection<ProjectManager> ProjectsManaged { get; set; }

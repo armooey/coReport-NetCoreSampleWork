@@ -8,15 +8,15 @@ namespace coReport.Services
 {
     public interface IMessageService
     {
-        public void Add(Message message, IEnumerable<short> receivers);
+        public bool Add(Message message, IEnumerable<short> receivers);
         public void AddManagerReviewMessage(Message message,short managerReportId, short receiverId);
         public void AddSystemNotificationForAdmin(Message message);
-        public void DeleteManagerReviewMessage(short managerReportId);
+        public bool DeleteManagerReviewMessage(short managerReportId);
         public Message Get(short id);
         public IEnumerable<UserMessage> GetReceivedMessages(short userId);
-        public void SetViewed(short id);
+        public bool SetViewed(short id);
         public int GetWarningsCount(short userId);
         public IEnumerable<UserMessage> GetWarnings();
-        public void Delete(short id);
+        public bool Delete(short id);
     }
 }

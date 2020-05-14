@@ -100,7 +100,7 @@ namespace coReport.Controllers
                 for(int i=0;i < reports.Count();i++)
                 {
                     var report = reports[i];
-                    var name = String.Concat(report.Report.Author.FirstName + " " + report.Report.Author.LastName);
+                    var name = report.Report.Author.FirstName + " " + report.Report.Author.LastName;
                     var workHour = report.Report.ExitTime.Subtract(report.Report.EnterTime).ToString("hh\\:mm");
                     workSheet.Cells[i + 2, 1].Value = name;
                     workSheet.Cells[i + 2, 2].Value = report.Report.Project.Title;
@@ -175,7 +175,7 @@ namespace coReport.Controllers
                 foreach(var mapElement in userReportHashMap)
                 {
 
-                    workSheet.Cells[cellIndex, 1].Value = String.Format(mapElement.Key.FirstName + " " + mapElement.Key.LastName);
+                    workSheet.Cells[cellIndex, 1].Value = mapElement.Key.FirstName + " " + mapElement.Key.LastName;
                     foreach (var report in mapElement.Value)
                     {
                         var reportDate = report.Date.ToHijri();

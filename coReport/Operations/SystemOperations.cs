@@ -117,7 +117,7 @@ namespace coReport.Operations
                     Title = userMessage.Message.Title,
                     Text = userMessage.Message.Text,
                     AuthorName = userMessage.Message.Type == MessageType.System_Notification ? "پیام سیستمی" :
-                                String.Concat(userMessage.Message.Sender.FirstName, " ", userMessage.Message.Sender.LastName),
+                                userMessage.Message.Sender.FirstName + " " + userMessage.Message.Sender.LastName,
                     Type = userMessage.Message.Type,
                     Time = userMessage.Message.Time.ToHijri(),
                     IsViewed = userMessage.IsViewd
