@@ -278,18 +278,31 @@ namespace coReport.Controllers
                         return View(model);
                     }
                     //Change the report status to viewed
-                    _reportData.SetViewed(model.UserReport.Id, manager.Id);
+                    var result = _reportData.SetViewed(model.UserReport.Id, manager.Id);
+                    if (!result)
+                    {
+                        ModelState.AddModelError("", "مشکل در ثبت گزارش!");
+                        return View(model);
+                    }
                 }
                 else //means user updating manager report
                 {
                     savedManagerReport = managerReport;
                     managerReport.Text = model.Text;
+                    managerReport.Date = DateTime.Now;
                     managerReport.IsUserReportAcceptable = model.IsAcceptable;
                     managerReport.IsCommentViewableByUser = model.IsViewableByUser;
                     var result = _managerReportData.Update(managerReport);
                     if (result == false)
                     {
                         ModelState.AddModelError("", "مشکل در بروزرسانی!");
+                        return View(model);
+                    }
+                    //Change the report status to viewed
+                    var setViewedResult = _reportData.SetViewed(model.UserReport.Id, manager.Id);
+                    if (!setViewedResult)
+                    {
+                        ModelState.AddModelError("", "مشکل در ثبت گزارش!");
                         return View(model);
                     }
                 }

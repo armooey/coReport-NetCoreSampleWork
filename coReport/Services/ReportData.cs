@@ -172,8 +172,7 @@ namespace coReport.Services
         {
             try
             {
-                var report = _context.ProjectManagers.FirstOrDefault(pm => pm.ReportId == reportId 
-                                            && pm.ManagerId == managerId);
+                var report = _context.ProjectManagers.FirstOrDefault(pm => pm.ReportId == reportId && pm.ManagerId == managerId);
                 if (report != null && !report.IsViewd)
                 {
                     report.IsViewd = true;
