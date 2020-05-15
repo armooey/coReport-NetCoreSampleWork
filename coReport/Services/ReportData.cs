@@ -28,6 +28,8 @@ namespace coReport.Services
                 {
                     _context.ProjectManagers.Add(new ProjectManager { ReportId = report.Id, ManagerId = manager});
                 }
+                if(report.AttachmentName != null)
+                    AddAtachmentHistory(report.Id, report.AttachmentName);
                 _context.SaveChanges();
                 return report;
             }
@@ -141,6 +143,8 @@ namespace coReport.Services
                 }
                 //update report
                 _context.Reports.Update(report);
+                if (report.AttachmentName != null)
+                    AddAtachmentHistory(report.Id, report.AttachmentName);
                 _context.SaveChanges();
                 return true;
             }
@@ -151,12 +155,12 @@ namespace coReport.Services
         }
 
 
-        public bool UpdateAttachment(short id, string attachmentExtensions)
+        public bool UpdateAttachment(short id, string attachmentName)
         {
             try
             {
                 _context.Reports.Where(r => r.Id == id).
-                    Update(r => new Report { AttachmentExtension = attachmentExtensions });
+                    Update(r => new Report { AttachmentName = attachmentName });
                 _context.SaveChanges();
                 return true;
             }
@@ -195,6 +199,18 @@ namespace coReport.Services
         public IEnumerable<Report> GetTodayReportsOfUser(short id)
         {
             return _context.Reports.Where(r => !r.IsDeleted && r.AuthorId == id && r.Date.Date == DateTime.Now.Date);
+        }
+
+        private void AddAtachmentHistory(short reportId, string attachmentName)
+        {
+            try
+            {
+                _context.ReportAttachmentHistories.Add(new ReportAttachmentHistory { ReportId = reportId, AttachmentName = attachmentName });
+            }
+            catch
+            {
+                
+            }
         }
     }
 }

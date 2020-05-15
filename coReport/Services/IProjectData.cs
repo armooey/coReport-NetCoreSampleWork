@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace coReport.Services
 {
-    public interface IProjectService
+    public interface IProjectData
     {
         public bool Add(Project project);
         public IEnumerable<Project> GetAll();

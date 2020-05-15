@@ -40,8 +40,11 @@
             </button>
         }
 
-        <button class="btn btn-danger float-left span-control" onclick="DeleteMessage(@Model.Id)" style="margin-top:-15px">
-            <i class="fas fa-trash-alt"></i> حذف
-        </button>
+        @if (Model.Type != MessageType.Warning)
+        {
+            <button class="btn btn-danger float-left span-control" onclick="DeleteMessage(@Model.Id)" style="margin-top:-15px">
+                <i class="fas fa-trash-alt"></i> حذف
+            </button>
+        }
     </div>
 </div>

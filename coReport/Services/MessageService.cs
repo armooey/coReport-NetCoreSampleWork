@@ -92,10 +92,17 @@ namespace coReport.Services
         {
             try
             {
-                _context.UserMessages.Where(um => um.MessageId == id).Delete();
-                _context.Messages.Where(m => m.Id == id).Delete();
-                _context.SaveChanges();
-                return true;
+                var message = _context.Messages.FirstOrDefault(m => m.Id == id);
+                if (message == null)
+                    return true;
+                if (message.Type != MessageType.Warning)
+                { 
+                    _context.UserMessages.Where(um => um.MessageId == id).Delete();
+                    _context.Messages.Remove(message);
+                    _context.SaveChanges();
+                    return true;
+                }
+                return false;
             }
             catch
             {

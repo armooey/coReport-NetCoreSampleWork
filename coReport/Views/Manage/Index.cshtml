@@ -11,7 +11,7 @@
         <input asp-for="Username" hidden="hidden" class="form-control" />
 
         <div class="form-group">
-            <div>
+            <div class="mr-2">
                 @if (Model.ImageByte != null)
                 {
                     <img class=" img rounded-circle" src="data:image/jpeg;base64,@Convert.ToBase64String(Model.ImageByte)" style="width: 100px;height:100px;">
@@ -25,6 +25,7 @@
             <div class="col-md-4">
                 <input asp-for="Image" class="form-control" />
                 <span class="text-muted"><small>برای تغییر عکس، تصویر جدیدی را بارگذاری کنید.</small></span>
+                <span asp-validation-for="Image" class="text-danger small"></span>
             </div>
         </div>
         <div class="form-group">

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using coReport.Auth;
 using coReport.Models.ManageViewModels;
 using coReport.Operations;
+using coReport.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -20,17 +21,20 @@ namespace coReport.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole<short>> _roleManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IUserData _userData;
 
         public ManageController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         RoleManager<IdentityRole<short>> roleManager,
-        IWebHostEnvironment webHostEnvironment)
+        IWebHostEnvironment webHostEnvironment,
+        IUserData userData)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _webHostEnvironment = webHostEnvironment;
+            _userData = userData;
         }
 
 
@@ -73,19 +77,35 @@ namespace coReport.Controllers
         public async Task<IActionResult> Index(IndexViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
-            var user = await _userManager.FindByNameAsync(model.Username);
-            user.FirstName = model.FirstName;
-            user.LastName = model.LastName;
-            user.PhoneNumber = model.PhoneNumber;
-            if (model.Image != null)
-                user.ProfileImageName = await SystemOperations.SaveProfileImage(_webHostEnvironment, model.Image);
-            var result = await _userManager.UpdateAsync(user);
-            if (result.Succeeded)
-            { 
-                return RedirectToAction("Index",new {userName = model.Username, returnUrl = returnUrl });
+            ViewData["UserName"] = model.Username;
+
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByNameAsync(model.Username);
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+                user.PhoneNumber = model.PhoneNumber;
+                if (model.Image != null)
+                {
+                    var imageName = await SystemOperations.SaveProfileImage(_webHostEnvironment, model.Image);
+                    if (imageName == null)
+                    {
+                        ModelState.AddModelError("", "مشکل در ذخیره سازی عکس پروفایل");
+                        return View(model);
+                    }
+                    _userData.AddProfileImage(user.Id, imageName);
+                    user.ProfileImageName = imageName;
+                }
+                var result = await _userManager.UpdateAsync(user);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Index", new { userName = model.Username, returnUrl = returnUrl });
+                }
+                ModelState.AddModelError(String.Empty, "مشکل در بروزرسانی اطلاعات کاربر.");
+                return View(model);
             }
-            ModelState.AddModelError(String.Empty, "مشکل در بروزرسانی اطلاعات کاربر.");
             return View(model);
+
         }
 
 

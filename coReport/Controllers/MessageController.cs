@@ -1,5 +1,6 @@
 ﻿using System;
 using coReport.Models.HomeViewModels;
+using coReport.Models.MessageModels;
 using coReport.Services;
 using Microsoft.AspNetCore.Mvc;
 

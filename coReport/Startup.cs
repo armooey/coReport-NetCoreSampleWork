@@ -50,7 +50,8 @@ namespace coReport
             services.AddTransient<IManagerReportData, ManagerReportData>();
             services.AddTransient<IManagerData, ManagerData>();
             services.AddTransient<IMessageService, MessageService>();
-            services.AddTransient<IProjectService, ProjectService>();
+            services.AddTransient<IProjectData, ProjectData>();
+            services.AddTransient<IUserData, UserData>();
             services.AddRazorPages();
         }
 

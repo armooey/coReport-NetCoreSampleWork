@@ -185,11 +185,7 @@
                 url: "@Url.Action("SetViewed","Message")",
                 data: { id: id }
             }).done(function (ajaxResult) {
-                if (ajaxResult)
-                {
-                    $('[data-toggle="popover"]').parent().parent().attr('style', 'border: 1px solid');
-                }
-                else {
+                if (!ajaxResult) {
                     bootbox.alert({
                         closeButton: false,
                         title: "خطا",
@@ -249,6 +245,9 @@
         $('[data-toggle="popover"]').popover();
         $('.seen-False').attr('style', 'border: 2px solid !important');
         $('.ended-True').attr('style', 'background-color:lightgray');
+        $('[data-toggle="popover"]').click(function () {
+                $(this).parent().parent().attr('style', 'border: 1px solid');
+            });
     });
     </script>
 }

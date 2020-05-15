@@ -29,7 +29,8 @@ namespace coReport.Controllers
         private RoleManager<IdentityRole<short>> _roleManager;
         private IManagerData _managerData;
         private IMessageService _messageService;
-        private IProjectService _projectService;
+        private IProjectData _projectService;
+        private IUserData _userData;
 
         public AdminController(UserManager<ApplicationUser> userManager, IReportData reportData,
             IManagerReportData managerReportData,
@@ -37,7 +38,8 @@ namespace coReport.Controllers
             RoleManager<IdentityRole<short>> roleManager,
             IManagerData managerData,
             IMessageService messageService,
-            IProjectService projectService)
+            IProjectData projectService,
+            IUserData userData)
         {
             _userManager = userManager;
             _reportData = reportData;
@@ -47,6 +49,7 @@ namespace coReport.Controllers
             _managerData = managerData;
             _messageService = messageService;
             _projectService = projectService;
+            _userData = userData;
         }
 
         public IActionResult AdminPanel()
@@ -107,7 +110,7 @@ namespace coReport.Controllers
 
         public async Task<IActionResult> ManageUsers()
         {
-            var users = _userManager.Users.Where(user=>user.UserName != "admin").OrderByDescending(u => u.RegisterDate);
+            var users = _userManager.Users.Where(user => user.UserName != "admin" && !user.IsDeleted).OrderByDescending(u => u.RegisterDate);
             var userViewModelList = new List<UserViewModel>();
             foreach (ApplicationUser user in users)
             {
@@ -202,6 +205,16 @@ namespace coReport.Controllers
             model.Roles = _roleManager.GetRolesSelectList();
             if (ModelState.IsValid)
             {
+                String imageName = null;
+                if (model.Image != null)
+                { 
+                    imageName = await SystemOperations.SaveProfileImage(_webHostEnvironment, model.Image);
+                    if (imageName == null)
+                    {
+                        ModelState.AddModelError("", "مشکل در ذخیره سازی عکس پروفایل");
+                        return View(model);
+                    }
+                }
                 var user = new ApplicationUser
                 {
                     UserName = model.Username,
@@ -210,11 +223,13 @@ namespace coReport.Controllers
                     RegisterDate = DateTime.Now,
                     IsActive = false,
                     LockoutEnabled = false,
-                    Email = model.Email
+                    Email = model.Email,
+                    ProfileImageName = imageName
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    _userData.AddProfileImage(user.Id, imageName);
                     await _userManager.AddToRoleAsync(user, model.Role);
                     return RedirectToAction("ManageUsers");
                 }
@@ -227,6 +242,15 @@ namespace coReport.Controllers
                             break;
                         case "DuplicateEmail":
                             ModelState.AddModelError("", "این ایمیل قبلا در سیستم ثبت شده است.");
+                            break;
+                        case "PasswordRequiresUpper":
+                            ModelState.AddModelError("", "کلمه عبور باید شامل حروف بزرگ انگلیسی باشد.");
+                            break;
+                        case "PasswordRequiresDigit":
+                            ModelState.AddModelError("", "کلمه عبور باید شامل اعداد باشد.");
+                            break;
+                        case "PasswordRequiresLower":
+                            ModelState.AddModelError("", "کلمه عبور باید شامل حروف کوچک انگلیسی باشد.");
                             break;
                         default:
                             ModelState.AddModelError("", "مشکل در ثبت کاربر");
@@ -248,7 +272,8 @@ namespace coReport.Controllers
             var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user != null)
             {
-                var result = await _userManager.DeleteAsync(user);
+                user.IsDeleted = true;
+                var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)
                     return Json(true);
                 else

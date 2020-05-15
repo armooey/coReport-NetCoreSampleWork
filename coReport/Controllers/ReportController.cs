@@ -25,14 +25,14 @@ namespace coReport.Controllers
         private IWebHostEnvironment _webHostEnvironment;
         private IManagerData _managerData;
         private IMessageService _messageService;
-        private IProjectService _projectService;
+        private IProjectData _projectService;
 
         public ReportController(IReportData reportData, IManagerReportData adminReportData,
             UserManager<ApplicationUser> userManager,
             IWebHostEnvironment webHostEnvironment,
             IManagerData managerData,
             IMessageService messageService,
-            IProjectService projectService)
+            IProjectData projectService)
         {
             _reportData = reportData;
             _userManager = userManager;
@@ -63,7 +63,7 @@ namespace coReport.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(CreateReportViewModel model)
+        public async Task<IActionResult> Create(CreateReportViewModel model)
         {
             model.Managers = SystemOperations.GetProjectManagerViewModels(model.AuthorId, _managerData);
             model.Projects = SystemOperations.GetInProgressProjectViewModels(_projectService);
@@ -80,6 +80,17 @@ namespace coReport.Controllers
                     ModelState.AddModelError("", "زمان ورود و خروج را بررسی کنید.");
                     return View(model);
                 }
+                //Save report Attachment
+                String fileName = null;
+                if (model.Attachment != null)
+                {
+                    fileName = await SystemOperations.SaveReportAttachment(_webHostEnvironment, model.Attachment);
+                    if (fileName == null)
+                    {
+                        ModelState.AddModelError("", "مشکل در ذخیره‌سازی فایل پیوست.");
+                        return View(model);
+                    }
+                }
                 var report = new Report
                 {
                     Title = model.Title,
@@ -88,28 +99,14 @@ namespace coReport.Controllers
                     AuthorId = model.AuthorId,
                     EnterTime = model.EnterTime,
                     ExitTime = model.ExitTime,
-                    Date = DateTime.Now
+                    Date = DateTime.Now,
+                    AttachmentName = fileName
                 };
                 var savedReport = _reportData.Add(report, model.ProjectManagerIds); //Saving Report
-                //Save report Attachment
-                if (model.Attachment != null)
+                if(savedReport == null)
                 {
-                    try
-                    {
-                        SystemOperations.SaveReportAttachment(_webHostEnvironment, model.Attachment
-                                                                , model.AuthorId, savedReport.Id);
-                    }
-                    catch
-                    {
-                        ModelState.AddModelError("", "مشکل در ذخیره‌سازی فایل پیوست.");
-                        return View(model);
-                    }
-                    var result = _reportData.UpdateAttachment(savedReport.Id, Path.GetExtension(model.Attachment.FileName));
-                    if (!result)
-                    {
-                        ModelState.AddModelError("", "مشکل در ذخیره‌سازی فایل پیوست.");
-                        return View(model);
-                    }
+                    ModelState.AddModelError("", "مشکل در ایجاد گزارش.");
+                    return View(model);
                 }
                 return RedirectToAction("ManageReports","Account");
             }
@@ -137,10 +134,9 @@ namespace coReport.Controllers
                 ProjectManagerIds = report.ProjectManagers.Select(pm => pm.ManagerId).ToList(),
                 Title = report.Title,
                 Text = report.Text,
-                IsSubmitedByManager = report.ManagerReports != null && report.ManagerReports.Any() 
-                                ? true : false, //If any of project managers submited report with this report
-                AttachmentName = report.AttachmentExtension != null ? 
-                                String.Format("{0}-{1}{2}", report.AuthorId, report.Id, report.AttachmentExtension): null
+                //If any of project managers submited report with this report
+                IsSubmitedByManager = report.ManagerReports != null && report.ManagerReports.Any() ? true : false,
+                AttachmentName = report.AttachmentName != null ? report.AttachmentName : null
             };
            
 
@@ -149,7 +145,7 @@ namespace coReport.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(CreateReportViewModel model)
+        public async Task<IActionResult> Edit(CreateReportViewModel model)
         {
             model.Managers = SystemOperations.GetProjectManagerViewModels(model.AuthorId, _managerData);
             model.Projects = SystemOperations.GetInProgressProjectViewModels(_projectService);
@@ -160,39 +156,30 @@ namespace coReport.Controllers
                     ModelState.AddModelError("", "زمان ورود و خروج را بررسی کنید.");
                     return View(model);
                 }
+                //Save report Attachment
+                String fileName = null;
+                if (model.Attachment != null)
+                {
+                    fileName = await SystemOperations.SaveReportAttachment(_webHostEnvironment, model.Attachment);
+                    if (fileName == null)
+                    {
+                        ModelState.AddModelError("", "مشکل در ذخیره‌سازی فایل پیوست.");
+                        return View(model);
+                    }
+                }
                 var report = _reportData.Get(model.Id);
                 report.Title = model.Title;
                 report.Text = model.Text;
                 report.ProjectId = model.ProjectId;
                 report.EnterTime = model.EnterTime;
                 report.ExitTime = model.ExitTime;
+                if(fileName != null)
+                    report.AttachmentName = fileName;
                 var result = _reportData.Update(report, model.ProjectManagerIds);
                 if (!result)
                 {
                     ModelState.AddModelError("", "مشکل در بروزرسانی!");
                     return View(model);
-                }
-                //update attachment if user provided new one
-                if (model.Attachment != null)
-                {
-                    try
-                    {
-                        SystemOperations.SaveReportAttachment(_webHostEnvironment, model.Attachment, 
-                                                model.AuthorId, report.Id, report.AttachmentExtension);
-                    }
-                    catch
-                    {
-                        ModelState.AddModelError("", "مشکل در ذخیره فایل پیوست!");
-                        return View(model);
-                    }
-
-                    var attachmentUpdateResult = _reportData.UpdateAttachment(report.Id,
-                                Path.GetExtension(model.Attachment.FileName));
-                    if (!attachmentUpdateResult)
-                    {
-                        ModelState.AddModelError("", "مشکل در ذخیره فایل پیوست!");
-                        return View(model);
-                    }
                 }
                 return RedirectToAction("ManageReports","Account");
             }
@@ -232,8 +219,7 @@ namespace coReport.Controllers
                     EnterTime = report.EnterTime,
                     ExitTime = report.ExitTime,
                     Date = report.Date,
-                    AttachmentName = report.AttachmentExtension != null ?
-                            String.Format("{0}-{1}{2}", report.AuthorId, report.Id, report.AttachmentExtension) : null
+                    AttachmentName = report.AttachmentName != null ? report.AttachmentName : null
                 };
                 var managerReportViewModel = new ManagerReportViewModel { UserReport = reportModel };
                 if (managerReport != null)

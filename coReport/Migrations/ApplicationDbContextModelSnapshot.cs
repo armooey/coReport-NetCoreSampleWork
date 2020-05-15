@@ -240,6 +240,24 @@ namespace coReport.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("coReport.Models.AccountModel.ProfileImageHistory", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ImageName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<short>("UserId")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProfileImageHistories");
+                });
+
             modelBuilder.Entity("coReport.Models.ManagerModels.UserManager", b =>
                 {
                     b.Property<short>("ManagerId")
@@ -397,7 +415,7 @@ namespace coReport.Migrations
                         .HasColumnType("smallint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("AttachmentExtension")
+                    b.Property<string>("AttachmentName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<short>("AuthorId")
@@ -434,6 +452,24 @@ namespace coReport.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("Reports");
+                });
+
+            modelBuilder.Entity("coReport.Models.ReportModels.ReportAttachmentHistory", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("AttachmentName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<short>("ReportId")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ReportAttachmentHistories");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<short>", b =>

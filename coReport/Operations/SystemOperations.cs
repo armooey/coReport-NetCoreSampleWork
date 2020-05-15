@@ -25,54 +25,71 @@ namespace coReport.Operations
 
         public static async Task<string> SaveProfileImage(IWebHostEnvironment webHostEnvironment, IFormFile file)
         {
-            if (file != null)
+            var imageDirectoryPath = Path.Combine(webHostEnvironment.ContentRootPath, "UserData", "Images");
+            // Determine whether the Image directory exists.
+            if (!Directory.Exists(imageDirectoryPath))
             {
-                var imageDirectoryPath = Path.Combine(webHostEnvironment.ContentRootPath, "UserData", "Images");
-                // Determine whether the Image directory exists.
-                if (!Directory.Exists(imageDirectoryPath))
-                {
-                    Directory.CreateDirectory(imageDirectoryPath);
-                }
-                var imageId = Guid.NewGuid().ToString();
-                var ImageName = Path.Combine(imageDirectoryPath, String.Format("{0}.jpg", imageId));
-                //Deleting Existing File with the same name
-                if (System.IO.File.Exists(ImageName))
-                {
-                    System.IO.File.Delete(ImageName);
-                }
+                Directory.CreateDirectory(imageDirectoryPath);
+            }
+            var imageId = Guid.NewGuid().ToString();
+            var ImageName = Path.Combine(imageDirectoryPath, String.Format("{0}.jpg", imageId));
+            try
+            {
                 //Retriving image data from stream and saving to server
                 using (var localFile = System.IO.File.Create(ImageName))
                 using (var uploadedImage = file.OpenReadStream())
                 {
                     await uploadedImage.CopyToAsync(localFile);
                 }
-                return imageId;
             }
-            return null;
+            catch
+            {
+                return null;
+            }
+            return imageId;
         }
 
 
-        public static async void SaveReportAttachment(IWebHostEnvironment webHostEnvironment, IFormFile file, short userId,
-            int savedReportId, String lastSavedExtension = null)
+        public static async Task<string> SaveReportAttachment(IWebHostEnvironment webHostEnvironment, IFormFile file)
         {
+            var fileName = Guid.NewGuid().ToString();
             var fileDirectoryPath = Path.Combine(webHostEnvironment.ContentRootPath, "UserData", "Files");
             // Determine whether the file directory exists.
             if (!Directory.Exists(fileDirectoryPath))
             {
                 Directory.CreateDirectory(fileDirectoryPath);
             }
-            var filePath = Path.Combine(fileDirectoryPath, String.Format("{0}-{1}{2}", userId, savedReportId, lastSavedExtension));
             //Deleting Existing File with the same name
-            if (System.IO.File.Exists(filePath))
+            try
             {
-                System.IO.File.Delete(filePath);
+                fileName = fileName + Path.GetExtension(file.FileName);
+                var filePath = Path.Combine(fileDirectoryPath, fileName);
+                //Retriving file data from stream and saving to server
+                using (var localFile = System.IO.File.Create(filePath))
+                using (var uploadedFile = file.OpenReadStream())
+                {
+                    await uploadedFile.CopyToAsync(localFile);
+                }
+                return fileName;
             }
-            filePath = Path.Combine(fileDirectoryPath, String.Format("{0}-{1}{2}", userId, savedReportId, Path.GetExtension(file.FileName)));
-            //Retriving file data from stream and saving to server
-            using (var localFile = System.IO.File.Create(filePath))
-            using (var uploadedFile = file.OpenReadStream())
+            catch
             {
-                await uploadedFile.CopyToAsync(localFile);
+                return null;
+            }
+        }
+        public static void DeleteReportAttachment(IWebHostEnvironment webHostEnvironment, String fileName)
+        {
+            var filePath = Path.Combine(webHostEnvironment.ContentRootPath, "UserData", "Files", fileName);
+            try
+            {
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+            catch
+            {
+                
             }
         }
 
@@ -92,7 +109,7 @@ namespace coReport.Operations
             return managerViewModels;
         }
 
-        public static List<ProjectViewModel> GetInProgressProjectViewModels(IProjectService projectService)
+        public static List<ProjectViewModel> GetInProgressProjectViewModels(IProjectData projectService)
         {
             var projects = projectService.GetInProgressProjects();
             var projectViewModels = new List<ProjectViewModel>();
@@ -131,8 +148,8 @@ namespace coReport.Operations
         {
             return new List<SelectListItem>
                 {
-                    new SelectListItem{ Text = AppSettingInMemoryDatabase.MANAGER_ROLE_NAME, Value = "Manager" },
-                    new SelectListItem{ Text = AppSettingInMemoryDatabase.EMPLOYEE_ROLE_NAME, Value = "Employee" }
+                    new SelectListItem{ Text = AppSettingInMemoryDatabase.EMPLOYEE_ROLE_NAME, Value = "Employee"},
+                    new SelectListItem{ Text = AppSettingInMemoryDatabase.MANAGER_ROLE_NAME, Value = "Manager" }
                 };
         }
 

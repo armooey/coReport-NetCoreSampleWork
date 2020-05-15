@@ -26,6 +26,7 @@ namespace coReport.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IReportData _reportData;
         private readonly IMessageService _messageService;
+        private readonly IUserData _userData;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -33,7 +34,8 @@ namespace coReport.Controllers
             RoleManager<IdentityRole<short>> roleManager,
             IWebHostEnvironment webHostEnvironment,
             IReportData reportData,
-            IMessageService messageService)
+            IMessageService messageService,
+            IUserData userData)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -41,6 +43,7 @@ namespace coReport.Controllers
             _webHostEnvironment = webHostEnvironment;
             _reportData = reportData;
             _messageService = messageService;
+            _userData = userData;
         }
 
 
@@ -118,7 +121,16 @@ namespace coReport.Controllers
             model.Roles = _roleManager.GetRolesSelectList();
             if (ModelState.IsValid)
             {
-                var imageName = await SystemOperations.SaveProfileImage(_webHostEnvironment, model.Image);
+                String imageName = null;
+                if (model.Image != null)
+                {
+                    imageName = await SystemOperations.SaveProfileImage(_webHostEnvironment, model.Image);
+                    if (imageName == null)
+                    {
+                        ModelState.AddModelError("", "مشکل در ذخیره سازی عکس پروفایل");
+                        return View(model);
+                    }
+                }
                 var user = new ApplicationUser {
                     UserName = model.Username,
                     FirstName = model.FirstName,
@@ -129,11 +141,10 @@ namespace coReport.Controllers
                     Email = model.Email,
                     ProfileImageName = imageName
                 };
-
-
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    _userData.AddProfileImage(user.Id, imageName);
                     await _userManager.AddToRoleAsync(user, model.Role);
                     var message = new Message {
                         Text = String.Format("{0} {1} با نام کاربری {2} حساب کاربری جدیدی ایجاد کرده است. لطفا نسبت به فعالسازی آن اقدام فرمایید.",
@@ -156,8 +167,17 @@ namespace coReport.Controllers
                         case "DuplicateEmail":
                             ModelState.AddModelError("", "این ایمیل قبلا در سیستم ثبت شده است.");
                             break;
+                        case "PasswordRequiresUpper":
+                            ModelState.AddModelError("", "کلمه عبور باید شامل حروف بزرگ انگلیسی باشد.");
+                            break;
+                        case "PasswordRequiresDigit":
+                            ModelState.AddModelError("", "کلمه عبور باید شامل اعداد باشد.");
+                            break;
+                        case "PasswordRequiresLower":
+                            ModelState.AddModelError("", "کلمه عبور باید شامل حروف کوچک انگلیسی باشد.");
+                            break;
                         default:
-                            ModelState.AddModelError("", "مشکل در ایجاد حساب کاربری");
+                            ModelState.AddModelError("", "مشکل در ثبت کاربر");
                             break;
                     }
                 }

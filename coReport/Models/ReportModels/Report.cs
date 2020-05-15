@@ -20,7 +20,7 @@ namespace coReport.Models.ReportModels
         public DateTime Date { get; set; }
         public DateTime EnterTime { get; set; }
         public DateTime ExitTime { get; set; }
-        public String AttachmentExtension { get; set; }
+        public String AttachmentName { get; set; }
         public short InvalidReportMessageId { get; set; }
         public bool IsDeleted { get; set; }
         public ICollection<ProjectManager> ProjectManagers { get; set; }

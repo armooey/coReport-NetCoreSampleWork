@@ -8,11 +8,11 @@ using Z.EntityFramework.Plus;
 
 namespace coReport.Services
 {
-    public class ProjectService : IProjectService
+    public class ProjectData : IProjectData
     {
         private ApplicationDbContext _context;
 
-        public ProjectService(ApplicationDbContext context)
+        public ProjectData(ApplicationDbContext context)
         {
             _context = context;
         }
