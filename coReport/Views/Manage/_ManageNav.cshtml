@@ -33,7 +33,7 @@
                 <i class="fas fa-key"></i> کلمه عبور</a></li>
         }
 
-        @if (User.IsInRole("ادمین") && !userName.Equals("admin"))
+        @if (User.IsInRole("Admin") && !userName.Equals("admin"))
         {
             if (ViewData["ViewName"].Equals("Administration"))
             {

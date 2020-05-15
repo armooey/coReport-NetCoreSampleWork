@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using coReport.Data;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -16,11 +17,9 @@ namespace coReport.CustomValidation
             if (value == null)
                 return true;
 
-            string[] validExtensions = { "JPG", "JPEG", "PNG" };
-
-            var file = (IFormFile)value;
-            var fileExtensions = Path.GetExtension(file.FileName).ToUpper().Replace(".", "");
-            return validExtensions.Contains(fileExtensions) && file.ContentType.Contains("image");
+            var image = (IFormFile)value;
+            var imageExtension = Path.GetExtension(image.FileName).ToUpper().Replace(".", "");
+            return AppSettingInMemoryDatabase.IMAGE_FORMATS.Contains(imageExtension) && image.ContentType.Contains("image");
         }
     }
 }

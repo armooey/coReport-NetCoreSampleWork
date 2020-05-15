@@ -130,7 +130,7 @@ namespace coReport.Controllers
          * Admin Operations like baning user
          */
         [HttpGet]
-        [Authorize(Roles = "ادمین")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Administration(string userName, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -147,7 +147,7 @@ namespace coReport.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "ادمین")]
+        [Authorize(Roles = "Admin")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Administration(AdministrationViewModel model, string returnUrl = null)
         {

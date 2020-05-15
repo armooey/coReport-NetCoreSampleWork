@@ -26,7 +26,7 @@
                     <ul class="navbar-nav flex-grow-1">
                         @if (SignInManager.IsSignedIn(User))
                         {
-                            @if (User.IsInRole("ادمین"))
+                            @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Admin" asp-action="AdminPanel"><i class="fas fa-user-tie"></i> پنل مدیریت</a>
@@ -35,7 +35,7 @@
                                     <a class="nav-link" asp-controller="Admin" asp-action="ManageUsers"><i class="fas fa-users"></i> مدیریت کاربران</a>
                                 </li>
                             }
-                            else if (User.IsInRole("مدیر"))
+                            else if (User.IsInRole("Manager"))
                             {
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Manager" asp-action="ManageReports"><i class="fas fa-copy"></i> مدیریت گزارشات</a>

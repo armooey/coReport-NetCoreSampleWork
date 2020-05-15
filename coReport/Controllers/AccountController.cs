@@ -119,7 +119,7 @@ namespace coReport.Controllers
             if (ModelState.IsValid)
             {
                 var imageName = await SystemOperations.SaveProfileImage(_webHostEnvironment, model.Image);
-                var user = new ApplicationUser { 
+                var user = new ApplicationUser {
                     UserName = model.Username,
                     FirstName = model.FirstName,
                     LastName = model.LastName,
@@ -136,7 +136,7 @@ namespace coReport.Controllers
                 {
                     await _userManager.AddToRoleAsync(user, model.Role);
                     var message = new Message {
-                        Text = String.Format("{0} {1} با نام کاربری {2} حساب کاربری جدیدی ایجاد کرده است. لطفا نسبت به فعالسازی آن اقدام فرمایید.", 
+                        Text = String.Format("{0} {1} با نام کاربری {2} حساب کاربری جدیدی ایجاد کرده است. لطفا نسبت به فعالسازی آن اقدام فرمایید.",
                                model.FirstName, model.LastName, model.Username),
                         Type = MessageType.System_Notification,
                         Title = "کاربر جدید",
@@ -167,7 +167,7 @@ namespace coReport.Controllers
 
         //A remote validation to check if username is exits or not
         [AllowAnonymous]
-        [AcceptVerbs("Get","Post")]
+        [AcceptVerbs("Get", "Post")]
         public async Task<IActionResult> CheckUsernameExistance(string username)
         {
             var user = await _userManager.FindByNameAsync(username);
@@ -195,15 +195,15 @@ namespace coReport.Controllers
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
-
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> ManageReports()
         {
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
             var reports = _reportData.GetByAuthorId(user.Id);
             var reportViewModels = new List<ReportViewModel>();
-            foreach(var report in reports)
+            foreach (var report in reports)
             {
-                reportViewModels.Add(new ReportViewModel { 
+                reportViewModels.Add(new ReportViewModel {
                     Id = report.Id,
                     ProjectName = report.Project.Title,
                     Date = report.Date.ToHijri(),
@@ -212,7 +212,7 @@ namespace coReport.Controllers
                 });
             }
 
-            var userReportViewModel = new UserReportViewModel { 
+            var userReportViewModel = new UserReportViewModel {
                 Reports = reportViewModels,
                 Messages = SystemOperations.GetMessageViewModels(_messageService, user.Id)
             };
@@ -236,7 +236,7 @@ namespace coReport.Controllers
             catch
             {
                 var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "user.png");
-                image = System.IO.File.ReadAllBytes(imagePath);
+                image = await System.IO.File.ReadAllBytesAsync(imagePath);
             }
             return File(image, "image/jpeg");
         }

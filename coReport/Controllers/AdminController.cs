@@ -1,4 +1,5 @@
 ﻿using coReport.Auth;
+using coReport.Data;
 using coReport.Models.AccountViewModels;
 using coReport.Models.AdminViewModels;
 using coReport.Models.HomeViewModels;
@@ -18,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace coReport.Controllers
 {
-    [Authorize(Roles = "ادمین")]
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
         private UserManager<ApplicationUser> _userManager;
@@ -89,7 +90,7 @@ namespace coReport.Controllers
                     ReceiverName = String.Concat(warning.Receiver.FirstName," ",warning.Receiver.LastName),
                     Title = warning.Message.Title,
                     IsViewed = warning.IsViewd,
-                    ElapsedTime = DateTime.Now.Subtract(warning.Message.Time).Hours
+                    ElapsedTime = Math.Round(DateTime.Now.Subtract(warning.Message.Time).TotalHours)
                 });
             }
 
@@ -123,6 +124,7 @@ namespace coReport.Controllers
                     image = null;
                 }
                 //creating view model
+                var userRole = _userManager.GetRolesAsync(user).Result.FirstOrDefault();
                 userViewModelList.Add(new UserViewModel
                 {
                     Id = user.Id,
@@ -131,7 +133,9 @@ namespace coReport.Controllers
                     LastName = user.LastName,
                     Email = user.Email,
                     Image = image,
-                    Role = _userManager.GetRolesAsync(user).Result.FirstOrDefault(),
+                    Role = userRole,
+                    RoleName = userRole == "Manager"? AppSettingInMemoryDatabase.MANAGER_ROLE_NAME:
+                                            AppSettingInMemoryDatabase.EMPLOYEE_ROLE_NAME,
                     IsActive = user.IsActive
                 }) ;
             }
@@ -144,27 +148,36 @@ namespace coReport.Controllers
 
 
 
-        public async Task<IActionResult> ActivateUser(short userId, UserManagementViewModel model = null)
+        public async Task<IActionResult> ActivateUser(short userId, string userRole, UserManagementViewModel model = null)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
             user.IsActive = true;
             var result = await _userManager.UpdateAsync(user);
-            if(result.Succeeded)
+            if (result.Succeeded)
             {
                 if (model.ManagerIds != null)
-                { 
+                {
                     var setManagerResult = _managerData.SetManagers(userId, model.ManagerIds);
-                    if(!setManagerResult)
-                        return RedirectToAction("Error", "Home", new ErrorViewModel { 
+                    if (!setManagerResult)
+                    {
+                        return RedirectToAction("Error", "Home", new ErrorViewModel
+                        {
                             Error = "مشکل در فعالسازی حساب کاربری!"
                         });
+                    }
                 }
-                return RedirectToAction("ManageUsers");
+                if (userRole == "Manager")
+                    return Json(true);
+                else
+                    return RedirectToAction("ManageUsers");
             }
-            return RedirectToAction("Error", "Home", new ErrorViewModel
-            {
-                Error = "مشکل در فعالسازی حساب کاربری!"
-            });
+            if (userRole == "Manager")
+                return Json(false);
+            else
+                return RedirectToAction("Error", "Home", new ErrorViewModel
+                {
+                    Error = "مشکل در فعالسازی حساب کاربری!"
+                });
         }
 
 

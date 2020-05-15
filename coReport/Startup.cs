@@ -82,7 +82,8 @@ namespace coReport
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
-            DbInitializer.Initialize(services, Configuration).Wait();
+            AppSettingInMemoryDatabase.Initialize(Configuration);
+            DbInitializer.Initialize(services).Wait();
         }
     }
 }

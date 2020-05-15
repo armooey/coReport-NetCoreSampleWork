@@ -41,7 +41,7 @@ else
                     <label class="col-md control-label"> مدیران را انتخاب کنید:</label>
                     <div class="col-md">
                         <select id="manager_multiselect" asp-for="ManagerIds" style="width: 100%" multiple="multiple">
-                            @foreach (var user in Model.Users.Where(r => r.Role == "مدیر"))
+                            @foreach (var user in Model.Users.Where(r => r.Role == "Manager"))
                             {
                                 <option value="@user.Id">@user.FirstName @user.LastName</option>
                             }
@@ -119,6 +119,47 @@ else
                                     closeButton: false,
                                     title: "خطا",
                                     message: "هنگام حذف کاربر مشکلی پیش آمده لطفا مجددا سعی کنید.",
+                                    buttons: {
+                                        ok: {
+                                            label: 'بستن'
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        function ActivateUser(id, role) {
+            bootbox.confirm({
+                closeButton: false,
+                message: "آیا از فعالسازی این کاربر مطمئن هستید؟",
+                buttons: {
+                    confirm: {
+                        label: 'بله',
+                        className: 'btn-primary'
+                    },
+                    cancel: {
+                        label: 'خیر',
+                        className: 'btn-secondary'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: "@Url.Action("ActivateUser")",
+                            data: { userId: id, userRole: role }
+                        }).done(function (ajaxResult) {
+                            console.log(ajaxResult);
+                            if (ajaxResult)
+                                location.reload();
+                            else {
+                                bootbox.alert({
+                                    closeButton: false,
+                                    title: "خطا",
+                                    message: "هنگام فعالسازی کاربر مشکلی پیش آمده لطفا مجددا سعی کنید.",
                                     buttons: {
                                         ok: {
                                             label: 'بستن'

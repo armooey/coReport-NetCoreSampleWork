@@ -10,6 +10,6 @@ namespace coReport.Models.AdminViewModels
         public String Title { get; set; }
         public String ReceiverName { get; set; }
         public bool IsViewed { get; set; }
-        public int ElapsedTime { get; set; }
+        public double ElapsedTime { get; set; }
     }
 }

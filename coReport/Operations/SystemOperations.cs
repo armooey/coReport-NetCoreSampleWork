@@ -1,4 +1,5 @@
 ﻿using coReport.Auth;
+using coReport.Data;
 using coReport.Models.AccountViewModels;
 using coReport.Models.MessageModels;
 using coReport.Models.MessageViewModels;
@@ -126,9 +127,13 @@ namespace coReport.Operations
             return messageViewModels;
         }
 
-        public static SelectList GetRolesSelectList(this RoleManager<IdentityRole<short>> roleManager)
+        public static List<SelectListItem> GetRolesSelectList(this RoleManager<IdentityRole<short>> roleManager)
         {
-            return new SelectList(roleManager.Roles.Where(r => r.Name != "ادمین").Select(r => r.Name).ToList());
+            return new List<SelectListItem>
+                {
+                    new SelectListItem{ Text = AppSettingInMemoryDatabase.MANAGER_ROLE_NAME, Value = "Manager" },
+                    new SelectListItem{ Text = AppSettingInMemoryDatabase.EMPLOYEE_ROLE_NAME, Value = "Employee" }
+                };
         }
 
         public static DateTime ToHijri(this DateTime time)

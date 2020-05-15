@@ -166,7 +166,6 @@ namespace coReport.Controllers
                 report.ProjectId = model.ProjectId;
                 report.EnterTime = model.EnterTime;
                 report.ExitTime = model.ExitTime;
-                report.Date = DateTime.Now;
                 var result = _reportData.Update(report, model.ProjectManagerIds);
                 if (!result)
                 {
@@ -215,7 +214,7 @@ namespace coReport.Controllers
         /*
          * View user reports
          */
-        [Authorize(Roles = "مدیر")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> CheckUserReport(short id)
         {
             var report = _reportData.Get(id);
@@ -251,7 +250,7 @@ namespace coReport.Controllers
 
 
 
-        [Authorize(Roles = "مدیر")]
+        [Authorize(Roles = "Manager")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateManagerReport(ManagerReportViewModel model)
         {
@@ -289,7 +288,6 @@ namespace coReport.Controllers
                 {
                     savedManagerReport = managerReport;
                     managerReport.Text = model.Text;
-                    managerReport.Date = DateTime.Now;
                     managerReport.IsUserReportAcceptable = model.IsAcceptable;
                     managerReport.IsCommentViewableByUser = model.IsViewableByUser;
                     var result = _managerReportData.Update(managerReport);

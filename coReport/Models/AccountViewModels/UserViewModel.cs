@@ -15,6 +15,7 @@ namespace coReport.Models.AccountViewModels
         public String Email { get; set; }
         public byte[] Image { get; set; }
         public String Role { get; set; }
+        public String RoleName { get; set; }
         public bool IsActive { get; set; }
     }
 }

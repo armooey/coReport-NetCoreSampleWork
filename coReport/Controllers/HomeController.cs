@@ -34,8 +34,8 @@ namespace coReport.Controllers
                 var model = new HomeViewModel
                 {
                     AlertsCount = alertsCount,
-                    Name = userRole.FirstOrDefault() != "ادمین" ?
-                                                currentUser.FirstName +  " " + currentUser.LastName : "ادمین",
+                    Name = userRole.FirstOrDefault() != "Admin" ?
+                                                currentUser.FirstName + " " + currentUser.LastName : "ادمین",
                     Role = userRole.FirstOrDefault()
                 };
                 return View(model);
