@@ -298,9 +298,10 @@ namespace coReport.Controllers
             return RedirectToAction("AdminPanel");
         }
 
-        public void EndProject(short id)
+        public IActionResult EndProject(short id)
         {
-            _projectService.EndProject(id);
+            var result = _projectService.EndProject(id);
+            return Json(result);
         }
     }
 }
