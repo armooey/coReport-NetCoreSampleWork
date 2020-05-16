@@ -41,7 +41,7 @@
                                     <a class="nav-link" asp-controller="Manager" asp-action="ManageReports"><i class="fas fa-copy"></i> مدیریت گزارشات</a>
                                 </li>
                             }
-                            else if (User.IsInRole("کارمند"))
+                            else if (User.IsInRole("Employee"))
                             {
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Account" asp-action="ManageReports"><i class="fas fa-copy"></i> مدیریت گزارشات</a>
@@ -60,12 +60,16 @@
         </nav>
     </header>
     <div class="bg"></div>
-    <div class="container">
-        <main role="main" class=" pb-3">
+    <div class="container page-container">
+        <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
-
+    <footer class="bg-primary">
+        <div class="float-left ml-2 mt-3" style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">
+        2020 © By <a href="https://armooey.ir">armooey.ir</a>
+        </div>
+    </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

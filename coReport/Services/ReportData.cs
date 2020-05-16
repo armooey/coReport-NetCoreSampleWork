@@ -5,6 +5,7 @@ using coReport.Models.ReportModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Z.EntityFramework.Plus;
 
@@ -13,9 +14,12 @@ namespace coReport.Services
     public class ReportData : IReportData
     {
         private ApplicationDbContext _context;
-        public ReportData(ApplicationDbContext context)
+        private ILogService _logger;
+
+        public ReportData(ApplicationDbContext context, ILogService logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public Report Add(Report report, IEnumerable<short> managerIds)
@@ -29,12 +33,13 @@ namespace coReport.Services
                     _context.ProjectManagers.Add(new ProjectManager { ReportId = report.Id, ManagerId = manager});
                 }
                 if(report.AttachmentName != null)
-                    AddAtachmentHistory(report.Id, report.AttachmentName);
+                    LogAttachmentHistory(report.Id, report.AttachmentName);
                 _context.SaveChanges();
                 return report;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Log("Error in saving report", e);
                 return null;
             }
         }
@@ -54,8 +59,9 @@ namespace coReport.Services
                 }
                 return true;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Log("Error in deleting report", e);
                 return false;
             }
         }
@@ -111,8 +117,9 @@ namespace coReport.Services
                 _context.SaveChanges();
                 return true;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Log("Error in preprocessing user delete", e);
                 return false;
             }
         }
@@ -144,12 +151,13 @@ namespace coReport.Services
                 //update report
                 _context.Reports.Update(report);
                 if (report.AttachmentName != null)
-                    AddAtachmentHistory(report.Id, report.AttachmentName);
+                    LogAttachmentHistory(report.Id, report.AttachmentName);
                 _context.SaveChanges();
                 return true;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Log("Error in updating report", e);
                 return false;
             }
         }
@@ -164,8 +172,9 @@ namespace coReport.Services
                 _context.SaveChanges();
                 return true;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Log("Error in updating report attachment name", e);
                 return false;
             }
         }
@@ -185,8 +194,9 @@ namespace coReport.Services
                 }
                 return true;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Log("Error in Flagging user report as viewed", e);
                 return false;
             }
         }
@@ -201,16 +211,11 @@ namespace coReport.Services
             return _context.Reports.Where(r => !r.IsDeleted && r.AuthorId == id && r.Date.Date == DateTime.Now.Date);
         }
 
-        private void AddAtachmentHistory(short reportId, string attachmentName)
+
+        private void LogAttachmentHistory(short reportId, string attachmentName)
         {
-            try
-            {
-                _context.ReportAttachmentHistories.Add(new ReportAttachmentHistory { ReportId = reportId, AttachmentName = attachmentName });
-            }
-            catch
-            {
-                
-            }
+            _context.ReportAttachmentHistories.Add(new ReportAttachmentHistory { ReportId = reportId, 
+                                                    AttachmentName = attachmentName, Date = DateTime.Now });
         }
     }
 }

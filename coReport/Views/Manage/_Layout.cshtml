@@ -13,7 +13,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml"; 
 }
 
-<div>
+<div class="box-widget p-3">
     @if (User.IsInRole("Admin") && !ViewData["UserName"].Equals("admin"))
     {
         <h4>مدیریت حساب کاربری @UserManager.FindByNameAsync(ViewData["UserName"].ToString()).Result.FirstName</h4>

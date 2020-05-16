@@ -11,10 +11,12 @@ namespace coReport.Services
     public class ProjectData : IProjectData
     {
         private ApplicationDbContext _context;
+        private ILogService _logger;
 
-        public ProjectData(ApplicationDbContext context)
+        public ProjectData(ApplicationDbContext context, ILogService logger)
         {
             _context = context;
+            _logger = logger;
         }
         public bool Add(Project project)
         {
@@ -24,8 +26,9 @@ namespace coReport.Services
                 _context.SaveChanges();
                 return true;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Log("Error in saving project", e);
                 return false;
             }
         }
@@ -38,8 +41,9 @@ namespace coReport.Services
                 _context.SaveChanges();
                 return true;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Log("Error in flagging project as ended", e);
                 return false;
             }
         }

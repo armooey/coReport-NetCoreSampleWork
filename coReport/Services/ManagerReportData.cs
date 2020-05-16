@@ -12,9 +12,12 @@ namespace coReport.Services
     public class ManagerReportData : IManagerReportData
     {
         private ApplicationDbContext _context;
-        public ManagerReportData(ApplicationDbContext context)
+        private ILogService _logger;
+
+        public ManagerReportData(ApplicationDbContext context, ILogService logger)
         {
             _context = context;
+            _logger = logger;
         }
         public ManagerReport Add(ManagerReport managerReport)
         {
@@ -25,8 +28,9 @@ namespace coReport.Services
                 CheckUserReportAcceptability(managerReport.ReportId);
                 return managerReport;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Log("Error in saving manager report", e);
                 return null;
             }
         }
@@ -39,8 +43,9 @@ namespace coReport.Services
                 CheckUserReportAcceptability(managerReport.ReportId);
                 return true;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Log("Error in updating manager report", e);
                 return false;
             }
         }

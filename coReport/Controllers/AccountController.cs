@@ -26,7 +26,7 @@ namespace coReport.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IReportData _reportData;
         private readonly IMessageService _messageService;
-        private readonly IUserData _userData;
+        private readonly ILogService _logger;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -35,7 +35,7 @@ namespace coReport.Controllers
             IWebHostEnvironment webHostEnvironment,
             IReportData reportData,
             IMessageService messageService,
-            IUserData userData)
+            ILogService logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -43,7 +43,7 @@ namespace coReport.Controllers
             _webHostEnvironment = webHostEnvironment;
             _reportData = reportData;
             _messageService = messageService;
-            _userData = userData;
+            _logger = logger;
         }
 
 
@@ -144,7 +144,7 @@ namespace coReport.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    _userData.AddProfileImage(user.Id, imageName);
+                    _logger.LogProfileImageHistory(user.Id, imageName);
                     await _userManager.AddToRoleAsync(user, model.Role);
                     var message = new Message {
                         Text = String.Format("{0} {1} با نام کاربری {2} حساب کاربری جدیدی ایجاد کرده است. لطفا نسبت به فعالسازی آن اقدام فرمایید.",

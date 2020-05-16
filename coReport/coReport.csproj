@@ -8,6 +8,14 @@
   <ItemGroup>
     <Compile Remove="Migrations\20200508141418_c1.cs" />
     <Compile Remove="Migrations\20200508141418_c1.Designer.cs" />
+    <Compile Remove="Migrations\20200516100331_log3.cs" />
+    <Compile Remove="Migrations\20200516100331_log3.Designer.cs" />
+    <Compile Remove="Migrations\20200516100450_log3.cs" />
+    <Compile Remove="Migrations\20200516100450_log3.Designer.cs" />
+    <Compile Remove="Migrations\20200516100642_log3.cs" />
+    <Compile Remove="Migrations\20200516100642_log3.Designer.cs" />
+    <Compile Remove="Migrations\20200516100921_log.cs" />
+    <Compile Remove="Migrations\20200516100921_log.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

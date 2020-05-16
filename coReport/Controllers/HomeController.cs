@@ -6,6 +6,7 @@ using coReport.Services;
 using Microsoft.AspNetCore.Identity;
 using coReport.Auth;
 using coReport.Models.HomeViewModels;
+using Microsoft.Extensions.Logging;
 
 namespace coReport.Controllers
 {
@@ -26,7 +27,8 @@ namespace coReport.Controllers
 
         public async Task<IActionResult> Index()
         {
-            if(_signInManager.IsSignedIn(User))
+
+            if (_signInManager.IsSignedIn(User))
             {
                 var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
                 var userRole = await _userManager.GetRolesAsync(currentUser);

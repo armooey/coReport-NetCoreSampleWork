@@ -9,6 +9,7 @@ namespace coReport.Models.AccountModel
     {
         public short Id { get; set; }
         public short UserId { get; set; }
+        public DateTime Date { get; set; }
         public String ImageName { get; set; }
     }
 }

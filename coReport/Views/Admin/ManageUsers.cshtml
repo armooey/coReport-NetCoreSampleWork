@@ -40,7 +40,7 @@ else
                 <div class="form-group" style="margin-top: 10px">
                     <label class="col-md control-label"> مدیران را انتخاب کنید:</label>
                     <div class="col-md">
-                        <select id="manager_multiselect" asp-for="ManagerIds" style="width: 100%" multiple="multiple">
+                        <select id="manager_multiselect" asp-for="ManagerIds" style="width: 95%" multiple="multiple">
                             @foreach (var user in Model.Users.Where(r => r.Role == "Manager"))
                             {
                                 <option value="@user.Id">@user.FirstName @user.LastName</option>

@@ -121,7 +121,8 @@ namespace coReport.Controllers
         public IActionResult Edit(short id)
         {
             var report = _reportData.Get(id);
-            
+            if (report == null)
+                return NotFound();
             var model = new CreateReportViewModel
             {
                 Id = report.Id,
@@ -315,21 +316,17 @@ namespace coReport.Controllers
 
 
         [HttpGet("download")]
-        public ActionResult DownloadReportAttachment(String fileName)
+        public async Task<ActionResult> DownloadReportAttachment(String fileName)
         {
             var filePath = Path.Combine(_webHostEnvironment.ContentRootPath, "UserData", "Files", fileName);
             try
             {
-                byte[] file = System.IO.File.ReadAllBytes(filePath);
+                byte[] file = await System.IO.File.ReadAllBytesAsync(filePath);
                 return File(file, "application/force-download", fileName);
             }
-            catch (Exception e)
+            catch
             {
-                var errorModel = new ErrorViewModel
-                {
-                    Error = e.Message
-                };
-                return RedirectToAction("Error", "Home", errorModel);
+                return NotFound();
             }
         }
     }

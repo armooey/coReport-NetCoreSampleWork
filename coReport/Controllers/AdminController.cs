@@ -30,7 +30,7 @@ namespace coReport.Controllers
         private IManagerData _managerData;
         private IMessageService _messageService;
         private IProjectData _projectService;
-        private IUserData _userData;
+        private ILogService _logger;
 
         public AdminController(UserManager<ApplicationUser> userManager, IReportData reportData,
             IManagerReportData managerReportData,
@@ -39,7 +39,7 @@ namespace coReport.Controllers
             IManagerData managerData,
             IMessageService messageService,
             IProjectData projectService,
-            IUserData userData)
+            ILogService logger)
         {
             _userManager = userManager;
             _reportData = reportData;
@@ -49,7 +49,7 @@ namespace coReport.Controllers
             _managerData = managerData;
             _messageService = messageService;
             _projectService = projectService;
-            _userData = userData;
+            _logger = logger;
         }
 
         public IActionResult AdminPanel()
@@ -229,7 +229,7 @@ namespace coReport.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    _userData.AddProfileImage(user.Id, imageName);
+                    _logger.LogProfileImageHistory(user.Id, imageName);
                     await _userManager.AddToRoleAsync(user, model.Role);
                     return RedirectToAction("ManageUsers");
                 }

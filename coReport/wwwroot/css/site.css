@@ -19,8 +19,35 @@ body {
     font-family: Vazir;
     direction: rtl;
     text-align: right;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh
 }
 
+::-webkit-scrollbar-track {
+    border-radius: 12px;
+    background-color: rgba(255,255,255,0.5);
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+    background-color: rgba(255,255,255,0);
+}
+
+::-webkit-scrollbar-thumb {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #2C3E50;
+}
+
+footer {
+    color: white;
+    flex: 0 0 50px;
+    margin-top: auto;
+}
+
+.page-container {
+    padding-bottom: 50px;
+}
 
 .divider {
     border: 0;
@@ -28,7 +55,6 @@ body {
     background: #333;
     background-image: linear-gradient(to right, #ccc, #333, #ccc);
 }
-
 
 
 input {

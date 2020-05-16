@@ -4,6 +4,7 @@ using coReport.Models.ManagerModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Z.EntityFramework.Plus;
@@ -13,10 +14,12 @@ namespace coReport.Services
     public class ManagerData : IManagerData
     {
         private ApplicationDbContext _context;
+        private ILogService _logger;
 
-        public ManagerData(ApplicationDbContext context)
+        public ManagerData(ApplicationDbContext context, ILogService logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public IEnumerable<ApplicationUser> GetEmployees(short managerId)
@@ -50,8 +53,9 @@ namespace coReport.Services
                 _context.SaveChanges();
                 return true;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Log("Error in saving managers for user", e);
                 return false;
             }
         }

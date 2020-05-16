@@ -112,7 +112,7 @@ namespace coReport.Controllers
             }
             stream.Position = 0;
 
-            var fileName = String.Format("{0}.xlsx",DateTime.Now.Date.ToHijri().ToString("MM/dd/yyyy"));
+            var fileName = String.Format("{0}.xlsx",DateTime.Now.Date.ToHijri().ToString("yyyy/MM/dd"));
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
 

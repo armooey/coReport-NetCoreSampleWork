@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using coReport.Auth;
 using coReport.Models.AccountModel;
+using coReport.Models.LogModel;
 using coReport.Models.ManagerModels;
 using coReport.Models.MessageModels;
 using coReport.Models.ProjectModels;
@@ -28,6 +29,7 @@ namespace coReport.Data
         public DbSet<UserMessage> UserMessages { get; set; }
         public DbSet<ProfileImageHistory> ProfileImageHistories { get; set; }
         public DbSet<ReportAttachmentHistory> ReportAttachmentHistories { get; set; }
+        public DbSet<Log> Logs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

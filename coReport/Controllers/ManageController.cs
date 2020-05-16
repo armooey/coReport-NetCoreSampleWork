@@ -21,20 +21,20 @@ namespace coReport.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole<short>> _roleManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly IUserData _userData;
+        private readonly ILogService _logger;
 
         public ManageController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         RoleManager<IdentityRole<short>> roleManager,
         IWebHostEnvironment webHostEnvironment,
-        IUserData userData)
+        ILogService logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _webHostEnvironment = webHostEnvironment;
-            _userData = userData;
+            _logger = logger;
         }
 
 
@@ -93,7 +93,7 @@ namespace coReport.Controllers
                         ModelState.AddModelError("", "مشکل در ذخیره سازی عکس پروفایل");
                         return View(model);
                     }
-                    _userData.AddProfileImage(user.Id, imageName);
+                    _logger.LogProfileImageHistory(user.Id, imageName);
                     user.ProfileImageName = imageName;
                 }
                 var result = await _userManager.UpdateAsync(user);

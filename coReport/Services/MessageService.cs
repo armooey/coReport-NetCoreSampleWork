@@ -12,10 +12,12 @@ namespace coReport.Services
     public class MessageService : IMessageService
     {
         private ApplicationDbContext _context;
+        private ILogService _logger;
 
-        public MessageService(ApplicationDbContext context)
+        public MessageService(ApplicationDbContext context, ILogService logger)
         {
             _context = context;
+            _logger = logger;
         }
 
 
@@ -33,8 +35,9 @@ namespace coReport.Services
                 _context.SaveChanges();
                 return true;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Log("Error in saving message", e);
                 return false;
             }
         }
@@ -68,7 +71,7 @@ namespace coReport.Services
             }
             catch (Exception e)
             {
-                throw e;
+                _logger.Log("Error in saving manager review message", e);
             }
         }
 
@@ -84,7 +87,7 @@ namespace coReport.Services
             }
             catch (Exception e)
             {
-                throw e;
+                _logger.Log("Error in saving system notification message", e);
             }
         }
 
@@ -104,8 +107,9 @@ namespace coReport.Services
                 }
                 return false;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Log("Error in deleting message", e);
                 return false;
             }
         }
@@ -125,8 +129,9 @@ namespace coReport.Services
                 }
                 return true;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Log("Error in deleting manager review message", e);
                 return false;
             }
         }
@@ -166,8 +171,9 @@ namespace coReport.Services
                 _context.SaveChanges();
                 return true;
             }
-            catch
+            catch(Exception e)
             {
+                _logger.Log("Error in flagging message as viewed", e);
                 return false;
             }
         }
