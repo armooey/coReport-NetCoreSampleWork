@@ -214,7 +214,7 @@ namespace coReport.Services
 
         private void LogAttachmentHistory(short reportId, string attachmentName)
         {
-            _context.ReportAttachmentHistories.Add(new ReportAttachmentHistory { ReportId = reportId, 
+            _context.ReportAttachmentHistory.Add(new ReportAttachmentHistory { ReportId = reportId, 
                                                     AttachmentName = attachmentName, Date = DateTime.Now });
         }
     }

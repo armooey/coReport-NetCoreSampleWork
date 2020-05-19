@@ -22,15 +22,15 @@
             </div>
             <div class="col-md-2">
                 <div>
-                    <b>زمان ورود</b>: @Model.UserReport.EnterTime.ToString("HH:mm")
+                    <b>زمان شروع کار</b>: @Model.UserReport.TaskStartTime.ToString("HH:mm")
                 </div>
                 <div>
-                    <b>تاریخ ثبت</b>: @Model.UserReport.Date.ToString("MM/dd/yyyy")
+                    <b>تاریخ ثبت</b>: @Model.UserReport.Date.GetDate()
                 </div>
             </div>
             <div class="col-md-2">
                 <div>
-                    <b>زمان خروج</b>: @Model.UserReport.ExitTime.ToString("HH:mm")
+                    <b>زمان پایان کار</b>: @Model.UserReport.TaskEndTime.ToString("HH:mm")
                 </div>
             </div>
         </div>

@@ -37,15 +37,15 @@ namespace coReport.Models.ReportViewModel
 
 
 
-        [Required(ErrorMessage = "تکمیل فیلد زمان ورود اجباری است.")]
-        [Display(Name = "زمان ورود")]
+        [Required(ErrorMessage = "تکمیل فیلد زمان شروع کار اجباری است.")]
+        [Display(Name = "زمان شروع کار")]
         [DataType(DataType.Time)]
-        public DateTime EnterTime { get; set; }
+        public DateTime TaskStartTime { get; set; }
 
-        [Required(ErrorMessage = "تکمیل فیلد زمان خروج اجباری است.")]
-        [Display(Name = "زمان خروج")]
+        [Required(ErrorMessage = "تکمیل فیلد زمان پایان کار اجباری است.")]
+        [Display(Name = "زمان پایان کار")]
         [DataType(DataType.Time)]
-        public DateTime ExitTime { get; set; }
+        public DateTime TaskEndTime { get; set; }
 
         [Display(Name = "ضمیمه")]
         public IFormFile Attachment { get; set; }

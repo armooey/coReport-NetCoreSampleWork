@@ -54,8 +54,8 @@ namespace coReport.Controllers
                     Author = report.Report.Author,
                     Text = report.Report.Text,
                     ProjectName = report.Report.Project.Title,
-                    EnterTime = report.Report.EnterTime,
-                    ExitTime = report.Report.ExitTime,
+                    TaskStartTime = report.Report.TaskStartTime,
+                    TaskEndTime = report.Report.TaskEndTime,
                     Date = report.Report.Date.ToHijri(),
                     IsViewed = report.IsViewd
                 });
@@ -101,7 +101,7 @@ namespace coReport.Controllers
                 {
                     var report = reports[i];
                     var name = report.Report.Author.FirstName + " " + report.Report.Author.LastName;
-                    var workHour = report.Report.ExitTime.Subtract(report.Report.EnterTime).ToString("hh\\:mm");
+                    var workHour = report.Report.TaskEndTime.Subtract(report.Report.TaskStartTime).ToString("hh\\:mm");
                     workSheet.Cells[i + 2, 1].Value = name;
                     workSheet.Cells[i + 2, 2].Value = report.Report.Project.Title;
                     workSheet.Cells[i + 2, 3].Value = workHour;
@@ -112,7 +112,7 @@ namespace coReport.Controllers
             }
             stream.Position = 0;
 
-            var fileName = String.Format("{0}.xlsx",DateTime.Now.Date.ToHijri().ToString("yyyy/MM/dd"));
+            var fileName = String.Format("{0}.xlsx",DateTime.Now.Date.ToHijri().GetDate());
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
 
@@ -153,7 +153,8 @@ namespace coReport.Controllers
                 //Filling cells with days of the month
                 for (int i = 1; i <= numberOfDaysInMonth; i++)
                 {
-                    workSheet.Cells[1, i + 1].Value = today.Month + "/" + i;
+                    workSheet.Cells[1, i + 1].Value = (today.Month < 10 ? "0" + today.Month.ToString() : today.Month.ToString()) 
+                        + "/" + (i < 10 ? "0" + i.ToString() : i.ToString());
                 }
                 //Filling cells with default values
                 for (int i = 0; i < employees.Count(); i++)
@@ -180,7 +181,7 @@ namespace coReport.Controllers
                     {
                         var reportDate = report.Date.ToHijri();
                         workSheet.Cells[cellIndex, reportDate.Day+1].Value =
-                            report.ExitTime.Subtract(report.EnterTime).ToString("hh\\:mm");
+                            report.TaskEndTime.Subtract(report.TaskStartTime).ToString("hh\\:mm");
                         workSheet.Cells[cellIndex, reportDate.Day+1].Style.Fill.BackgroundColor.SetColor(Color.DeepSkyBlue);
                     }
                     cellIndex++;
@@ -189,7 +190,7 @@ namespace coReport.Controllers
             }
             stream.Position = 0;
 
-            var fileName = String.Format("{0}.xlsx", DateTime.Now.Date.ToHijri().ToString("yyyy/MM"));
+            var fileName = String.Format("{0}.xlsx", DateTime.Now.Date.ToHijri().GetYearAndMonth());
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
     }

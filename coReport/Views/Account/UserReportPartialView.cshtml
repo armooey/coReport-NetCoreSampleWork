@@ -5,7 +5,7 @@
     <div class="col">
         <h6><i class="fas fa-clipboard-list"></i> <b>@Model.Title</b></h6>
         <span class="span-control">پروژه @Model.ProjectName</span>
-        <span class="span-control"><i class="fas fa-calendar-alt"></i> @Model.Date.ToString("yyyy/MM/dd")</span>
+        <span class="span-control"><i class="fas fa-calendar-alt"></i> @Model.Date.GetDate()</span>
 
 
         <a asp-action="Edit" asp-controller="Report" asp-route-id="@Model.Id" class="btn btn-primary float-left span-control" style="margin-top:-15px">

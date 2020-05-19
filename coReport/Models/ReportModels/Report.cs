@@ -18,8 +18,8 @@ namespace coReport.Models.ReportModels
         public short ProjectId { get; set; }
         public virtual Project Project { get; set; }
         public DateTime Date { get; set; }
-        public DateTime EnterTime { get; set; }
-        public DateTime ExitTime { get; set; }
+        public DateTime TaskStartTime { get; set; }
+        public DateTime TaskEndTime { get; set; }
         public String AttachmentName { get; set; }
         public short InvalidReportMessageId { get; set; }
         public bool IsDeleted { get; set; }

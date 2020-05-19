@@ -258,7 +258,7 @@ namespace coReport.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProfileImageHistories");
+                    b.ToTable("ProfileImageHistory");
                 });
 
             modelBuilder.Entity("coReport.Models.LogModel.Log", b =>
@@ -448,12 +448,6 @@ namespace coReport.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("EnterTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ExitTime")
-                        .HasColumnType("datetime2");
-
                     b.Property<short>("InvalidReportMessageId")
                         .HasColumnType("smallint");
 
@@ -462,6 +456,12 @@ namespace coReport.Migrations
 
                     b.Property<short>("ProjectId")
                         .HasColumnType("smallint");
+
+                    b.Property<DateTime>("TaskEndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("TaskStartTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Text")
                         .HasColumnType("nvarchar(max)");
@@ -496,7 +496,7 @@ namespace coReport.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ReportAttachmentHistories");
+                    b.ToTable("ReportAttachmentHistory");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<short>", b =>

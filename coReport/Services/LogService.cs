@@ -29,7 +29,7 @@ namespace coReport.Services
 
         public void LogProfileImageHistory(short userId, string imageName)
         {
-            _context.ProfileImageHistories.Add(new ProfileImageHistory { UserId = userId, ImageName = imageName
+            _context.ProfileImageHistory.Add(new ProfileImageHistory { UserId = userId, ImageName = imageName
                                                                         , Date = DateTime.Now});
         }
     }

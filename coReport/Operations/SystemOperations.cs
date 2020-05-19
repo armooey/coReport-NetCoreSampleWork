@@ -1,5 +1,6 @@
 ﻿using coReport.Auth;
 using coReport.Data;
+using coReport.Date;
 using coReport.Models.AccountViewModels;
 using coReport.Models.MessageModels;
 using coReport.Models.MessageViewModels;
@@ -153,11 +154,12 @@ namespace coReport.Operations
                 };
         }
 
-        public static DateTime ToHijri(this DateTime time)
+        public static PersianDateTime ToHijri(this DateTime time)
         {
-            return new DateTime(persianCalender.GetYear(time),
-                persianCalender.GetMonth(time), persianCalender.GetDayOfMonth(time),
-                time.Hour, time.Minute, time.Second);
+            return new PersianDateTime{Year = persianCalender.GetYear(time),
+                                       Month = persianCalender.GetMonth(time),
+                                       Day = persianCalender.GetDayOfMonth(time),
+                                       Hour = time.Hour, Minute = time.Minute, Second = time.Second };
         }
     }
 }

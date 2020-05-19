@@ -27,8 +27,8 @@ namespace coReport.Data
         public DbSet<UserManager> UserManagers { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<UserMessage> UserMessages { get; set; }
-        public DbSet<ProfileImageHistory> ProfileImageHistories { get; set; }
-        public DbSet<ReportAttachmentHistory> ReportAttachmentHistories { get; set; }
+        public DbSet<ProfileImageHistory> ProfileImageHistory { get; set; }
+        public DbSet<ReportAttachmentHistory> ReportAttachmentHistory { get; set; }
         public DbSet<Log> Logs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

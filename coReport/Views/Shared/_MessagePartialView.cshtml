@@ -21,8 +21,8 @@
         {
             <span class="span-control"> @Model.AuthorName</span>
         }
-        <span class="span-control"><small><i class="fas fa-calendar-alt"></i> @Model.Time.ToString("yyyy/MM/dd")</small></span>
-        <span><small><i class="far fa-clock"></i> @Model.Time.TimeOfDay.ToString("hh\\:mm")</small></span>
+        <span class="span-control"><small><i class="fas fa-calendar-alt"></i> @Model.Time.GetDate()</small></span>
+        <span><small><i class="far fa-clock"></i> @Model.Time.GetTime()</small></span>
 
 
         @if (Model.IsViewed)

@@ -62,6 +62,7 @@ namespace coReport.Controllers
         }
 
         [HttpPost]
+        [DisableRequestSizeLimit]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateReportViewModel model)
         {
@@ -75,7 +76,7 @@ namespace coReport.Controllers
                     ModelState.AddModelError("", "امکان ثبت گزارش به دلیل وجود گزارشی به تاریخ امروز برای این پروژه وجود ندارد.");
                     return View(model);
                 }
-                if (model.EnterTime >= model.ExitTime)
+                if (model.TaskStartTime >= model.TaskEndTime)
                 {
                     ModelState.AddModelError("", "زمان ورود و خروج را بررسی کنید.");
                     return View(model);
@@ -97,8 +98,8 @@ namespace coReport.Controllers
                     Text = model.Text,
                     ProjectId = model.ProjectId,
                     AuthorId = model.AuthorId,
-                    EnterTime = model.EnterTime,
-                    ExitTime = model.ExitTime,
+                    TaskStartTime = model.TaskStartTime,
+                    TaskEndTime = model.TaskEndTime,
                     Date = DateTime.Now,
                     AttachmentName = fileName
                 };
@@ -127,8 +128,8 @@ namespace coReport.Controllers
             {
                 Id = report.Id,
                 AuthorId = report.AuthorId,
-                EnterTime = report.EnterTime,
-                ExitTime = report.ExitTime,
+                TaskStartTime = report.TaskStartTime,
+                TaskEndTime = report.TaskEndTime,
                 ProjectId = report.ProjectId,
                 Managers = SystemOperations.GetProjectManagerViewModels(report.AuthorId, _managerData),
                 Projects = SystemOperations.GetInProgressProjectViewModels(_projectService),
@@ -145,6 +146,7 @@ namespace coReport.Controllers
         }
 
         [HttpPost]
+        [DisableRequestSizeLimit]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(CreateReportViewModel model)
         {
@@ -152,7 +154,7 @@ namespace coReport.Controllers
             model.Projects = SystemOperations.GetInProgressProjectViewModels(_projectService);
             if (ModelState.IsValid)
             {
-                if (model.EnterTime >= model.ExitTime)
+                if (model.TaskStartTime >= model.TaskEndTime)
                 {
                     ModelState.AddModelError("", "زمان ورود و خروج را بررسی کنید.");
                     return View(model);
@@ -172,8 +174,8 @@ namespace coReport.Controllers
                 report.Title = model.Title;
                 report.Text = model.Text;
                 report.ProjectId = model.ProjectId;
-                report.EnterTime = model.EnterTime;
-                report.ExitTime = model.ExitTime;
+                report.TaskStartTime = model.TaskStartTime;
+                report.TaskEndTime = model.TaskEndTime;
                 if(fileName != null)
                     report.AttachmentName = fileName;
                 var result = _reportData.Update(report, model.ProjectManagerIds);
@@ -217,9 +219,9 @@ namespace coReport.Controllers
                     Author = report.Author,
                     ProjectName = report.Project.Title,
                     Text = report.Text,
-                    EnterTime = report.EnterTime,
-                    ExitTime = report.ExitTime,
-                    Date = report.Date,
+                    TaskStartTime = report.TaskStartTime,
+                    TaskEndTime = report.TaskEndTime,
+                    Date = report.Date.ToHijri(),
                     AttachmentName = report.AttachmentName != null ? report.AttachmentName : null
                 };
                 var managerReportViewModel = new ManagerReportViewModel { UserReport = reportModel };

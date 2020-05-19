@@ -72,7 +72,7 @@ namespace coReport.Controllers
             for (int i = -6; i <= 0; i++)
             {
                 var day = today.AddDays(i); //finding the day that we want to count reports
-                days.Add(day.ToHijri().ToString("MM/dd"));//Adding to days List
+                days.Add(day.ToHijri().GetDayAndMonth());//Adding to days List
                 userReportCount.Add(userReports.Count(r => r.Date.Date == day.Date));
                 managerReportCount.Add(managerReports.Count(r => r.Date.Date == day.Date));
             }

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using coReport.Auth;
 using coReport.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace coReport
 {
@@ -53,6 +54,11 @@ namespace coReport
             services.AddTransient<IProjectData, ProjectData>();
             services.AddScoped<ILogService, LogService>();
             services.AddRazorPages();
+            services.Configure<FormOptions>(x =>
+            {
+                x.ValueLengthLimit = 737280000;
+                x.MultipartBodyLengthLimit = 737280000;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
