@@ -47,6 +47,8 @@ namespace coReport.Controllers
         {
             ViewData["ReturnUrl"] = returnUrl;
             ViewData["UserName"] = userName;
+            if(!User.IsInRole("Admin") && User.Identity.Name != userName)
+                return View("_AccessDenied");
             var user = await _userManager.FindByNameAsync(userName);
             byte[] image;
             try
@@ -117,6 +119,8 @@ namespace coReport.Controllers
         public async Task<IActionResult> Email(string userName, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
+            if (!User.IsInRole("Admin") && User.Identity.Name != userName)
+                return View("_AccessDenied");
             var user = await _userManager.FindByNameAsync(userName);
             var model = new ChangeEmailViewModel
             {
@@ -207,6 +211,8 @@ namespace coReport.Controllers
         {
             ViewData["ReturnUrl"] = returnUrl;
             ViewData["UserName"] = userName;
+                        if(!User.IsInRole("Admin") && User.Identity.Name != userName)
+                return View("_AccessDenied");
             return View();
         }
 

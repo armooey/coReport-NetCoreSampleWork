@@ -124,6 +124,8 @@ namespace coReport.Controllers
             var report = _reportData.Get(id);
             if (report == null)
                 return NotFound();
+            if(report.Author.UserName != User.Identity.Name)
+                return View("_AccessDenied");
             var model = new CreateReportViewModel
             {
                 Id = report.Id,
@@ -156,7 +158,7 @@ namespace coReport.Controllers
             {
                 if (model.TaskStartTime >= model.TaskEndTime)
                 {
-                    ModelState.AddModelError("", "زمان ورود و خروج را بررسی کنید.");
+                    ModelState.AddModelError("", "زمان شروع و پایان را بررسی کنید.");
                     return View(model);
                 }
                 //Save report Attachment
@@ -210,31 +212,31 @@ namespace coReport.Controllers
             var report = _reportData.Get(id);
             var manager = await _userManager.FindByNameAsync(User.Identity.Name);
             var managerReport = _managerReportData.GetManagerReportByUserReportId(id, manager.Id);
-            if (report != null)
+            if (report == null)
+                return NotFound();
+            if (!report.ProjectManagers.Any(pm => pm.ManagerId == manager.Id)) //If current user is not manager of loaded report
+                return View("_AccessDenied");
+            var reportModel = new ReportViewModel
             {
-                var reportModel = new ReportViewModel
-                {
-                    Id = report.Id,
-                    Title = report.Title,
-                    Author = report.Author,
-                    ProjectName = report.Project.Title,
-                    Text = report.Text,
-                    TaskStartTime = report.TaskStartTime,
-                    TaskEndTime = report.TaskEndTime,
-                    Date = report.Date.ToHijri(),
-                    AttachmentName = report.AttachmentName != null ? report.AttachmentName : null
-                };
-                var managerReportViewModel = new ManagerReportViewModel { UserReport = reportModel };
-                if (managerReport != null)
-                {
-                    managerReportViewModel.Id = managerReport.Id;
-                    managerReportViewModel.Text = managerReport.Text;
-                    managerReportViewModel.IsAcceptable = managerReport.IsUserReportAcceptable;
-                    managerReportViewModel.IsViewableByUser = managerReport.IsCommentViewableByUser;
-                }
-                return View(managerReportViewModel);
+                Id = report.Id,
+                Title = report.Title,
+                Author = report.Author,
+                ProjectName = report.Project.Title,
+                Text = report.Text,
+                TaskStartTime = report.TaskStartTime,
+                TaskEndTime = report.TaskEndTime,
+                Date = report.Date.ToHijri(),
+                AttachmentName = report.AttachmentName != null ? report.AttachmentName : null
+            };
+            var managerReportViewModel = new ManagerReportViewModel { UserReport = reportModel };
+            if (managerReport != null)
+            {
+                managerReportViewModel.Id = managerReport.Id;
+                managerReportViewModel.Text = managerReport.Text;
+                managerReportViewModel.IsAcceptable = managerReport.IsUserReportAcceptable;
+                managerReportViewModel.IsViewableByUser = managerReport.IsCommentViewableByUser;
             }
-            return NotFound();
+            return View(managerReportViewModel);
         }
 
 
