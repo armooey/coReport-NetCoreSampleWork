@@ -13,6 +13,8 @@ namespace coReport.Models.ReportViewModel
         public String Title { get; set; }
         public PersianDateTime Date { get; set; }
         public ApplicationUser Author { get; set; }
+        public String ActvivityName { get; set; }
+        public String SubActivityName { get; set; }
         public String ProjectName { get; set; }
         public String Text { get; set; }
         public ApplicationUser ProjectManager { get; set; }

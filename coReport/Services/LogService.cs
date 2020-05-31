@@ -1,6 +1,7 @@
 ﻿using coReport.Data;
 using coReport.Models.AccountModel;
 using coReport.Models.LogModel;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,6 +20,11 @@ namespace coReport.Services
         }
         public void Log(string message, Exception exception)
         {
+            //Clear all changes that caused exception
+            _context.ChangeTracker.Entries()
+                .Where(e => e.Entity != null).ToList()
+                .ForEach(e => e.State = EntityState.Detached);
+            //Log Exception
             _context.Logs.Add(new Log { 
                 Date = DateTime.Now,
                 Message = message,

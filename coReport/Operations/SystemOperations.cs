@@ -2,9 +2,11 @@
 using coReport.Data;
 using coReport.Date;
 using coReport.Models.AccountViewModels;
+using coReport.Models.ActivityModels;
 using coReport.Models.MessageModels;
 using coReport.Models.MessageViewModels;
 using coReport.Models.ProjectViewModels;
+using coReport.Models.ReportModels;
 using coReport.Models.ReportViewModel;
 using coReport.Services;
 using Microsoft.AspNetCore.Hosting;
@@ -76,21 +78,6 @@ namespace coReport.Operations
             catch
             {
                 return null;
-            }
-        }
-        public static void DeleteReportAttachment(IWebHostEnvironment webHostEnvironment, String fileName)
-        {
-            var filePath = Path.Combine(webHostEnvironment.ContentRootPath, "UserData", "Files", fileName);
-            try
-            {
-                if (System.IO.File.Exists(filePath))
-                {
-                    System.IO.File.Delete(filePath);
-                }
-            }
-            catch
-            {
-                
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using coReport.Auth;
+using coReport.Models.ActivityModels;
 using coReport.Models.HomeViewModels;
 using coReport.Models.MessageModels;
 using coReport.Models.ReportModels;
@@ -9,7 +10,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,13 +29,15 @@ namespace coReport.Controllers
         private IManagerData _managerData;
         private IMessageService _messageService;
         private IProjectData _projectService;
+        private IActivityData _activityData;
 
         public ReportController(IReportData reportData, IManagerReportData adminReportData,
             UserManager<ApplicationUser> userManager,
             IWebHostEnvironment webHostEnvironment,
             IManagerData managerData,
             IMessageService messageService,
-            IProjectData projectService)
+            IProjectData projectService,
+            IActivityData activityService)
         {
             _reportData = reportData;
             _userManager = userManager;
@@ -41,6 +46,7 @@ namespace coReport.Controllers
             _managerData = managerData;
             _messageService = messageService;
             _projectService = projectService;
+            _activityData = activityService;
         }
 
 
@@ -56,7 +62,8 @@ namespace coReport.Controllers
             {
                 AuthorId = author.Id,
                 Managers = SystemOperations.GetProjectManagerViewModels(author.Id, _managerData) ,//List of all managers of this user
-                Projects = SystemOperations.GetInProgressProjectViewModels(_projectService) //All in progress projects
+                Projects = SystemOperations.GetInProgressProjectViewModels(_projectService), //All in progress projects
+                Activities = _activityData.GetParentActivities().ToList() //List of main activities
             };
             return View(model);
         }
@@ -68,6 +75,7 @@ namespace coReport.Controllers
         {
             model.Managers = SystemOperations.GetProjectManagerViewModels(model.AuthorId, _managerData);
             model.Projects = SystemOperations.GetInProgressProjectViewModels(_projectService);
+            model.Activities = _activityData.GetParentActivities().ToList();
             if (ModelState.IsValid)
             {
                 var todayReports = _reportData.GetTodayReportsOfUser(model.AuthorId);
@@ -98,6 +106,9 @@ namespace coReport.Controllers
                     Text = model.Text,
                     ProjectId = model.ProjectId,
                     AuthorId = model.AuthorId,
+                    ActivityId = model.ActivityId,
+                    SubActivityId = model.SubActivityId,
+                    ActivityApendix = model.ActivityApendix,
                     TaskStartTime = model.TaskStartTime,
                     TaskEndTime = model.TaskEndTime,
                     Date = DateTime.Now,
@@ -130,11 +141,15 @@ namespace coReport.Controllers
             {
                 Id = report.Id,
                 AuthorId = report.AuthorId,
+                ActivityId = report.Activity.Id,
+                SubActivityId = report.SubActivityId ?? null,
+                ActivityApendix = report.ActivityApendix,
                 TaskStartTime = report.TaskStartTime,
                 TaskEndTime = report.TaskEndTime,
                 ProjectId = report.ProjectId,
                 Managers = SystemOperations.GetProjectManagerViewModels(report.AuthorId, _managerData),
                 Projects = SystemOperations.GetInProgressProjectViewModels(_projectService),
+                Activities = _activityData.GetParentActivities().ToList(), //List of main activities
                 ProjectManagerIds = report.ProjectManagers.Select(pm => pm.ManagerId).ToList(),
                 Title = report.Title,
                 Text = report.Text,
@@ -154,6 +169,7 @@ namespace coReport.Controllers
         {
             model.Managers = SystemOperations.GetProjectManagerViewModels(model.AuthorId, _managerData);
             model.Projects = SystemOperations.GetInProgressProjectViewModels(_projectService);
+            model.Activities = _activityData.GetParentActivities().ToList();
             if (ModelState.IsValid)
             {
                 if (model.TaskStartTime >= model.TaskEndTime)
@@ -176,6 +192,9 @@ namespace coReport.Controllers
                 report.Title = model.Title;
                 report.Text = model.Text;
                 report.ProjectId = model.ProjectId;
+                report.ActivityId = model.ActivityId;
+                report.SubActivityId = model.SubActivityId == 0 ? null : model.SubActivityId;
+                report.ActivityApendix = model.ActivityApendix;
                 report.TaskStartTime = model.TaskStartTime;
                 report.TaskEndTime = model.TaskEndTime;
                 if(fileName != null)
@@ -222,6 +241,8 @@ namespace coReport.Controllers
                 Title = report.Title,
                 Author = report.Author,
                 ProjectName = report.Project.Title,
+                ActvivityName = report.Activity.Name,
+                SubActivityName = report.SubActivity != null ? report.SubActivity.Name : null,
                 Text = report.Text,
                 TaskStartTime = report.TaskStartTime,
                 TaskEndTime = report.TaskEndTime,
@@ -316,6 +337,16 @@ namespace coReport.Controllers
                 return RedirectToAction("ManageReports", "Manager");
             }
             return View(model);
+        }
+
+        //Called with ajax to fetch subactivities of an activity
+        public IActionResult GetSubActivities(short selectedActivityId)
+        {
+            var activity = _activityData.GetActivity(selectedActivityId);
+            var subactivitiesList = new List<KeyValuePair<short, string>>();
+            foreach (var subactivity in activity.SubActivities)
+                subactivitiesList.Add(new KeyValuePair<short, string>(subactivity.Id, subactivity.Name));
+            return Json(subactivitiesList);
         }
 
 

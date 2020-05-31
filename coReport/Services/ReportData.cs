@@ -73,6 +73,8 @@ namespace coReport.Services
                 .Include(r => r.ManagerReports)
                 .Include(r => r.ProjectManagers)
                 .Include(r => r.Project)
+                .Include(r => r.Activity)
+                .Include(r => r.SubActivity)
                 .FirstOrDefault();
         }
 

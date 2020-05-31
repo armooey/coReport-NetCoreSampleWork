@@ -5,12 +5,24 @@
 }
 
 <link href="~/lib/quill/quill.bubble.css" rel="stylesheet" />
+<link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
+
 <div class="p-2 box-widget">
     <div class="container">
 
         <h5>جزئیات گزارش</h5>
         <hr />
-        <h5>@Model.UserReport.Title</h5>
+        @if (Model.UserReport.SubActivityName != null)
+        {
+            <h5>
+                <small>@Model.UserReport.ActvivityName &raquo; @Model.UserReport.SubActivityName &raquo;</small>
+                @Model.UserReport.Title
+            </h5>
+        }
+        else
+        {
+            <h5><small>@Model.UserReport.ActvivityName &raquo;</small> @Model.UserReport.Title</h5>
+        }
         <div class="row">
             <div class="col-md-2">
                 <div>
@@ -59,7 +71,7 @@
             <div class="text-muted"><small>ضمیمه‌ای موجود نیست.</small></div>
         }
 
-        <hr style="border: 1px solid gray"/>
+        <hr style="border: 1px solid gray" />
         <form asp-controller="Report" asp-action="CreateManagerReport" method="post" class="form-horizontal" role="form">
             <input asp-for="UserReport.Id" type="hidden" />
             <input asp-for="UserReport.Author.Id" type="hidden" />
@@ -70,9 +82,9 @@
                     <span asp-validation-for="Text" class="text-danger"></span>
                 </div>
             </div>
-            <div class="row form-group">
-                <div class="form-group">
-                    <label asp-for="IsAcceptable" class="col-md control-label"></label>
+            <div class="row">
+                <div class="col-md-3 form-group">
+                    <label asp-for="IsAcceptable" class="col-md control-label" style="width:100%"></label>
                     <div class="col-md">
                         <select asp-for="IsAcceptable" class="form-control">
                             <option value="True">قابل قبول</option>
@@ -80,8 +92,8 @@
                         </select>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label asp-for="IsViewableByUser" class="col-md control-label"></label>
+                <div class="col-md-4 form-group">
+                    <label asp-for="IsViewableByUser" class="col-md control-label" style="width:100%"></label>
                     <div class="col-md">
                         <select asp-for="IsViewableByUser" class="form-control">
                             <option value="False">غیرقابل مشاهده برای کارمند</option>
@@ -99,7 +111,16 @@
 </div>
 @section Scripts {
     <script src="~/lib/quill/quill.js"></script>
+    <script src="~/lib/select2/js/select2.min.js"></script>
+    <script src="~/lib/select2/js/i18n/fa.js"></script>
     <script>
+    $(document).ready(function () {
+        $('select').select2({
+            dir: 'rtl',
+            language: 'fa',
+            minimumResultsForSearch: -1
+        });
+    });
     //Quil rich text initialization
     var FontAttributor = Quill.import('attributors/class/font');
     FontAttributor.whitelist = [

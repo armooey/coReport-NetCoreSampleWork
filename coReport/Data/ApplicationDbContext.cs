@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using coReport.Auth;
 using coReport.Models.AccountModel;
+using coReport.Models.ActivityModels;
 using coReport.Models.LogModel;
 using coReport.Models.ManagerModels;
 using coReport.Models.MessageModels;
@@ -30,6 +31,7 @@ namespace coReport.Data
         public DbSet<ProfileImageHistory> ProfileImageHistory { get; set; }
         public DbSet<ReportAttachmentHistory> ReportAttachmentHistory { get; set; }
         public DbSet<Log> Logs { get; set; }
+        public DbSet<Activity> Activities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -107,6 +109,12 @@ namespace coReport.Data
                 .HasOne(um => um.Receiver)
                 .WithMany(r => r.ReceivedMessages)
                 .HasForeignKey(um => um.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //Activity and subactivity one to many self relation
+            modelBuilder.Entity<Activity>()
+                .HasOne(a => a.ParentActivity)
+                .WithMany(a => a.SubActivities)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

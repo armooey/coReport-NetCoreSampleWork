@@ -1,7 +1,9 @@
 ﻿using coReport.Auth;
 using coReport.Models.AccountViewModels;
+using coReport.Models.ActivityModels;
 using coReport.Models.ManagerModels;
 using coReport.Models.ProjectViewModels;
+using coReport.Models.ReportModels;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -23,6 +25,14 @@ namespace coReport.Models.ReportViewModel
         [Required(ErrorMessage = "تکمیل فیلد عنوان اجباری است.")]
         [Display(Name = "عنوان")]
         public String Title { get; set; }
+
+        [Display(Name = "نوع فعالیت")]
+        [Required(ErrorMessage = "تکمیل فیلد نوع فعالیت اجباری است.")]
+        public short ActivityId { get; set; }
+
+        public short? SubActivityId { get; set; }
+
+        public String ActivityApendix { get; set; }
 
         [Required(ErrorMessage = "تکمیل فیلد گزارش اجباری است.")]
         public String Text { get; set; }
@@ -53,5 +63,6 @@ namespace coReport.Models.ReportViewModel
         public String AttachmentName { get; set; }
 
         public bool IsSubmitedByManager { get; set; }
+        public IEnumerable<Activity> Activities { get; set; }
     }
 }

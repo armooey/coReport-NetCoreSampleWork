@@ -1,75 +1,105 @@
 ﻿@using coReport.Models.ReportViewModel
+@using coReport.Operations
 @model CreateReportViewModel
+
 @{
     ViewData["Title"] = "ویرایش گزارش";
 }
 <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
 <link href="~/lib/quill/quill.snow.css" rel="stylesheet" />
 
-<div class="container p-2 box-widget">
-    <div class="container">
-        <form id="form" asp-controller="Report" asp-action="Edit" method="post"
-              class="form-horizontal" role="form" enctype="multipart/form-data">
+<div class="p-2 box-widget">
+    <div class="container-fluid">
+        <form id="form" asp-controller="Report" asp-action="Edit" method="post" class="form-horizontal" role="form" enctype="multipart/form-data">
             <h5>ویرایش گزارش</h5>
             <hr />
             <input asp-for="AuthorId" type="hidden" />
             <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label asp-for="Title" class="col-md control-label"></label>
-                        <div class="col-md">
-                            <input asp-for="Title" class="form-control" />
-                            <span asp-validation-for="Title" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="ProjectId" class="col-md control-label"></label>
-                        <div class="col-md">
-                            <select id="project_select" asp-for="ProjectId" style="width: 100%">
-                                <option></option>
-                                @foreach (var project in Model.Projects)
-                                {
-                                    <option value="@project.Id">@project.Title</option>
-                                }
-                            </select>
-                            <span asp-validation-for="ProjectId" class="text-danger"></span>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label asp-for="ProjectManagerIds" class="col-md control-label"></label>
-                        <div class="col-md disabled-select">
-                            <select id="manager_multiselect" asp-for="ProjectManagerIds" style="width: 100%" multiple="multiple">
-                                <option></option>
-                                @foreach (var user in Model.Managers)
-                                {
-                                    <option value="@user.Id">@user.FirstName @user.LastName</option>
-                                }
-                            </select>
-                            <span asp-validation-for="ProjectManagerIds" class="text-danger"></span>
-                            @if (Model.IsSubmitedByManager)
-                            {
-                                <span class="text-muted"><small>به دلیل ثبت گزارش مدیر این فیلد غیرقابل تغییر است.</small></span>
-                            }
-                        </div>
-                    </div>
-
+            <div class="form-group">
+                <label asp-for="Title" class="col-md-3 control-label"></label>
+                <div class="col-md-3">
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
                 </div>
-                <div class="col-md-2">
-                    <div class="form-group">
-                        <label asp-for="TaskStartTime" class="col-md control-label"></label>
-                        <div class="col-md">
-                            <input asp-for="TaskStartTime" class="form-control" />
-                            <span asp-validation-for="TaskStartTime" class="text-danger"></span>
-                        </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label asp-for="ProjectId" class="col-md control-label"></label>
+                    <div class="col-md">
+                        <select id="project_select" asp-for="ProjectId" style="width: 100%">
+                            <option></option>
+                            @foreach (var project in Model.Projects)
+                            {
+                                <option value="@project.Id">@project.Title</option>
+                            }
+                        </select>
+                        <span asp-validation-for="ProjectId" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="TaskEndTime" class="col-md control-label"></label>
-                        <div class="col-md">
-                            <input asp-for="TaskEndTime" class="form-control" />
-                            <span asp-validation-for="TaskEndTime" class="text-danger"></span>
-                        </div>
+                </div>
+
+                <div class="col-md-4 form-group">
+                    <label asp-for="ProjectManagerIds" class="col-md control-label"></label>
+                    <div class="col-md disabled-select">
+                        <select id="manager_multiselect" asp-for="ProjectManagerIds" style="width: 100%" multiple="multiple">
+                            <option></option>
+                            @foreach (var user in Model.Managers)
+                            {
+                                <option value="@user.Id">@user.FirstName @user.LastName</option>
+                            }
+                        </select>
+                        <span asp-validation-for="ProjectManagerIds" class="text-danger"></span>
+                        @if (Model.IsSubmitedByManager)
+                        {
+                            <span class="text-muted"><small>به دلیل ثبت گزارش مدیر این فیلد غیرقابل تغییر است.</small></span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 form-group">
+                    <label asp-for="ActivityId" class="col-md control-label"></label>
+                    <div class="col-md">
+                        <select id="activity_select" asp-for="ActivityId" class="form-control" style="width: 100%">
+                            <option></option>
+                            @foreach (var activity in Model.Activities)
+                            {
+                                <option value="@activity.Id">@activity.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="ActivityId" class="text-danger"></span>
+                    </div>
+                </div>
+                <div id="subactivity" class="col-md-4 form-group">
+                    <label class="col-md control-label"></label>
+                    <div class="col-md">
+                        <select asp-for="SubActivityId" class="form-control" style="width: 100%"></select>
+                        <span asp-validation-for="SubActivityId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div id="apendixField" hidden class="col-md-3 form-group">
+                    <label class="col-md control-label"></label>
+                    <div class="col-md">
+                        <input asp-for="ActivityApendix" class="form-control" />
+                        <span asp-validation-for="ActivityApendix" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3 form-group">
+                    <label asp-for="TaskStartTime" class="col-md control-label"></label>
+                    <div class="col-md">
+                        <input asp-for="TaskStartTime" class="form-control" />
+                        <span asp-validation-for="TaskStartTime" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-3 form-group">
+                    <label asp-for="TaskEndTime" class="col-md control-label"></label>
+                    <div class="col-md">
+                        <input asp-for="TaskEndTime" class="form-control" />
+                        <span asp-validation-for="TaskEndTime" class="text-danger"></span>
                     </div>
                 </div>
             </div>
@@ -121,12 +151,12 @@
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
-<script src="~/lib/select2/js/select2.min.js"></script>
-<script src="~/lib/select2/js/i18n/fa.js"></script>
-<script src="~/lib/quill/quill.js"></script>
+    <script src="~/lib/select2/js/select2.min.js"></script>
+    <script src="~/lib/select2/js/i18n/fa.js"></script>
+    <script src="~/lib/quill/quill.js"></script>
+    <script src="~/lib/bootbox.js/bootbox.min.js"></script>
 
-<script>
-
+    <script>
     $(document).ready(function () {
         $('#manager_multiselect').select2({
             placeholder: 'انتخاب کنید...',
@@ -138,13 +168,69 @@
             dir: 'rtl',
             language: 'fa'
         });
+        $('#activity_select').select2({
+            placeholder: 'فعالیت را انتخاب کنید...',
+            minimumResultsForSearch: -1,
+            dir: 'rtl',
+            language: 'fa'
+        });
+        $('#subactivity :input').select2({
+            placeholder: 'فعالیت را انتخاب کنید...',
+            minimumResultsForSearch: -1,
+            dir: 'rtl',
+            language: 'fa'
+        });
+
+
         if ('@Model.IsSubmitedByManager' == "True")
         {
             $('#manager_multiselect').prop('disabled', true);
         }
+        //Page load fetch subactivities based on selected activity
+        fetchSubactivityList($('#activity_select').val(), true);
+        //Dynamic subactivity changes
+        $('#activity_select').change(function () {
+            fetchSubactivityList($(this).val());
+        });
+
     });
 
-
+    function fetchSubactivityList(selectedId, init = false)
+    {
+        $.ajax({
+            url: "@Url.Action("GetSubActivities","Report")",
+            data: { selectedActivityId: selectedId }
+        }).done(function (ajaxResult) {
+            if (ajaxResult.length != 0) {
+                $('#subactivity').prop('hidden', false);
+                $('#subactivity >label').text($('#activity_select option:selected').text());
+                $('#subactivity :input').prop('disabled', false);
+                $('#subactivity :input').empty();
+                ajaxResult.forEach(function (element) {
+                    var option = new Option(element.Value, element.Key);
+                    $('#subactivity :input').append(option).trigger('change');
+                });
+                if (init) {
+                    $('#subactivity :input').val('@Model.SubActivityId');
+                    $('#subactivity :input').trigger('change');
+                }
+            }
+            else {
+                $('#subactivity').prop('hidden', true);
+                $('#subactivity :input').prop('disabled', true);
+            }
+        }).fail(function () {
+            bootbox.alert({
+                closeButton: false,
+                message: "خطا در ارتباط با سرور!",
+                buttons: {
+                    ok: {
+                        label: 'بستن'
+                    }
+                }
+            });
+        });
+    }
     //Trigger download action
     function download(name)
     {
@@ -186,5 +272,5 @@
         var textBox = document.getElementById("text");
         textBox.value = JSON.stringify(quill.getContents());
     });
-</script>
+    </script>
 }

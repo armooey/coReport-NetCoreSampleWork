@@ -261,6 +261,26 @@ namespace coReport.Migrations
                     b.ToTable("ProfileImageHistory");
                 });
 
+            modelBuilder.Entity("coReport.Models.ActivityModels.Activity", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<short?>("ParentActivityId")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentActivityId");
+
+                    b.ToTable("Activities");
+                });
+
             modelBuilder.Entity("coReport.Models.LogModel.Log", b =>
                 {
                     b.Property<short>("Id")
@@ -439,6 +459,12 @@ namespace coReport.Migrations
                         .HasColumnType("smallint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("ActivityApendix")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<short>("ActivityId")
+                        .HasColumnType("smallint");
+
                     b.Property<string>("AttachmentName")
                         .HasColumnType("nvarchar(max)");
 
@@ -457,6 +483,9 @@ namespace coReport.Migrations
                     b.Property<short>("ProjectId")
                         .HasColumnType("smallint");
 
+                    b.Property<short?>("SubActivityId")
+                        .HasColumnType("smallint");
+
                     b.Property<DateTime>("TaskEndTime")
                         .HasColumnType("datetime2");
 
@@ -471,9 +500,13 @@ namespace coReport.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ActivityId");
+
                     b.HasIndex("AuthorId");
 
                     b.HasIndex("ProjectId");
+
+                    b.HasIndex("SubActivityId");
 
                     b.ToTable("Reports");
                 });
@@ -550,6 +583,14 @@ namespace coReport.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("coReport.Models.ActivityModels.Activity", b =>
+                {
+                    b.HasOne("coReport.Models.ActivityModels.Activity", "ParentActivity")
+                        .WithMany("SubActivities")
+                        .HasForeignKey("ParentActivityId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("coReport.Models.ManagerModels.UserManager", b =>
                 {
                     b.HasOne("coReport.Auth.ApplicationUser", "Manager")
@@ -621,6 +662,12 @@ namespace coReport.Migrations
 
             modelBuilder.Entity("coReport.Models.ReportModels.Report", b =>
                 {
+                    b.HasOne("coReport.Models.ActivityModels.Activity", "Activity")
+                        .WithMany()
+                        .HasForeignKey("ActivityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("coReport.Auth.ApplicationUser", "Author")
                         .WithMany("Reports")
                         .HasForeignKey("AuthorId")
@@ -632,6 +679,10 @@ namespace coReport.Migrations
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("coReport.Models.ActivityModels.Activity", "SubActivity")
+                        .WithMany()
+                        .HasForeignKey("SubActivityId");
                 });
 #pragma warning restore 612, 618
         }

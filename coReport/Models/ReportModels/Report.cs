@@ -1,4 +1,5 @@
 ﻿using coReport.Auth;
+using coReport.Models.ActivityModels;
 using coReport.Models.ProjectModels;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,11 @@ namespace coReport.Models.ReportModels
         public String Title { get; set; }
         public short AuthorId { get; set; }
         public virtual ApplicationUser Author { get; set; }
+        public short ActivityId { get; set; }
+        public virtual Activity Activity { get; set; }
+        public short? SubActivityId { get; set; }
+        public Activity SubActivity { get; set; }
+        public String ActivityApendix { get; set; }
         public String Text { get; set; }
         public short ProjectId { get; set; }
         public virtual Project Project { get; set; }

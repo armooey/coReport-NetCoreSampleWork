@@ -1,4 +1,5 @@
 ﻿using coReport.Auth;
+using coReport.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,32 +12,37 @@ namespace coReport.Data
     {
         public static async Task Initialize(IServiceProvider serviceProvider)
         {
-            var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<short>>>();
-            var UserManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<short>>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var activityData = serviceProvider.GetRequiredService<IActivityData>();
+
+
+            //Initialize activities
+            activityData.InitializeActivities();
 
             //Creating Admin Role
-            var roleCheck = await RoleManager.RoleExistsAsync("Admin");
+            var roleCheck = await roleManager.RoleExistsAsync("Admin");
             if (!roleCheck)
             {
-                await RoleManager.CreateAsync(new IdentityRole<short>("Admin"));
+                await roleManager.CreateAsync(new IdentityRole<short>("Admin"));
             }
 
             //Creating Employee Role
-            roleCheck = await RoleManager.RoleExistsAsync("Employee");
+            roleCheck = await roleManager.RoleExistsAsync("Employee");
             if (!roleCheck)
             {
-                await RoleManager.CreateAsync(new IdentityRole<short>("Employee"));
+                await roleManager.CreateAsync(new IdentityRole<short>("Employee"));
             }
 
             //Creating Manager Role
-            roleCheck = await RoleManager.RoleExistsAsync("Manager");
+            roleCheck = await roleManager.RoleExistsAsync("Manager");
             if (!roleCheck)
             {
-                await RoleManager.CreateAsync(new IdentityRole<short>("Manager"));
+                await roleManager.CreateAsync(new IdentityRole<short>("Manager"));
             }
 
             //Creating Admin User
-            var user = await UserManager.FindByNameAsync("admin");
+            var user = await userManager.FindByNameAsync("admin");
             if (user == null)
             {
                 var adminUser = new ApplicationUser
@@ -46,10 +52,10 @@ namespace coReport.Data
                     IsActive = true
                 };
                 string adminPassword = AppSettingInMemoryDatabase.ADMIN_PASSWORD;
-                var createPowerUser = await UserManager.CreateAsync(adminUser, adminPassword);
+                var createPowerUser = await userManager.CreateAsync(adminUser, adminPassword);
                 if (createPowerUser.Succeeded)
                 {
-                    await UserManager.AddToRoleAsync(adminUser, "Admin");
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
                 }
             }
         }

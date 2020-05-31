@@ -211,7 +211,7 @@ namespace coReport.Controllers
         {
             ViewData["ReturnUrl"] = returnUrl;
             ViewData["UserName"] = userName;
-                        if(!User.IsInRole("Admin") && User.Identity.Name != userName)
+            if(!User.IsInRole("Admin") && User.Identity.Name != userName)
                 return View("_AccessDenied");
             return View();
         }
@@ -235,7 +235,27 @@ namespace coReport.Controllers
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction(nameof(Index), new {userName =  model.Username, returnUrl = returnUrl });
                 }
-                ModelState.AddModelError(String.Empty, "مشکل در بروزرسانی اطلاعات کاربر.");
+                foreach (var error in result.Errors)
+                {
+                    switch (error.Code)
+                    {
+                        case "PasswordRequiresUpper":
+                            ModelState.AddModelError("", "کلمه عبور باید شامل حروف بزرگ انگلیسی باشد.");
+                            break;
+                        case "PasswordMismatch":
+                            ModelState.AddModelError("", "کلمه عبور فعلی صحیح نیست.");
+                            break;
+                        case "PasswordRequiresDigit":
+                            ModelState.AddModelError("", "کلمه عبور باید شامل اعداد باشد.");
+                            break;
+                        case "PasswordRequiresLower":
+                            ModelState.AddModelError("", "کلمه عبور باید شامل حروف کوچک انگلیسی باشد.");
+                            break;
+                        default:
+                            ModelState.AddModelError("", "مشکل در بروزرسانی اطلاعات کاربر");
+                            break;
+                    }
+                }
                 return View(model);
             }
             return View(model);
