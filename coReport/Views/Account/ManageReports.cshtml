@@ -9,7 +9,8 @@
     <div class="col-md p-3 box-widget-scrollable" style="height:600px; max-height:600px">
         <span><b>گزارشات</b></span>
         <a asp-action="Create" asp-controller="Report" class="btn btn-primary btn-sm float-left">ایجاد گزارش</a>
-        <input type="text" id="search_field" placeholder="جستجو" class="input-group-sm ml-1 float-left" />
+        <input type="text" id="search_field" placeholder="جستجو" 
+               class="input-group-sm ml-1 float-left searchbox border-dark rounded" style="padding:3px"/>
         <hr />
         @if (Model.Reports.Count() == 0)
         {

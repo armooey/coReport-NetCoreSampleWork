@@ -15,13 +15,12 @@
         @if (Model.UserReport.SubActivityName != null)
         {
             <h5>
-                <small>@Model.UserReport.ActvivityName &raquo; @Model.UserReport.SubActivityName &raquo;</small>
-                @Model.UserReport.Title
+                @Model.UserReport.Title <small class="text-muted">@Model.UserReport.ActvivityName &raquo; @Model.UserReport.SubActivityName</small>
             </h5>
         }
         else
         {
-            <h5><small>@Model.UserReport.ActvivityName &raquo;</small> @Model.UserReport.Title</h5>
+            <h5>@Model.UserReport.Title <small class="text-muted">@Model.UserReport.ActvivityName</small></h5>
         }
         <div class="row">
             <div class="col-md-2">
@@ -50,7 +49,7 @@
 
 
         <div class="form-group">
-            <label class="col-md control-label">گزارش کارمند</label>
+            <label class="col-md control-label font-weight-bold">گزارش کارمند</label>
             <div id="editor"></div>
         </div>
         @if (Model.UserReport.AttachmentName != null)
@@ -70,13 +69,16 @@
         {
             <div class="text-muted"><small>ضمیمه‌ای موجود نیست.</small></div>
         }
+    </div>
+</div>
 
-        <hr style="border: 1px solid gray" />
+<div class="p-2 box-widget">
+    <div class="container">
         <form asp-controller="Report" asp-action="CreateManagerReport" method="post" class="form-horizontal" role="form">
             <input asp-for="UserReport.Id" type="hidden" />
             <input asp-for="UserReport.Author.Id" type="hidden" />
             <div class="form-group">
-                <label asp-for="Text" class="col-md control-label"></label>
+                <label asp-for="Text" class="col-md control-label font-weight-bold"></label>
                 <div class="col-md">
                     <textarea cols="15" rows="4" asp-for="Text" class="form-control"></textarea>
                     <span asp-validation-for="Text" class="text-danger"></span>
@@ -103,12 +105,17 @@
                 </div>
             </div>
 
-
-            <button type="submit" class="btn btn-primary">ثبت</button>
-            <a class="btn btn-secondary" asp-controller="Manager" asp-action="ManageReports">بازگشت</a>
+            <div class="form-group">
+                <div class="col-md">
+                    <button type="submit" class="btn btn-primary">ثبت</button>
+                    <a class="btn btn-secondary" asp-controller="Manager" asp-action="ManageReports">بازگشت</a>
+                </div>
+            </div>
         </form>
     </div>
 </div>
+
+
 @section Scripts {
     <script src="~/lib/quill/quill.js"></script>
     <script src="~/lib/select2/js/select2.min.js"></script>

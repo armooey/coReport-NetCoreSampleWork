@@ -34,6 +34,7 @@ namespace coReport.Models.ReportViewModel
 
         public String ActivityApendix { get; set; }
 
+
         [Required(ErrorMessage = "تکمیل فیلد گزارش اجباری است.")]
         public String Text { get; set; }
 
