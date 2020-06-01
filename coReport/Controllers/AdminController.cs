@@ -1,6 +1,7 @@
 ﻿using coReport.Auth;
 using coReport.Data;
 using coReport.Models.AccountViewModels;
+using coReport.Models.ActivityModels;
 using coReport.Models.AdminViewModels;
 using coReport.Models.HomeViewModels;
 using coReport.Models.ProjectModels;
@@ -29,8 +30,9 @@ namespace coReport.Controllers
         private RoleManager<IdentityRole<short>> _roleManager;
         private IManagerData _managerData;
         private IMessageService _messageService;
-        private IProjectData _projectService;
+        private IProjectData _projectData;
         private ILogService _logger;
+        private IActivityData _activityData;
 
         public AdminController(UserManager<ApplicationUser> userManager, IReportData reportData,
             IManagerReportData managerReportData,
@@ -39,7 +41,8 @@ namespace coReport.Controllers
             IManagerData managerData,
             IMessageService messageService,
             IProjectData projectService,
-            ILogService logger)
+            ILogService logger,
+            IActivityData activityData)
         {
             _userManager = userManager;
             _reportData = reportData;
@@ -48,15 +51,16 @@ namespace coReport.Controllers
             _roleManager = roleManager;
             _managerData = managerData;
             _messageService = messageService;
-            _projectService = projectService;
+            _projectData = projectService;
             _logger = logger;
+            _activityData = activityData;
         }
 
         public IActionResult AdminPanel()
         {
             //prepare datas for chart
             short ADMIN_ID = 1;
-            var projects = _projectService.GetAll();
+            var projects = _projectData.GetAll();
             var today = DateTime.Now;
             var userReports = _reportData.GetReportsOfLastSevenDays();
             var managerReports = _managerReportData.GetReportsOfLastSevenDays();
@@ -65,6 +69,7 @@ namespace coReport.Controllers
             var projectViewModels = new List<ProjectViewModel>();
             var warnings = _messageService.GetWarnings();
             var warningViewModels = new List<WarningViewModel>();
+            var activities = _activityData.GetAllActivities().ToList();
             
             //A list for the last 7 days
             var days = new List<String>();
@@ -103,7 +108,8 @@ namespace coReport.Controllers
                 UsersReportCount = userReportCount,
                 ManagersReportCount = managerReportCount,
                 Warnings = warningViewModels,
-                Messages = SystemOperations.GetMessageViewModels(_messageService, ADMIN_ID)
+                Messages = SystemOperations.GetMessageViewModels(_messageService, ADMIN_ID),
+                Activities = activities
             };
             return View(adminPanelModel);
         }
@@ -284,7 +290,7 @@ namespace coReport.Controllers
 
         public IActionResult AddProject(String projectName)
         {
-            var result = _projectService.Add(new Project
+            var result = _projectData.Add(new Project
             {
                 Title = projectName,
                 CreateDate = DateTime.Now
@@ -298,9 +304,29 @@ namespace coReport.Controllers
             return RedirectToAction("AdminPanel");
         }
 
+        public IActionResult AddActivity(String activityName, short? parentActivityName = null)
+        {
+            var result = _activityData.Add(new Activity { Name = activityName , ParentActivityId = parentActivityName});
+            if (!result)
+            {
+                return RedirectToAction("Error", "Home", new ErrorViewModel
+                {
+                    Error = "مشکل در ایجاد فعالیت جدید!"
+                });
+            }
+            return RedirectToAction("AdminPanel");
+        }
+
+
         public IActionResult EndProject(short id)
         {
-            var result = _projectService.EndProject(id);
+            var result = _projectData.EndProject(id);
+            return Json(result);
+        }
+
+        public IActionResult DeleteActivity(short id)
+        {
+            var result = _activityData.Delete(id);
             return Json(result);
         }
     }

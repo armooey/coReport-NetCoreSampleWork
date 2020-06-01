@@ -11,6 +11,7 @@ namespace coReport.Models.ActivityModels
         public String Name { get; set; }
         public virtual Activity ParentActivity { get; set; }
         public short? ParentActivityId { get; set; }
+        public bool IsDeleted { get; set; }
         public IEnumerable<Activity> SubActivities { get; set; }
     }
 }

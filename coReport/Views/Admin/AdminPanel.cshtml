@@ -6,6 +6,8 @@
 }
 
 <link href="~/lib/Chart.js/Chart.min.css" rel="stylesheet" />
+<link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
+
 <div>
 
     <div class="row" style="margin-top:40px">
@@ -15,7 +17,24 @@
             <hr />
             <canvas height="300" width="500" id="reportsChart"></canvas>
         </div>
+        <div class="col-md border border-dark p-2 box-widget-scrollable">
+            <h6><b>پیام ها</b></h6>
+            <hr />
+            @if (Model.Messages.Count() == 0)
+            {
+                <div class="text-center"><b>پیامی موجود نیست.</b></div>
+            }
+            else
+            {
+                foreach (var message in Model.Messages)
+                {
+                    <partial name="_MessagePartialView" model="message" />
+                }
+            }
+        </div>
+    </div>
 
+    <div class="row">
         <div class="col-md border border-dark p-2 box-widget-scrollable">
             <span><b>پروژه ها</b></span>
             <button class="btn btn-primary btn-sm float-left" data-toggle="modal" data-target="#createProject">ایجاد پروژه جدید</button>
@@ -29,23 +48,6 @@
                 foreach (var project in Model.Projects)
                 {
                     <partial name="ProjectPartialView" model="project" />
-                }
-            }
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md border border-dark p-2 box-widget-scrollable">
-            <h6><b>پیام ها</b></h6>
-            <hr />
-            @if (Model.Messages.Count() == 0)
-            {
-                <div class="text-center"><b>پیامی موجود نیست.</b></div>
-            }
-            else
-            {
-                foreach (var message in Model.Messages)
-                {
-                    <partial name="_MessagePartialView" model="message" />
                 }
             }
         </div>
@@ -65,8 +67,47 @@
             }
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-md-6 border border-dark p-2 box-widget-scrollable">
+            <span><b>درخت فعالیت‌ها</b></span>
+            <button class="btn btn-danger btn-sm float-left" data-toggle="modal" data-target="#deleteActivity">حذف فعالیت</button>
+            <button class="btn btn-primary btn-sm float-left ml-1" data-toggle="modal" data-target="#createActivity">ایجاد فعالیت/زیرفعالیت جدید</button>
+            <hr />
+            @if (Model.Activities.Count() == 0)
+            {
+                <div class="text-center"><b>فعالیتی موجود نیست.</b></div>
+            }
+            else
+            {
+                <ul id="tree">
+                    @foreach (var activity in Model.Activities)
+                    {
+                        <li>
+                            <span>@activity.Name</span>
+                            @if (activity.SubActivities.Any())
+                            {
+                                <ul>
+                                    @foreach (var subactivity in activity.SubActivities)
+                                    {
+                                        @if (!subactivity.IsDeleted)
+                                        {
+                                            <li class="subactivity">@subactivity.Name </li>
+                                        }
+                                    }
+                                </ul>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
 </div>
 
+@* ****************************************** *@
+@* Modals *@
+@* ****************************************** *@
 
 <div id="createProject" class="modal fade" role="dialog">
     <div class="modal-dialog modal-dialog-centered">
@@ -80,7 +121,7 @@
                     <label class="col-md-4">عنوان پروژه</label>
                     <div class="col-md-10">
                         <input type="text" name="projectName" data-val="true" data-val-required="عنوان پروژه اجباری است." class="form-control" />
-                        <span  class="text-danger field-validation-valid" data-valmsg-for="projectName" data-valmsg-replace="true"></span>
+                        <span class="text-danger field-validation-valid" data-valmsg-for="projectName" data-valmsg-replace="true"></span>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -93,50 +134,220 @@
     </div>
 </div>
 
+<div id="createActivity" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6>ایجاد فعالیت/زیرفعالیت</h6>
+            </div>
+            <form asp-action="AddActivity" method="post" role="form">
+                <div class="form-group" style="margin-top: 10px">
+                    <span class="col-md"> ایجاد زیرفعالیت؟</span>
+                    <input id="is_subactivity" type="checkbox" />
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label">فعالیت پدر</label>
+                    <div class="col-md-10">
+                        <select id="activity_select" disabled type="text" name="parentActivityName" data-val="true"
+                                data-val-required="انتخاب فعالیت پدر اجباری است." class="form-control" style="width:100%">
+                            <option></option>
+                            @foreach (var activity in Model.Activities)
+                            {
+                                <option value="@activity.Id">@activity.Name</option>
+                            }
+                        </select>
+                        <span class="text-danger field-validation-valid" data-valmsg-for="parentActivityName" data-valmsg-replace="true"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label">عنوان فعالیت</label>
+                    <div class="col-md-10">
+                        <input type="text" name="activityName" data-val="true" data-val-required="عنوان فعالیت اجباری است." class="form-control" />
+                        <span class="text-danger field-validation-valid" data-valmsg-for="activityName" data-valmsg-replace="true"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                    <button type="submit" class="btn btn-primary">ثبت</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<div id="deleteActivity" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6>حذف فعالیت/زیرفعالیت</h6>
+            </div>
+            <div class="form-group mt-2">
+                <label class="col-md-4 control-label">فعالیت</label>
+                <div class="col-md-10">
+                    <select id="activity_select_for_delete" type="text" name="selectedActivityName" data-val="true"
+                            data-val-required="انتخاب فعالیت اجباری است." class="form-control" style="width:100%">
+                        <option></option>
+                        @foreach (var activity in Model.Activities)
+                        {
+                            <option value="@activity.Id">&lowast;@activity.Name</option>
+                            foreach (var subactivity in activity.SubActivities)
+                            {
+                                @if (!subactivity.IsDeleted)
+                                { 
+                                    <option value="@subactivity.Id">&emsp;&emsp;@subactivity.Name</option>
+                                }
+                            }
+                        }
+                    </select>
+                    <span class="text-danger field-validation-valid" data-valmsg-for="selectedActivityName" data-valmsg-replace="true"></span>
+                    <div class="text-muted small mt-1">در صورت انتخاب یک فعالیت اصلی، تمام زیرفعالیت‌های آن حذف می‌شوند.</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                <button onclick="DeleteActivity()" class="btn btn-primary">ثبت</button>
+            </div>
+        </div>
+
+    </div>
+</div>
 
 @section scripts
 {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
     <script src="~/lib/Chart.js/Chart.min.js"></script>
-    <script src="~/lib/popper.js/umd/popper.min.js"></script>
     <script src="~/lib/bootbox.js/bootbox.min.js"></script>
+    <script src="~/lib/select2/js/select2.min.js"></script>
+    <script src="~/lib/select2/js/i18n/fa.js"></script>
 
     <script>
-    var days = JSON.parse('@Html.Raw(Json.Serialize(@Model.Days))');
-    var userReportCount = JSON.parse('@Html.Raw(Json.Serialize(@Model.UsersReportCount))');
-    var managerReportCount = JSON.parse('@Html.Raw(Json.Serialize(@Model.ManagersReportCount))');
-    var context = document.getElementById('reportsChart').getContext('2d');
-    var myChart = new Chart(context, {
-        type: 'bar',
-            data: {
-            labels: days,
-            datasets: [
-                {
-                    data: userReportCount,
-                    label: "گزارشات کارمندان",
-                    backgroundColor: "#483b9b",
-                    fill: true
-                },
-                {
-                    data: managerReportCount,
-                    label: "گزارشات مدیران",
-                    backgroundColor: "#b2812c",
-                    fill: true
-                }
-            ]
-        },
-        options: {
+        $(document).ready(function () {
+            $('#activity_select').select2({
+                placeholder: 'فعالیت را انتخاب کنید...',
+                minimumResultsForSearch: -1,
+                dir: 'rtl',
+                language: 'fa'
+            });
+            $('#activity_select_for_delete').select2({
+                placeholder: 'فعالیتی که می‌خواهید حذف کنید را انتخاب کنید...',
+                dir: 'rtl',
+                language: 'fa'
+            });
 
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true,
-                        stepSize: 1
+            $('#is_subactivity').click(function () {
+                if ($(this).prop("checked") == true) {
+                    $("#activity_select").prop("disabled", false);
+                }
+                else if ($(this).prop("checked") == false) {
+                    $("#activity_select").prop("disabled", true);
+                }
+            });
+
+            $('[data-toggle="popover"]').popover();
+            $('.seen-False').attr('style', 'border: 2px solid !important');
+            $('.ended-True').attr('style', 'background-color:lightgray');
+            $('[data-toggle="popover"]').click(function () {
+                $(this).parent().parent().attr('style', 'border: 1px solid');
+            });
+        });
+
+        //Function for creating collapsable treeview
+        jQuery.fn.extend({
+            createTreeView: function (o) {
+                var openedClass = 'fas fa-minus-circle';
+                var closedClass = 'fas fa-plus-circle';
+
+                if (typeof o != 'undefined') {
+                    if (typeof o.openedClass != 'undefined') {
+                        openedClass = o.openedClass;
                     }
-                }]
+                    if (typeof o.closedClass != 'undefined') {
+                        closedClass = o.closedClass;
+                    }
+                };
+
+                //initialize each of the top levels
+                var tree = $(this);
+                tree.addClass("tree");
+                tree.find('li').has("ul").each(function () {
+                    var branch = $(this); //li with children ul
+                    branch.prepend("<i class='indicator " + closedClass + "'></i>");
+                    branch.addClass('branch');
+                    branch.on('click', function (e) {
+                        if (this == e.target) {
+                            var icon = $(this).children('i:first');
+                            icon.toggleClass(openedClass + " " + closedClass);
+                            $(this).children().children().toggle();
+                        }
+                    })
+                    branch.children().children().toggle();
+                });
+                //fire event from the dynamically added icon
+                tree.find('.branch .indicator').each(function () {
+                    $(this).on('click', function () {
+                        $(this).closest('li').click();
+                    });
+                });
+                //fire event to open branch if the li contains an anchor instead of text
+                tree.find('.branch>a').each(function () {
+                    $(this).on('click', function (e) {
+                        $(this).closest('li').click();
+                        e.preventDefault();
+                    });
+                });
+                //fire event to open branch if the li contains a button instead of text
+                tree.find('.branch>button').each(function () {
+                    $(this).on('click', function (e) {
+                        $(this).closest('li').click();
+                        e.preventDefault();
+                    });
+                });
             }
-        }
-    });
+        });
+
+        //Initialize treeview
+        $('#tree').createTreeView();
+
+        //preparing data for chart
+        var days = JSON.parse('@Html.Raw(Json.Serialize(@Model.Days))');
+        var userReportCount = JSON.parse('@Html.Raw(Json.Serialize(@Model.UsersReportCount))');
+        var managerReportCount = JSON.parse('@Html.Raw(Json.Serialize(@Model.ManagersReportCount))');
+        //Creating chart
+        var context = document.getElementById('reportsChart').getContext('2d');
+        var myChart = new Chart(context, {
+            type: 'bar',
+                data: {
+                labels: days,
+                datasets: [
+                    {
+                        data: userReportCount,
+                        label: "گزارشات کارمندان",
+                        backgroundColor: "#483b9b",
+                        fill: true
+                    },
+                    {
+                        data: managerReportCount,
+                        label: "گزارشات مدیران",
+                        backgroundColor: "#b2812c",
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            stepSize: 1
+                        }
+                    }]
+                }
+            }
+        });
 
         function DeleteMessage(id) {
             bootbox.confirm({
@@ -241,13 +452,45 @@
             });
         }
 
-    $(document).ready(function(){
-        $('[data-toggle="popover"]').popover();
-        $('.seen-False').attr('style', 'border: 2px solid !important');
-        $('.ended-True').attr('style', 'background-color:lightgray');
-        $('[data-toggle="popover"]').click(function () {
-                $(this).parent().parent().attr('style', 'border: 1px solid');
+        function DeleteActivity()
+        {
+            bootbox.confirm({
+                closeButton: false,
+                message: "آیا می‌خواهید این فعالیت را حذف کنید؟",
+                buttons: {
+                    confirm: {
+                        label: 'بله',
+                        className: 'btn-primary'
+                    },
+                    cancel: {
+                        label: 'خیر',
+                        className: 'btn-secondary'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: "@Url.Action("DeleteActivity","Admin")",
+                            data: { id: $('#activity_select_for_delete').val() }
+                        }).done(function (ajaxResult) {
+                            if (ajaxResult)
+                                location.reload();
+                            else {
+                                bootbox.alert({
+                                    closeButton: false,
+                                    title: "خطا",
+                                    message: "هنگام حذف فعالیت مشکلی پیش آمده لطفا مجددا سعی کنید.",
+                                    buttons: {
+                                        ok: {
+                                            label: 'بستن'
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
             });
-    });
+        }
     </script>
 }

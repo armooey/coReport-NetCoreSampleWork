@@ -1,4 +1,5 @@
-﻿using coReport.Models.MessageViewModels;
+﻿using coReport.Models.ActivityModels;
+using coReport.Models.MessageViewModels;
 using coReport.Models.ProjectViewModels;
 using System;
 using System.Collections.Generic;
@@ -15,5 +16,6 @@ namespace coReport.Models.AdminViewModels
         public List<ProjectViewModel> Projects { get; set; }
         public List<MessageViewModel> Messages { get; set; }
         public List<WarningViewModel> Warnings { get; set; }
+        public List<Activity> Activities { get; set; }
     }
 }

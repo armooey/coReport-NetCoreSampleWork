@@ -21,7 +21,7 @@
                 <label asp-for="Username" class="col-md-4 control-label"></label>
                 <div class="col-md-10">
                     <input asp-for="Username" class="form-control" />
-                    <span asp-validation-for="Username" class="text-danger small"></span>
+                    <span asp-validation-for="Username" class="text-danger"></span>
                 </div>
             </div>
             <div class="form-group">
@@ -44,12 +44,8 @@
             <div>؟</div>
         </div>
         <div class="form-group">
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary" style="width:30%; margin-left:50%; margin-right:35%">ورود</button>
-            </div>
-        </div>
-        <div>
-            <a asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]">ایجاد یک حساب کاربری جدید</a>
+                <button type="submit" class="btn btn-primary" style="width:100%;">ورود</button>
+                <a asp-action="Register" class="btn btn-secondary mt-1" asp-route-returnurl="@ViewData["ReturnUrl"]" style="width:100%">حساب کاربری جدید</a>
         </div>
     </form>
 </div>

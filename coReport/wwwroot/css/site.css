@@ -162,6 +162,7 @@ label{
         background-color: #2C3E50;
     }
 
+
 .popover-header {
     background: #2C3E50;
     color: white;
@@ -175,3 +176,80 @@ label{
     height: 300px;
     max-height: 300px;
 }
+
+.tree, .tree ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    margin-right: 10px;
+}
+
+    .tree ul {
+        margin-right: 1em;
+        position: relative
+    }
+
+        .tree ul ul {
+            margin-right: .5em
+        }
+
+        .tree ul:before {
+            content: "";
+            display: block;
+            width: 0;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            border-right: 1px solid
+        }
+
+    .tree li {
+        margin: 0;
+        padding: 0 1em;
+        line-height: 2em;
+        font-weight: 700;
+        position: relative
+    }
+
+    .tree ul li:before {
+        content: "";
+        display: block;
+        width: 10px;
+        height: 0;
+        border-top: 1px solid;
+        margin-top: -1px;
+        position: absolute;
+        top: 1em;
+        right: 0
+    }
+
+    .tree ul li:last-child:before {
+        background: #fff;
+        height: auto;
+        top: 1em;
+        bottom: 0
+    }
+
+.indicator {
+    margin-right: 5px;
+}
+
+.tree li .subactivity {
+    font-weight: 300;
+}
+.tree li a {
+    text-decoration: none;
+    color: #369;
+}
+
+.tree li button, .tree li button:active, .tree li button:focus {
+    text-decoration: none;
+    color: #369;
+    border: none;
+    background: transparent;
+    margin: 0px 0px 0px 0px;
+    padding: 0px 0px 0px 0px;
+    outline: 0;
+}
+

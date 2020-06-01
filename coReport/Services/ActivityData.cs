@@ -19,15 +19,63 @@ namespace coReport.Services
             _logger = logger;
         }
 
+        public bool Add(Activity activity)
+        {
+            try 
+            {
+                _context.Activities.Add(activity);
+                _context.SaveChanges();
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.Log("Error in Creating new activity.", e);
+                return false;
+            }
+        }
+
+        public bool Delete(short id)
+        {
+            try
+            {
+                var activity = _context.Activities.Where(a => a.Id == id && !a.IsDeleted)
+                    .Include(a => a.SubActivities).FirstOrDefault();
+                if (activity != null)
+                {
+                    activity.IsDeleted = true;
+                    _context.Activities.Update(activity);
+                    foreach (var subactivity in activity.SubActivities)
+                    {
+                        subactivity.IsDeleted = true;
+                        _context.Activities.Update(subactivity);
+                    }
+
+                    _context.SaveChanges();
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.Log("Error in deleting activity.", e);
+                return false;
+            }
+        }
+
         public Activity GetActivity(short id)
         {
             return _context.Activities.Where(a => a.Id == id)
                 .Include(a => a.SubActivities).FirstOrDefault();
         }
 
+        public IEnumerable<Activity> GetAllActivities()
+        {
+            return _context.Activities.Where(a => a.ParentActivityId == null && !a.IsDeleted)
+                .Include(a => a.SubActivities);
+        }
+
         public IEnumerable<Activity> GetParentActivities()
         {
-            return _context.Activities.Where(a => a.ParentActivityId == null);
+            return _context.Activities.Where(a => a.ParentActivityId == null && !a.IsDeleted);
         }
 
         public void InitializeActivities()
