@@ -23,8 +23,7 @@ namespace coReport.Date
         public String GetTime()
         {
             return (Hour < 10 ? "0" + Hour.ToString() : Hour.ToString())
-                    + ":" + (Minute < 10 ? "0" + Minute.ToString() : Minute.ToString())
-                    + ":" + (Second < 10 ? "0" + Second.ToString() : Second.ToString());
+                    + ":" + (Minute < 10 ? "0" + Minute.ToString() : Minute.ToString());
         }
 
         public String GetDayAndMonth()

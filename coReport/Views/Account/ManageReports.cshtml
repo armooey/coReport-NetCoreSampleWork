@@ -5,6 +5,7 @@
     ViewData["Title"] = "گزارشات";
 }
 
+<link href="~/lib/quill/quill.bubble.css" rel="stylesheet" />
 <div class="row">
     <div class="col-md p-3 box-widget-scrollable" style="height:600px; max-height:600px">
         <span><b>گزارشات</b></span>
@@ -44,19 +45,39 @@
 </div>
 
 
+<div id="view_message" class="modal fade">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h6 id="message_title"></h6>
+            </div>
+            <div class="row form-group p-3 mt-1">
+                <div class="col-md text-danger" hidden><i class="fas fa-exclamation-triangle"></i><span id="message_warning"></span></div>
+                <div class="col-md"><i class="fas fa-user"></i><span id="message_sender"></span></div>
+                <div class="col-md-3"><i class="fas fa-calendar-alt"></i><span id="message_date"></span></div>
+                <div class="col-md-3"><i class="far fa-clock"></i><span id="message_time"></span></div>
+            </div>
+            <div class="form-group">
+                <div class="col-md">
+                    <div id="quill_text"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @section scripts
 {
     <script src="~/lib/popper.js/umd/popper.min.js"></script>
     <script src="~/lib/bootbox.js/bootbox.min.js"></script>
+    <script src="~/lib/quill/quill.js"></script>
     <script>
-        
         $(document).ready(function(){
-            $('[data-toggle="popover"]').popover();
             $('.seen-False').attr('style', 'border: 2px solid !important');
-            $('[data-toggle="popover"]').click(function () {
-                $(this).parent().parent().attr('style', 'border: 1px solid');
-            });
 
             //Perform dynamic search on reports
             function Contains(fisrtText, secondText)
@@ -75,6 +96,21 @@
                     }
                 });
             });
+
+        });
+
+        //Quil rich text initialization
+        var FontAttributor = Quill.import('attributors/class/font');
+        FontAttributor.whitelist = [
+            'arial', 'default', 'times-new-roman'
+        ];
+        var Size = Quill.import('attributors/style/size');
+        Size.whitelist = ['12px', '15px', '18px', '20px'];
+        Quill.register(Size, true);
+        Quill.register(FontAttributor, true);
+        var quill = new Quill('#quill_text', {
+            theme: 'bubble',
+            readOnly: true
         });
 
         function NotDeletableAlert()
@@ -169,13 +205,12 @@
                 }
             });
         }
-
         function ViewMessage(id) {
             $.ajax({
-                url: "@Url.Action("SetViewed","Message")",
+                url: "@Url.Action("ViewMessage","Message")",
                 data: { id: id }
             }).done(function (ajaxResult) {
-                if (!ajaxResult) {
+                if (ajaxResult == null) {
                     bootbox.alert({
                         closeButton: false,
                         title: "خطا",
@@ -186,6 +221,27 @@
                             }
                         }
                     });
+                }
+                else
+                {
+                    $('#message_title').text(' ' + ajaxResult[0]);
+                    if (ajaxResult[1] == 'اخطار سیستمی') {
+                        $('#message_warning').parent().prop('hidden', false);
+                        $('#message_sender').parent().prop('hidden', true);
+                        $('#message_warning').text(' ' + ajaxResult[1]);
+                    }
+                    else
+                    {
+                        $('#message_warning').parent().prop('hidden', true);
+                        $('#message_sender').parent().prop('hidden', false);
+                        $('#message_sender').text(' ' + ajaxResult[1]);
+                    }
+                    
+                    $('#message_date').text(' ' + ajaxResult[2]);
+                    $('#message_time').text(' ' + ajaxResult[3]);
+                    quill.setContents(jQuery.parseJSON(ajaxResult[4]));
+                    $('#view_message').modal('show');
+                    $('#message_' + id).attr('style', 'border: 1px solid !important');
                 }
             });
         }

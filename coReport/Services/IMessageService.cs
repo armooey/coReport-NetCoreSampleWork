@@ -14,7 +14,7 @@ namespace coReport.Services
         public bool DeleteManagerReviewMessage(short managerReportId);
         public Message Get(short id);
         public IEnumerable<UserMessage> GetReceivedMessages(short userId);
-        public bool SetViewed(short id);
+        public bool SetViewed(short id, short userId);
         public int GetWarningsCount(short userId);
         public IEnumerable<UserMessage> GetWarnings();
         public bool Delete(short id);

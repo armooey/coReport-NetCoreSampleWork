@@ -147,8 +147,15 @@ namespace coReport.Controllers
                     _logger.LogProfileImageHistory(user.Id, imageName);
                     await _userManager.AddToRoleAsync(user, model.Role);
                     var message = new Message {
-                        Text = String.Format("{0} {1} با نام کاربری {2} حساب کاربری جدیدی ایجاد کرده است. لطفا نسبت به فعالسازی آن اقدام فرمایید.",
-                               model.FirstName, model.LastName, model.Username),
+                        //Quill.js text data
+                        Text = "{\"ops\":[{\"attributes\":{\"font\":\"default\",\"size\":\"15px\",\"bold\":true},\"insert\":\""+
+                        user.FirstName+ " " + user.LastName +" \"}," +
+                        "{\"attributes\":{\"font\":\"default\",\"size\":\"15px\"},\"insert\":\" با نام کاربری \"}," +
+                        "{\"attributes\":{\"font\":\"default\",\"size\":\"15px\",\"bold\":true},\"insert\":\" " +user.UserName +" \"}," +
+                        "{\"attributes\":{\"font\":\"default\",\"size\":\"15px\"},\"insert\":\"حساب کاربری جدیدی ایجاد کرده است.\"}," +
+                        "{\"attributes\":{\"align\":\"right\",\"direction\":\"rtl\"},\"insert\":\"\\n\"}," +
+                        "{\"attributes\":{\"font\":\"default\",\"size\":\"15px\"},\"insert\":\"لطفا هر چه سریعتر نسبت به فعالسازی آن اقدام فرمایید.\"}," +
+                        "{\"attributes\":{\"align\":\"right\",\"direction\":\"rtl\"},\"insert\":\"\\n\"}]}",
                         Type = MessageType.System_Notification,
                         Title = "کاربر جدید",
                         Time = DateTime.Now,

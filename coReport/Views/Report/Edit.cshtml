@@ -243,13 +243,16 @@
     //Quil rich text initialization
     var FontAttributor = Quill.import('attributors/class/font');
     FontAttributor.whitelist = [
-     'arial','default' ,'times-new-roman'
+        'arial', 'default', 'times-new-roman'
     ];
+    var Size = Quill.import('attributors/style/size');
+    Size.whitelist = ['12px', '15px', '18px', '20px'];
+    Quill.register(Size, true);
     Quill.register(FontAttributor, true);
 
     var toolbarOptions = [
       [{ 'font': ['arial', 'default', 'times-new-roman'] }],
-      [{ 'size': ['small', false, 'large', 'huge'] }],
+      [{ 'size': ['12px', '15px', '18px', '20px'] }],
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'align': [] }],
       [{ 'direction': 'rtl' }],

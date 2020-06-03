@@ -73,6 +73,64 @@ label{
     text-align: center;
 }
 
+.ql-bubble .ql-editor {
+    min-height: 100px !important;
+    height: 100% !important;
+    border: 1px solid RGBA(0,0,0,0.2) !important;
+    border-radius: 5px !important;
+}
+
+.ql-snow .ql-editor {
+    min-height: 300px !important;
+    height: 100% !important;
+}
+
+.ql-editor li.ql-direction-rtl::before {
+    margin-left: 0.3em;
+    margin-right: -1.5em;
+}
+
+.ql-editor ol li:not(.ql-direction-rtl),
+.ql-editor ul li:not(.ql-direction-rtl) {
+    padding-left: 1.5em;
+}
+
+.ql-editor ol li.ql-direction-rtl,
+.ql-editor ul li.ql-direction-rtl {
+    padding-right: 1.5em;
+}
+
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="12px"]::before {
+    content: 'Small';
+}
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="12px"]::before {
+    content: 'Small';
+    font-size: 12px !important;
+}
+
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="15px"]::before {
+    content: 'Medium';
+}
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="15px"]::before {
+    content: 'Medium';
+    font-size: 15px !important;
+}
+
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="18px"]::before {
+    content: 'Large';
+}
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="18px"]::before {
+    content: 'Large';
+    font-size: 18px !important;
+}
+
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="20px"]::before {
+    content: 'Huge';
+}
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="20px"]::before {
+    content: 'Huge';
+    font-size: 20px !important;
+}
 .ql-snow .ql-picker.ql-font .ql-picker-label[data-value='default']::before,
 .ql-snow .ql-picker.ql-font .ql-picker-item[data-value='default']::before {
     content: 'Default';
@@ -86,6 +144,51 @@ label{
 .ql-container{
     direction: ltr;
 }
+
+.ql-editor li.ql-direction-rtl::before {
+    margin-left: 0.3em !important;
+    margin-right: -1.5em !important;
+}
+
+.ql-editor ol li:not(.ql-direction-rtl),
+.ql-editor ul li:not(.ql-direction-rtl) {
+    padding-left: 1.5em !important;
+}
+
+.ql-editor ol li.ql-direction-rtl,
+.ql-editor ul li.ql-direction-rtl {
+    padding-right: 1.5em !important;
+}
+
+.ql-snow.ql-toolbar button svg,
+.ql-snow .ql-toolbar button svg {
+    float: right !important;
+}
+.ql-editor .ql-font-arial {
+    font-family: 'Arial';
+}
+
+.ql-editor .ql-font-times-new-roman {
+    font-family: 'Times New Roman';
+}
+
+.ql-snow .ql-picker {
+    float: right !important;
+    direction: rtl !important;
+}
+
+    .ql-snow .ql-picker.ql-font .ql-picker-label[data-value='times-new-roman']::before,
+    .ql-snow .ql-picker.ql-font .ql-picker-item[data-value='times-new-roman']::before {
+        content: 'Times';
+        font-family: 'Times New Roman';
+    }
+
+    .ql-snow .ql-picker.ql-font .ql-picker-label[data-value='arial']::before,
+    .ql-snow .ql-picker.ql-font .ql-picker-item[data-value='arial']::before {
+        content: 'Arial';
+        font-family: 'Arial';
+    }
+
 
 .span-control {
     padding-right: 15px;
@@ -195,9 +298,8 @@ label{
     font-family: Vazir;
     font-size: 0.85rem;
     width: 300px;
-    max-width: 300px;
     height: 300px;
-    max-height: 300px;
+    max-height: 500px;
 }
 
 .tree, .tree ul {

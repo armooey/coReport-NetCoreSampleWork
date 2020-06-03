@@ -7,7 +7,7 @@
 
 <link href="~/lib/Chart.js/Chart.min.css" rel="stylesheet" />
 <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
-
+<link href="~/lib/quill/quill.bubble.css" rel="stylesheet" />
 <div>
 
     <div class="row" style="margin-top:40px">
@@ -146,7 +146,7 @@
                     <span class="col-md"> ایجاد زیرفعالیت؟</span>
                     <input id="is_subactivity" type="checkbox" />
                 </div>
-                <div class="form-group">
+                <div hidden class="form-group">
                     <label class="col-md-4 control-label">فعالیت پدر</label>
                     <div class="col-md-10">
                         <select id="activity_select" disabled type="text" name="parentActivityName" data-val="true"
@@ -161,7 +161,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-md-4 control-label">عنوان فعالیت</label>
+                    <label id="activity_name" class="col-md-4 control-label">عنوان فعالیت</label>
                     <div class="col-md-10">
                         <input type="text" name="activityName" data-val="true" data-val-required="عنوان فعالیت اجباری است." class="form-control" />
                         <span class="text-danger field-validation-valid" data-valmsg-for="activityName" data-valmsg-replace="true"></span>
@@ -215,6 +215,29 @@
     </div>
 </div>
 
+<div id="view_message" class="modal fade">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h6 id="message_title"></h6>
+            </div>
+            <div class="row form-group p-3 mt-1">
+                <div class="col-md"><i class="fas fa-user"></i><span id="message_sender"></span></div>
+                <div class="col-md-3"><i class="fas fa-calendar-alt"></i><span id="message_date"></span></div>
+                <div class="col-md-3"><i class="far fa-clock"></i><span id="message_time"></span></div>
+            </div>
+            <div class="form-group">
+                <div class="col-md">
+                    <div id="quill_text"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section scripts
 {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
@@ -222,6 +245,7 @@
     <script src="~/lib/bootbox.js/bootbox.min.js"></script>
     <script src="~/lib/select2/js/select2.min.js"></script>
     <script src="~/lib/select2/js/i18n/fa.js"></script>
+    <script src="~/lib/quill/quill.js"></script>
 
     <script>
         $(document).ready(function () {
@@ -240,18 +264,32 @@
             $('#is_subactivity').click(function () {
                 if ($(this).prop("checked") == true) {
                     $("#activity_select").prop("disabled", false);
+                    $("#activity_select").parent().parent().prop("hidden", false);
+                    $("#activity_name").text('عنوان زیرفعالیت');
                 }
                 else if ($(this).prop("checked") == false) {
                     $("#activity_select").prop("disabled", true);
+                    $("#activity_select").parent().parent().prop("hidden", true);
+                    $("#activity_name").text('عنوان فعالیت');
                 }
             });
 
-            $('[data-toggle="popover"]').popover();
             $('.seen-False').attr('style', 'border: 2px solid !important');
             $('.ended-True').attr('style', 'background-color:lightgray');
-            $('[data-toggle="popover"]').click(function () {
-                $(this).parent().parent().attr('style', 'border: 1px solid');
-            });
+        });
+
+        //Quil rich text initialization
+        var FontAttributor = Quill.import('attributors/class/font');
+        FontAttributor.whitelist = [
+            'arial', 'default', 'times-new-roman'
+        ];
+        var Size = Quill.import('attributors/style/size');
+        Size.whitelist = ['12px', '15px', '18px', '20px'];
+        Quill.register(Size, true);
+        Quill.register(FontAttributor, true);
+        var quill = new Quill('#quill_text', {
+            theme: 'bubble',
+            readOnly: true
         });
 
         //Function for creating collapsable treeview
@@ -390,13 +428,12 @@
         }
 
 
-        function ViewMessage(id)
-        {
+        function ViewMessage(id) {
             $.ajax({
-                url: "@Url.Action("SetViewed","Message")",
+                url: "@Url.Action("ViewMessage","Message")",
                 data: { id: id }
             }).done(function (ajaxResult) {
-                if (!ajaxResult) {
+                if (ajaxResult == null) {
                     bootbox.alert({
                         closeButton: false,
                         title: "خطا",
@@ -407,6 +444,15 @@
                             }
                         }
                     });
+                }
+                else {
+                    $('#message_title').text(' ' + ajaxResult[0]);
+                    $('#message_sender').text(' ' + ajaxResult[1]);
+                    $('#message_date').text(' ' + ajaxResult[2]);
+                    $('#message_time').text(' ' + ajaxResult[3]);
+                    quill.setContents(jQuery.parseJSON(ajaxResult[4]));
+                    $('#view_message').modal('show');
+                    $('#message_' + id).attr('style', 'border: 1px solid !important');
                 }
             });
         }

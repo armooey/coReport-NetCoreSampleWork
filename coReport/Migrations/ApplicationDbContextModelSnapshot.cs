@@ -333,7 +333,7 @@ namespace coReport.Migrations
                         .HasColumnType("smallint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<short>("SenderId")
+                    b.Property<short?>("SenderId")
                         .HasColumnType("smallint");
 
                     b.Property<string>("Text")
@@ -614,8 +614,7 @@ namespace coReport.Migrations
                     b.HasOne("coReport.Auth.ApplicationUser", "Sender")
                         .WithMany("SentMessages")
                         .HasForeignKey("SenderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("coReport.Models.MessageModels.UserMessage", b =>

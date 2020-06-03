@@ -225,8 +225,9 @@ namespace coReport.Controllers
         /*
          * View user reports
          */
+        [HttpGet]
         [Authorize(Roles = "Manager")]
-        public async Task<IActionResult> CheckUserReport(short id)
+        public async Task<IActionResult> CreateManagerReport(short id)
         {
             var report = _reportData.Get(id);
             var manager = await _userManager.FindByNameAsync(User.Identity.Name);
@@ -261,7 +262,7 @@ namespace coReport.Controllers
         }
 
 
-
+        [HttpPost]
         [Authorize(Roles = "Manager")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateManagerReport(ManagerReportViewModel model)

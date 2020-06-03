@@ -14,7 +14,6 @@ namespace coReport.Models.MessageViewModels
         public String AuthorName { get; set; }
         public String Title { get; set; }
         public PersianDateTime Time { get; set; }
-        public String Text { get; set; }
         public bool IsViewed { get; set; }
         public MessageType Type { get; set; }
     }

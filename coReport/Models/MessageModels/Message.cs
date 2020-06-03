@@ -10,7 +10,7 @@ namespace coReport.Models.MessageModels
     {
         public short Id { get; set; }
         public String Title { get; set; }
-        public short SenderId { get; set; }
+        public short? SenderId { get; set; }
         public DateTime Time { get; set; }
         public ApplicationUser Sender { get; set; }
         public MessageType Type { get; set; }

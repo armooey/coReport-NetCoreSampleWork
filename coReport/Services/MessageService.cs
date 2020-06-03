@@ -163,11 +163,12 @@ namespace coReport.Services
             return _context.UserMessages.Count(um => um.ReceiverId == userId && um.IsViewd == false && um.Message.Type == MessageType.Warning);
         }
 
-        public bool SetViewed(short id)
+        public bool SetViewed(short id, short userId)
         {
             try
             {
-                _context.UserMessages.Where(um => um.MessageId == id).Update(m => new UserMessage { IsViewd = true });
+                _context.UserMessages.Where(um => um.MessageId == id 
+                                        && um.ReceiverId == userId && !um.IsViewd).Update(m => new UserMessage { IsViewd = true });
                 _context.SaveChanges();
                 return true;
             }

@@ -50,19 +50,21 @@ namespace coReport.Services
             }
         }
 
-        public IEnumerable<ManagerReport> GetAll(short managerId)
+        public IEnumerable<ManagerReport> GetReportsByTimeSpan(short managerId, DateTime startDate, DateTime endTime)
         {
-            return  _context.ManagerReports.Where(mr => mr.AuthorId == managerId && !mr.IsDeleted)
+            return  _context.ManagerReports.Where(mr => mr.AuthorId == managerId 
+                                            && startDate.Date <= mr.Report.Date.Date 
+                                            && mr.Report.Date.Date <= endTime.Date && !mr.IsDeleted)
                 .Include(r => r.Report)
                     .ThenInclude(r => r.Author)
                     .Include(r => r.Report.Project)
                 .OrderByDescending(r => r.Date)
                 .ToList();
         }
-        public IEnumerable<ManagerReport> GetTodayReports(short managerId)
+        public IEnumerable<ManagerReport> GetReportsByDay(short managerId, DateTime date)
         {
             return  _context.ManagerReports.Where(mr => mr.AuthorId == managerId && !mr.IsDeleted
-                                                        && mr.Date.Date == DateTime.Now.Date)
+                                                        && mr.Date.Date == date.Date)
                 .Include(r => r.Report)
                     .ThenInclude(r => r.Author)
                     .Include(r => r.Report.Project)
@@ -73,7 +75,6 @@ namespace coReport.Services
 
         private void CheckUserReportAcceptability(short reportId)
         {
-            const short ADMIN_ID = 1;
             var report = _context.Reports.FirstOrDefault(r => r.Id == reportId);
             var noOfProjectManagers = _context.ProjectManagers.Count(pm => pm.ReportId == reportId);
             var noOfNotAcceptedReports = _context.ManagerReports.Count(mr => mr.ReportId == reportId
@@ -87,11 +88,17 @@ namespace coReport.Services
                     var message = new Message
                     {
                         Title = "گزارش غیرقابل قبول",
-                        Text = String.Format("گزارش {0} توسط بیشتر از نیمی از مدیران مورد قبول واقع نشد. لطفا هر چه سریعتر نسبت به ویرایش آن اقدام فرمایید.",
-                                            report.Title),
+                        //Quill text data
+                        Text = "{\"ops\":[{\"attributes\":{\"size\":\"15px\",\"font\":\"default\"},\"insert\":\"گزارش \"}," +
+                        "{\"attributes\":{\"font\":\"default\",\"size\":\"15px\",\"bold\":true},\"insert\":\" " + report.Title +" \"}," +
+                        "{\"attributes\":{\"font\":\"default\",\"size\":\"15px\"},\"insert\":\"توسط بیشتر از نیمی از مدیران مورد قبول واقع نشد.\"}," +
+                        "{\"attributes\":{\"align\":\"right\",\"direction\":\"rtl\"},\"insert\":\" \\n \"}," +
+                        "{\"attributes\":{\"font\":\"default\",\"size\":\"15px\"},\"insert\":\"لطفا هرچه \"}," +
+                        "{\"attributes\":{\"font\":\"default\",\"size\":\"15px\",\"bold\":true},\"insert\":\"سریعتر\"}," +
+                        "{\"attributes\":{\"font\":\"default\",\"size\":\"15px\"},\"insert\":\" نسبت به ویرایش این گزارش اقدام فرمایید.\"}," +
+                        "{\"attributes\":{\"align\":\"right\",\"direction\":\"rtl\"},\"insert\":\"\\n\"}]}",
                         Type = MessageType.Warning,
-                        Time = DateTime.Now,
-                        SenderId = ADMIN_ID
+                        Time = DateTime.Now
                     };
                     _context.Messages.Add(message);
                     _context.SaveChanges();

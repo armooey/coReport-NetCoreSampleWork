@@ -2,7 +2,7 @@
 @using coReport.Models.MessageModels
 @model MessageViewModel
 
-<div class="border border-dark p-2 rounded card-widget seen-@Model.IsViewed">
+<div class="border border-dark p-2 rounded card-widget seen-@Model.IsViewed" id="message_@Model.Id">
     <div class="col">
         @if (Model.Type == MessageType.System_Notification || Model.Type == MessageType.Manager_Review_Notification)
         {
@@ -22,23 +22,11 @@
             <span class="span-control"> @Model.AuthorName</span>
         }
         <span class="span-control"><small><i class="fas fa-calendar-alt"></i> @Model.Time.GetDate()</small></span>
-        <span><small><i class="far fa-clock"></i> @Model.Time.GetTime()</small></span>
 
-
-        @if (Model.IsViewed)
-        {
-            <button data-toggle="popover" data-trigger="focus" title="@Model.Title" data-content="@Model.Text"
+            <button onclick="ViewMessage(@Model.Id)"
                     class="btn btn-primary float-left span-control" style="margin-top: -15px">
                 <i class="far fa-eye"></i> مشاهده
             </button>
-        }
-        else
-        {
-            <button onclick="ViewMessage(@Model.Id)" data-toggle="popover" data-trigger="focus" title="@Model.Title" data-content="@Model.Text"
-                    class="btn btn-primary float-left span-control" style="margin-top: -15px">
-                <i class="far fa-eye"></i> مشاهده
-            </button>
-        }
 
         @if (Model.Type != MessageType.Warning)
         {

@@ -5,27 +5,13 @@
     ViewData["Title"] = "گزارشات";
 }
 
-    <div class="row">
-        @{
-            Html.BeginForm("GetDailyReport", "Manager", FormMethod.Get);
-            {
-                <input type="hidden" value="@Model.ManagerId" name="managerId" />
-                <button class="btn btn-info mr-4" type="submit">گزارش روزانه</button>
-            }
-            Html.EndForm();
+<link href="~/lib/date-picker/jquery.md.bootstrap.datetimepicker.style.css" rel="stylesheet" />
+<div class="row">
+    <button class="btn btn-info mr-4" data-toggle="modal" data-target="#daily_report">گزارش روزانه</button>
+    <button class="btn btn-info mr-1" data-toggle="modal" data-target="#cumulative_report">گزارش تجمیعی</button>
+    <input type="text" id="search_field" placeholder="جستجو" class="float-left mr-1 searchbox" />
 
-        }
-        @{
-            Html.BeginForm("GetMonthlyReport", "Manager", FormMethod.Get);
-            {
-                <input type="hidden" value="@Model.ManagerId" name="managerId" />
-                <button class="btn btn-info mr-1"  type="submit">گزارش ماهانه</button>
-            }
-            Html.EndForm();
-        }
-        <input type="text" id="search_field" placeholder="جستجو" class="float-left mr-1 searchbox" />
-
-    </div>
+</div>
 <hr />
 <div class="row">
     <div class="col-md p-3 box-widget-scrollable" style="height:550px; max-height:550px">
@@ -86,29 +72,136 @@
 </div>
 
 
+<div id="daily_report" class="modal fade">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6>دریافت گزارش روزانه</h6>
+            </div>
+            <form asp-action="GetDailyReport" id="date_form" method="post" role="form">
+                <div class="form-group mt-1" id="date_field">
+                    <label class="col-md-4 control-label">تاریخ</label>
+                    <div class="col-md-10">
+                        <input type="text" hidden id="date" name="date" class="form-control" />
+                        <input type="text" name="date_persian" id="date_text" autocomplete="off" class="form-control"
+                               data-val="true" data-val-required="فیلد تاریخ اجباری است." />
+                        <span class="text-danger field-validation-valid" data-valmsg-for="date_persian" data-valmsg-replace="true"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                    <button type="submit" class="btn btn-primary">ثبت</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="cumulative_report" class="modal fade">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6>دریافت گزارش تجمیعی</h6>
+                </div>
+                <form asp-action="GetCumulativeReport" id="cumulative_form" method="post" role="form">
+                    <div class="row mt-1">
+                        <div class="col-md form-group" id="from_date_field">
+                            <label class="col-md control-label">از تاریخ</label>
+                            <div class="col-md">
+                                <input type="text" hidden id="fromDate" name="fromDate" class="form-control" />
+                                <input type="text" name="fromDate_text" id="fromDate_text" autocomplete="off"
+                                       data-val="true" data-val-required="فیلد اجباری است." class="form-control" />
+                                <span class="text-danger field-validation-valid" data-valmsg-for="fromDate_text" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+                        <div class="col-md form-group" id="to_date_field">
+                            <label class="col-md control-label">تا تاریخ</label>
+                            <div class="col-md">
+                                <input type="text" hidden id="toDate" name="toDate" class="form-control" />
+                                <input type="text" name="toDate_text" id="toDate_text" autocomplete="off"
+                                       data-val="true" data-val-required="فیلد اجباری است." class="form-control" />
+                                <span class="text-danger field-validation-valid" data-valmsg-for="toDate_text" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                        <button type="submit" class="btn btn-primary">ثبت</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+<div class="toast" id="download_info" aria-live="assertive" aria-atomic="true" data-delay="5000"
+     style="position: absolute; bottom: 1rem; left: 1rem;">
+    <div class="toast-body">
+        دانلود گزارش به زودی آغاز میشود...
+    </div>
+</div>
+
 @section scripts
 {
     <script src="~/lib/popper.js/umd/popper.min.js"></script>
     <script src="~/lib/bootbox.js/bootbox.min.js"></script>
+    <script src="~/lib/date-picker/jquery.md.bootstrap.datetimepicker.js"></script>
     <script>
 
         $(document).ready(function () {
-            //Perform dynamic search on users
-            function Contains(fisrtText, secondText)
-            {
+
+            $('#date_field').MdPersianDateTimePicker({
+                targetTextSelector: '#date_text',
+                targetDateSelector: '#date',
+                disableAfterToday: true
+            });
+            $('#from_date_field').MdPersianDateTimePicker({
+                targetTextSelector: '#fromDate_text',
+                targetDateSelector: '#fromDate',
+                groupId: 'rangeSelect',
+                disableAfterToday: true,
+                fromDate: true
+            });
+            $('#to_date_field').MdPersianDateTimePicker({
+                targetTextSelector: '#toDate_text',
+                targetDateSelector: '#toDate',
+                groupId: 'rangeSelect',
+                disableAfterToday: true,
+                toDate: true
+            });
+            //Perform dynamic search on reports
+            function Contains(fisrtText, secondText) {
                 if (fisrtText.indexOf(secondText) != -1)
                     return true;
             }
             $("#search_field").keyup(function () {
                 var searchText = $("#search_field").val().toLowerCase();
-                $(".report").each(function ()
-                {
+                $(".report").each(function () {
                     if (Contains($(this).find("h6, span").text().toLowerCase(), searchText))
                         $(this).show();
                     else
                         $(this).hide();
                 });
             });
+
+
+            $('#date_form').on('submit', function () {
+                if ($('#date_text').val() != "") {
+                    $('#daily_report').modal('toggle');
+                    $('#download_info').toast('show');
+                }
+            });
+            $('#cumulative_form').on('submit', function () {
+                if ($('#fromDate_text').val() != "" && $('#toDate_text').val() != "") {
+                    $('#cumulative_report').modal('toggle');
+                    $('#download_info').toast('show');
+                }
+            });
+
+            $('.modal').on('hidden.bs.modal', function (e) {
+                $(this).find('form').trigger('reset');
+            });
         });
     </script>
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }

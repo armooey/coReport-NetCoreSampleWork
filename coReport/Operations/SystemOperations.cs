@@ -117,13 +117,19 @@ namespace coReport.Operations
             var messageViewModels = new List<MessageViewModel>();
             foreach (var userMessage in messages)
             {
+                string authorName = string.Empty ;
+                if (userMessage.Message.Type == MessageType.Message || 
+                        userMessage.Message.Type == MessageType.Manager_Review_Notification)
+                    authorName = userMessage.Message.Sender.FirstName + " " + userMessage.Message.Sender.LastName;
+                else if (userMessage.Message.Type == MessageType.Warning)
+                    authorName = "اخطار سیستمی";
+                else if (userMessage.Message.Type == MessageType.System_Notification)
+                    authorName = "پیام سیستمی";
                 messageViewModels.Add(new MessageViewModel
                 {
                     Id = userMessage.Message.Id,
                     Title = userMessage.Message.Title,
-                    Text = userMessage.Message.Text,
-                    AuthorName = userMessage.Message.Type == MessageType.System_Notification ? "پیام سیستمی" :
-                                userMessage.Message.Sender.FirstName + " " + userMessage.Message.Sender.LastName,
+                    AuthorName = authorName,
                     Type = userMessage.Message.Type,
                     Time = userMessage.Message.Time.ToHijri(),
                     IsViewed = userMessage.IsViewd

@@ -71,9 +71,10 @@ namespace coReport.Controllers
         }
 
         //Generates Excel report based on submited manager reports
-        public IActionResult GetDailyReport(short managerId)
+        public async Task<IActionResult> GetDailyReport(DateTime date)
         {
-            var reports = _managerReportData.GetTodayReports(managerId).ToList();
+            var manager = await _userManager.FindByNameAsync(User.Identity.Name);
+            var reports = _managerReportData.GetReportsByDay(manager.Id, date).ToList();
             var stream = new MemoryStream();
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             using (var package = new ExcelPackage(stream))
@@ -112,27 +113,27 @@ namespace coReport.Controllers
             }
             stream.Position = 0;
 
-            var fileName = String.Format("{0}.xlsx",DateTime.Now.Date.ToHijri().GetDate());
+            var fileName = String.Format("{0}.xlsx",date.ToHijri().GetDate());
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
 
         //Generates Monthly report of employee activities
-        public IActionResult GetMonthlyReport(short managerId)
+        public async Task<IActionResult> GetCumulativeReport(DateTime fromDate, DateTime toDate)
         {
-            var reports = _managerReportData.GetAll(managerId).ToList();
+            var manager = await _userManager.FindByNameAsync(User.Identity.Name);
+            var reports = _managerReportData.GetReportsByTimeSpan(manager.Id, fromDate, toDate).ToList();
             var stream = new MemoryStream();
-            var employees = _managerData.GetEmployees(managerId).ToList();
+            var employees = _managerData.GetEmployees(manager.Id).ToList();
             var userReportHashMap = new Dictionary<ApplicationUser, List<Report>>();
+            var numberOfDays = (int)toDate.Date.Subtract(fromDate.Date).TotalDays + 1;
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             using (var package = new ExcelPackage(stream))
             {
                 var workSheet = package.Workbook.Worksheets.Add("Sheet1");
                 workSheet.View.RightToLeft = true;
-                var today = DateTime.Now.ToHijri();
-                var numberOfDaysInMonth = SystemOperations.persianCalender.GetDaysInMonth(today.Year, today.Month);
                 //Basic styling of worksheet
                 workSheet.Cells[1, 1].Value = "نام کارمند";
-                var headerCells = workSheet.Cells[1,2,1,numberOfDaysInMonth+1];
+                var headerCells = workSheet.Cells[1,2,1,numberOfDays+1];
                 headerCells.Style.Fill.PatternType = ExcelFillStyle.MediumGray;
                 headerCells.Style.Fill.BackgroundColor.SetColor(Color.Lime);
                 headerCells.Style.Font.Bold = true;
@@ -144,24 +145,25 @@ namespace coReport.Controllers
                 nameCells.Style.Fill.PatternType = ExcelFillStyle.Solid;
                 nameCells.Style.Fill.BackgroundColor.SetColor(Color.Lime);
                 //Setting cell borders
-                var allCells = workSheet.Cells[1, 1, employees.Count() + 1, numberOfDaysInMonth + 1];
+                var allCells = workSheet.Cells[1, 1, employees.Count() + 1, numberOfDays + 1];
                 allCells.Style.Border.Top.Style = ExcelBorderStyle.Thin;
                 allCells.Style.Border.Left.Style = ExcelBorderStyle.Thin;
                 allCells.Style.Border.Right.Style = ExcelBorderStyle.Thin;
                 allCells.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
 
                 //Filling cells with days of the month
-                for (int i = 1; i <= numberOfDaysInMonth; i++)
+                for (int i = 0; i < numberOfDays; i++)
                 {
-                    workSheet.Cells[1, i + 1].Value = (today.Month < 10 ? "0" + today.Month.ToString() : today.Month.ToString()) 
-                        + "/" + (i < 10 ? "0" + i.ToString() : i.ToString());
+                    var hijriDate = fromDate.AddDays(i).ToHijri();
+                    workSheet.Cells[1, i + 2].Value = (hijriDate.Month < 10 ? "0" + hijriDate.Month.ToString() : hijriDate.Month.ToString()) 
+                        + "/" + (hijriDate.Day < 10 ? "0" + hijriDate.Day.ToString() : hijriDate.Day.ToString());
                 }
                 //Filling cells with default values
                 for (int i = 0; i < employees.Count(); i++)
                 {
                     userReportHashMap[employees[i]] = new List<Report>(); //Creating Hashmap with empty values
                     //Filling spreadsheet cells with default styling
-                    var cells = workSheet.Cells[i + 2, 2, i + 2, today.Day + 1];
+                    var cells = workSheet.Cells[i + 2, 2, i + 2, numberOfDays + 1];
                     cells.Value = "00:00";
                     cells.Style.Fill.PatternType = ExcelFillStyle.Solid;
                     cells.Style.Fill.BackgroundColor.SetColor(Color.Red);
@@ -179,10 +181,10 @@ namespace coReport.Controllers
                     workSheet.Cells[cellIndex, 1].Value = mapElement.Key.FirstName + " " + mapElement.Key.LastName;
                     foreach (var report in mapElement.Value)
                     {
-                        var reportDate = report.Date.ToHijri();
-                        workSheet.Cells[cellIndex, reportDate.Day+1].Value =
+                        var dayIndex = (int)report.Date.Subtract(fromDate.Date).TotalDays;
+                        workSheet.Cells[cellIndex, dayIndex+2].Value =
                             report.TaskEndTime.Subtract(report.TaskStartTime).ToString("hh\\:mm");
-                        workSheet.Cells[cellIndex, reportDate.Day+1].Style.Fill.BackgroundColor.SetColor(Color.DeepSkyBlue);
+                        workSheet.Cells[cellIndex, dayIndex+2].Style.Fill.BackgroundColor.SetColor(Color.DeepSkyBlue);
                     }
                     cellIndex++;
                 }
@@ -190,7 +192,7 @@ namespace coReport.Controllers
             }
             stream.Position = 0;
 
-            var fileName = String.Format("{0}.xlsx", DateTime.Now.Date.ToHijri().GetYearAndMonth());
+            var fileName = String.Format("{0}.xlsx", fromDate.ToHijri().GetDate()+" : "+ toDate.ToHijri().GetDate());
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
     }

@@ -6,7 +6,7 @@
 
 <link href="~/lib/quill/quill.bubble.css" rel="stylesheet" />
 <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
-
+<link href="~/lib/quill/quill.snow.css" rel="stylesheet" />
 <div class="p-2 box-widget">
     <div class="container">
 
@@ -35,9 +35,12 @@
                 <div>
                     <b>زمان شروع کار</b>: @Model.UserReport.TaskStartTime.ToString("HH:mm")
                 </div>
-                <div>
-                    <b>تاریخ ثبت</b>: @Model.UserReport.Date.GetDate()
-                </div>
+                @if (Model.UserReport.Date != null)
+                { 
+                    <div>
+                            <b>تاریخ ثبت</b>: @Model.UserReport.Date.GetDate()
+                    </div>
+                }
             </div>
             <div class="col-md-2">
                 <div>
@@ -50,11 +53,13 @@
 
         <div class="form-group">
             <label class="col-md control-label font-weight-bold">گزارش کارمند</label>
-            <div id="editor"></div>
+            <div class="col-md">
+                <div id="quill_user_report"></div>
+            </div>
         </div>
         @if (Model.UserReport.AttachmentName != null)
         {
-            <div>
+            <div class="col-md">
                 @{
                     Html.BeginForm("DownloadReportAttachment", "Report", FormMethod.Get);
                     {
@@ -67,28 +72,40 @@
         }
         else
         {
-            <div class="text-muted"><small>ضمیمه‌ای موجود نیست.</small></div>
+            <div class="col-md text-muted"><small>ضمیمه‌ای موجود نیست.</small></div>
         }
     </div>
 </div>
 
 <div class="p-2 box-widget">
     <div class="container">
-        <form asp-controller="Report" asp-action="CreateManagerReport" method="post" class="form-horizontal" role="form">
-            <input asp-for="UserReport.Id" type="hidden" />
-            <input asp-for="UserReport.Author.Id" type="hidden" />
+        <form id="manager_report" asp-controller="Report" asp-action="CreateManagerReport" method="post" class="form-horizontal" role="form">
+            <input asp-for="UserReport.Id" hidden />
+            <input asp-for="UserReport.Author.Id" hidden />
+            <input asp-for="UserReport.Author.FirstName" hidden />
+            <input asp-for="UserReport.Author.LastName" hidden />
+            <input asp-for="UserReport.ProjectName" hidden />
+            <input asp-for="UserReport.TaskStartTime" hidden />
+            <input asp-for="UserReport.TaskEndTime" hidden />
+            <input asp-for="UserReport.Date" hidden />
+            <input asp-for="UserReport.Text" hidden />
+            <input asp-for="UserReport.ActvivityName" hidden />
+            <input asp-for="UserReport.SubActivityName" hidden />
+            <input asp-for="UserReport.AttachmentName" hidden />
+            <div asp-validation-summary="All" class="text-danger"></div>
+
             <div class="form-group">
-                <label asp-for="Text" class="col-md control-label font-weight-bold"></label>
+                <h6 class="col-md control-label font-weight-bold">گزارش مدیر</h6>
                 <div class="col-md">
-                    <textarea cols="15" rows="4" asp-for="Text" class="form-control"></textarea>
-                    <span asp-validation-for="Text" class="text-danger"></span>
+                    <textarea id="text" hidden="hidden" asp-for="Text"></textarea>
+                    <div id="quill_manager_report"></div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-3 form-group">
                     <label asp-for="IsAcceptable" class="col-md control-label" style="width:100%"></label>
                     <div class="col-md">
-                        <select asp-for="IsAcceptable" class="form-control">
+                        <select asp-for="IsAcceptable" class="form-control select2">
                             <option value="True">قابل قبول</option>
                             <option value="False">غیرقابل قبول</option>
                         </select>
@@ -97,7 +114,7 @@
                 <div class="col-md-4 form-group">
                     <label asp-for="IsViewableByUser" class="col-md control-label" style="width:100%"></label>
                     <div class="col-md">
-                        <select asp-for="IsViewableByUser" class="form-control">
+                        <select asp-for="IsViewableByUser" class="form-control select2">
                             <option value="False">غیرقابل مشاهده برای کارمند</option>
                             <option value="True">قابل مشاهده برای کارمند</option>
                         </select>
@@ -122,23 +139,61 @@
     <script src="~/lib/select2/js/i18n/fa.js"></script>
     <script>
     $(document).ready(function () {
-        $('select').select2({
+        $('.select2').select2({
             dir: 'rtl',
             language: 'fa',
             minimumResultsForSearch: -1
         });
+
+
+        //set contents of editor to manager report
+
+
     });
-    //Quil rich text initialization
-    var FontAttributor = Quill.import('attributors/class/font');
-    FontAttributor.whitelist = [
-     'arial','default' ,'times-new-roman'
-    ];
-    Quill.register(FontAttributor, true);
-    var quill = new Quill('#editor', {
-        theme: 'bubble',
-        readOnly: true
-    });
-    quill.setContents(@Html.Raw(Model.UserReport.Text));
+
+        //Quill editor for user report
+        var FontAttributor = Quill.import('attributors/class/font');
+        FontAttributor.whitelist = [
+         'arial','default' ,'times-new-roman'
+        ];
+        var Size = Quill.import('attributors/style/size');
+        Size.whitelist = ['12px', '15px', '18px', '20px'];
+        Quill.register(Size, true);
+        Quill.register(FontAttributor, true);
+        var quill_user = new Quill('#quill_user_report', {
+            theme: 'bubble',
+            readOnly: true
+        });
+        quill_user.setContents(@Html.Raw(Model.UserReport.Text));
+
+
+        //Quil editor for manager report
+        Quill.register(FontAttributor, true);
+
+        var toolbarOptions = [
+            [{ 'font': ['arial', 'default', 'times-new-roman'] }],
+            [{ 'size': ['12px', '15px', '18px', '20px'] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'align': [] }],
+            [{ 'direction': 'rtl' }],
+            [{ 'color': [] }, { 'background': [] }],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            [{ 'header': [1, 2, 3, false] }],
+            ['code-block']
+        ];
+
+        var quill_manager = new Quill('#quill_manager_report', {
+            modules: {
+                toolbar: toolbarOptions
+            },
+            theme: 'snow'
+        });
+        quill_manager.setContents(@Html.Raw(Model.Text));
+
+        $('#manager_report').on('submit', function () {
+            $('#text').val(JSON.stringify(quill_manager.getContents()));
+        });
+
 
     </script>
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
