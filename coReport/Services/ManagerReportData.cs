@@ -64,10 +64,12 @@ namespace coReport.Services
         public IEnumerable<ManagerReport> GetReportsByDay(short managerId, DateTime date)
         {
             return  _context.ManagerReports.Where(mr => mr.AuthorId == managerId && !mr.IsDeleted
-                                                        && mr.Date.Date == date.Date)
+                                                        && mr.Report.Date.Date == date.Date)
                 .Include(r => r.Report)
                     .ThenInclude(r => r.Author)
                     .Include(r => r.Report.Project)
+                    .Include(r => r.Report.Activity)
+                    .Include(r => r.Report.SubActivity)
                 .OrderByDescending(r => r.Date);
         }
 

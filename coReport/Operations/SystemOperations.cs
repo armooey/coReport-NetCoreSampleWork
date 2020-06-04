@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -153,6 +154,28 @@ namespace coReport.Operations
                                        Month = persianCalender.GetMonth(time),
                                        Day = persianCalender.GetDayOfMonth(time),
                                        Hour = time.Hour, Minute = time.Minute, Second = time.Second };
+        }
+
+
+        //Quill classes to retrieve quill text data
+        private class QuillText 
+        {
+            public List<QuillAttribute> ops { get; set; }
+        }
+        private class QuillAttribute
+        {
+            public String insert { get; set; }
+        }
+
+        public static String GetTextFromQuillData(String quillText)
+        {
+            var textClass = JsonConvert.DeserializeObject<QuillText>(quillText);
+            String text = String.Empty;
+            foreach (var attributes in textClass.ops)
+            {
+                text += attributes.insert;
+            }
+            return text;
         }
     }
 }

@@ -78,7 +78,8 @@
             <div class="modal-header">
                 <h6>دریافت گزارش روزانه</h6>
             </div>
-            <form asp-action="GetDailyReport" id="date_form" method="post" role="form">
+            <form asp-action="GetDailyReport" onsubmit="showLoading()" id="date_form" method="post" role="form">
+                <input id="downloadToken_daily" name="token" hidden />
                 <div class="form-group mt-1" id="date_field">
                     <label class="col-md-4 control-label">تاریخ</label>
                     <div class="col-md-10">
@@ -104,7 +105,7 @@
                     <h6>دریافت گزارش تجمیعی</h6>
                 </div>
                 <form asp-action="GetCumulativeReport" onsubmit="showLoading()" id="cumulative_form" method="post" role="form">
-                    <input id="downloadToken" name="token" hidden />
+                    <input id="downloadToken_cumulative" name="token" hidden />
                     <div class="row mt-1">
                         <div class="col-md form-group" id="from_date_field">
                             <label class="col-md control-label">از تاریخ</label>
@@ -202,7 +203,6 @@
             $('#date_form').on('submit', function () {
                 if ($('#date_text').val() != "") {
                     $('#daily_report').modal('toggle');
-                    $('#download_start').toast('show');
                 }
             });
             $('#cumulative_form').on('submit', function () {
@@ -229,7 +229,8 @@
 
         function setFormToken() {
             var downloadToken = new Date().getTime();
-            $('#downloadToken').val(downloadToken);
+            $('#downloadToken_cumulative').val(downloadToken);
+            $('#downloadToken_daily').val(downloadToken);
             return downloadToken;
         }
 

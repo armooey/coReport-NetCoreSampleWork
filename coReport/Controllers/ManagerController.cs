@@ -73,8 +73,15 @@ namespace coReport.Controllers
         }
 
         //Generates Excel report based on submited manager reports
-        public async Task<IActionResult> GetDailyReport(DateTime date)
+        public async Task<IActionResult> GetDailyReport(DateTime date, String token)
         {
+            //Setting download token to check start of download on client side
+            Response.Cookies.Append("downloadToken", token,
+                new CookieOptions
+                {
+                    Expires = DateTime.Now.AddHours(1),
+                    IsEssential = true
+                });
             var manager = await _userManager.FindByNameAsync(User.Identity.Name);
             var reports = _managerReportData.GetReportsByDay(manager.Id, date).ToList();
             var stream = new MemoryStream();
@@ -84,32 +91,52 @@ namespace coReport.Controllers
                 //Basic styling of worksheet
                 var workSheet = package.Workbook.Worksheets.Add("Sheet1");
                 workSheet.View.RightToLeft = true;
-                var headerCells = workSheet.Cells["A1:E1"];
-                headerCells.Style.Fill.PatternType = ExcelFillStyle.MediumGray;
+                var headerCells = workSheet.Cells["A1:G1"];
+                headerCells.Style.Fill.PatternType = ExcelFillStyle.Solid;
                 headerCells.Style.Fill.BackgroundColor.SetColor(Color.Lime);
                 headerCells.Style.Font.Bold = true;
                 workSheet.Column(1).Width = 20;
                 workSheet.Column(2).Width = 20;
                 workSheet.Column(3).Width = 20;
-                workSheet.Column(4).Width = 60;
+                workSheet.Column(4).Width = 20;
                 workSheet.Column(5).Width = 20;
-                workSheet.Column(4).Style.WrapText = true;
+                workSheet.Column(6).Width = 60;
+                workSheet.Column(7).Width = 20;
+                workSheet.Column(6).Style.WrapText = true;
                 workSheet.Cells["A1"].Value = "نام کارمند";
                 workSheet.Cells["B1"].Value = "نام پروژه";
-                workSheet.Cells["C1"].Value = "ساعت کاری";
-                workSheet.Cells["D1"].Value = "گزارش مدیر";
-                workSheet.Cells["E1"].Value = "وضعیت گزارش";
+                workSheet.Cells["C1"].Value = "فعالیت";
+                workSheet.Cells["D1"].Value = "زیرفعالیت";
+                workSheet.Cells["E1"].Value = "ساعت کاری";
+                workSheet.Cells["F1"].Value = "گزارش مدیر";
+                workSheet.Cells["G1"].Value = "وضعیت گزارش";
+                //setting cell allinments
+                var allCells = workSheet.Cells[1, 1, reports.Count() + 1, 7];
+                allCells.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                allCells.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                workSheet.Column(6).Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                workSheet.Column(6).Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+
+
+                //Setting cell borders
+                allCells.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                allCells.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                allCells.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                allCells.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
                 //Filling cells with manager report datas
-                for(int i=0;i < reports.Count();i++)
+                for (int i=0;i < reports.Count();i++)
                 {
                     var report = reports[i];
                     var name = report.Report.Author.FirstName + " " + report.Report.Author.LastName;
                     var workHour = report.Report.TaskEndTime.Subtract(report.Report.TaskStartTime).ToString("hh\\:mm");
                     workSheet.Cells[i + 2, 1].Value = name;
                     workSheet.Cells[i + 2, 2].Value = report.Report.Project.Title;
-                    workSheet.Cells[i + 2, 3].Value = workHour;
-                    workSheet.Cells[i + 2, 4].Value = report.Text;
-                    workSheet.Cells[i + 2, 5].Value = report.IsUserReportAcceptable == true ? "قابل قبول" : "غیرقابل قبول";
+                    workSheet.Cells[i + 2, 3].Value = report.Report.Activity.Name;
+                    workSheet.Cells[i + 2, 4].Value = report.Report.SubActivity != null ?
+                                                      report.Report.SubActivity.Name : "-";
+                    workSheet.Cells[i + 2, 5].Value = workHour;
+                    workSheet.Cells[i + 2, 6].Value = SystemOperations.GetTextFromQuillData(report.Text);
+                    workSheet.Cells[i + 2, 7].Value = report.IsUserReportAcceptable == true ? "قابل قبول" : "غیرقابل قبول";
                 }
                 package.Save();
             }
@@ -176,6 +203,8 @@ namespace coReport.Controllers
                 allCells.Style.Border.Left.Style = ExcelBorderStyle.Thin;
                 allCells.Style.Border.Right.Style = ExcelBorderStyle.Thin;
                 allCells.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                allCells.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
 
                 //Filling cells with days of the month
                 for (int i = 0; i < numberOfDays; i++)
