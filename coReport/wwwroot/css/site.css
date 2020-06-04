@@ -78,6 +78,7 @@ label{
     font-size: 15px;
     content: attr(data-placeholder);
     font-family: Vazir;
+    font-style: normal;
     direction: rtl;
     text-align: right;
 }

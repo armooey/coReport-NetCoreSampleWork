@@ -78,10 +78,10 @@
             <div class="modal-header">
                 <h6>دریافت گزارش روزانه</h6>
             </div>
-            <form asp-action="GetDailyReport" onsubmit="showLoading()" id="date_form" method="post" role="form">
+            <form asp-action="GetDailyReport" id="date_form" method="post" role="form">
                 <input id="downloadToken_daily" name="token" hidden />
                 <div class="form-group mt-1" id="date_field">
-                    <label class="col-md-4 control-label">تاریخ</label>
+                    <label class="col-md control-label">تاریخ</label>
                     <div class="col-md-10">
                         <input type="text" hidden id="date" name="date" class="form-control" />
                         <input type="text" name="date_persian" id="date_text" autocomplete="off" class="form-control"
@@ -104,7 +104,7 @@
                 <div class="modal-header">
                     <h6>دریافت گزارش تجمیعی</h6>
                 </div>
-                <form asp-action="GetCumulativeReport" onsubmit="showLoading()" id="cumulative_form" method="post" role="form">
+                <form asp-action="GetCumulativeReport" id="cumulative_form" method="post" role="form">
                     <input id="downloadToken_cumulative" name="token" hidden />
                     <div class="row mt-1">
                         <div class="col-md form-group" id="from_date_field">
@@ -203,11 +203,13 @@
             $('#date_form').on('submit', function () {
                 if ($('#date_text').val() != "") {
                     $('#daily_report').modal('toggle');
+                    showLoading();
                 }
             });
             $('#cumulative_form').on('submit', function () {
                 if ($('#fromDate_text').val() != "" && $('#toDate_text').val() != "") {
                     $('#cumulative_report').modal('toggle');
+                    showLoading();
                 }
             });
 

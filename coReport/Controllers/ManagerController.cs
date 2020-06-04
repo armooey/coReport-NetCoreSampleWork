@@ -146,6 +146,9 @@ namespace coReport.Controllers
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
 
+
+
+
         //Generates cumulative report of employee activities
         public async Task<IActionResult> GetCumulativeReport(DateTime fromDate, DateTime toDate, String token)
         {

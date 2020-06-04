@@ -77,14 +77,6 @@
                         <span asp-validation-for="SubActivityId" class="text-danger"></span>
                     </div>
                 </div>
-
-                <div id="apendixField" hidden class="col-md-3 form-group">
-                    <label class="col-md control-label"></label>
-                    <div class="col-md">
-                        <input asp-for="ActivityApendix" class="form-control" />
-                        <span asp-validation-for="ActivityApendix" class="text-danger"></span>
-                    </div>
-                </div>
             </div>
 
             <div class="row">
@@ -193,6 +185,11 @@
         $('#activity_select').change(function () {
             fetchSubactivityList($(this).val());
         });
+        $('#subactivity :input').change(function () {
+            quill.root.dataset.placeholder = 'اطلاعات مختص ' + $('#subactivity :input option:selected').text()
+                + ' را در گزارش خود وارد کنید...';
+        });
+
 
     });
 
@@ -219,6 +216,8 @@
             else {
                 $('#subactivity').prop('hidden', true);
                 $('#subactivity :input').prop('disabled', true);
+                quill.root.dataset.placeholder = 'اطلاعات مختص ' +
+                    $('#activity_select option:selected').text() + ' را در گزارش خود وارد کنید...';
             }
         }).fail(function () {
             bootbox.alert({
