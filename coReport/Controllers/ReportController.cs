@@ -78,12 +78,6 @@ namespace coReport.Controllers
             model.Activities = _activityData.GetParentActivities().ToList();
             if (ModelState.IsValid)
             {
-                var todayReports = _reportData.GetTodayReportsOfUser(model.AuthorId);
-                if (todayReports.Any(r => r.ProjectId == model.ProjectId))
-                {
-                    ModelState.AddModelError("", "امکان ثبت گزارش به دلیل وجود گزارشی به تاریخ امروز برای این پروژه وجود ندارد.");
-                    return View(model);
-                }
                 if (model.TaskStartTime >= model.TaskEndTime)
                 {
                     ModelState.AddModelError("", "زمان ورود و خروج را بررسی کنید.");
@@ -352,13 +346,13 @@ namespace coReport.Controllers
 
 
         [HttpGet("download")]
-        public async Task<ActionResult> DownloadReportAttachment(String fileName)
+        public async Task<ActionResult> DownloadReportAttachment(String fileName, String reportTitle)
         {
             var filePath = Path.Combine(_webHostEnvironment.ContentRootPath, "UserData", "Files", fileName);
             try
             {
                 byte[] file = await System.IO.File.ReadAllBytesAsync(filePath);
-                return File(file, "application/force-download", fileName);
+                return File(file, "application/force-download", reportTitle +Path.GetExtension(fileName));
             }
             catch
             {

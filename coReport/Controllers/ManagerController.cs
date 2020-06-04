@@ -5,6 +5,7 @@ using coReport.Models.ReportViewModel;
 using coReport.Operations;
 using coReport.Services;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
@@ -14,6 +15,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace coReport.Controllers
@@ -117,14 +119,38 @@ namespace coReport.Controllers
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
 
-        //Generates Monthly report of employee activities
-        public async Task<IActionResult> GetCumulativeReport(DateTime fromDate, DateTime toDate)
+        //Generates cumulative report of employee activities
+        public async Task<IActionResult> GetCumulativeReport(DateTime fromDate, DateTime toDate, String token)
         {
+
+            //Setting download token to check start of download on client side
+            Response.Cookies.Append("downloadToken", token,
+                new CookieOptions
+                {
+                    Expires = DateTime.Now.AddHours(1),
+                    IsEssential = true
+                });
             var manager = await _userManager.FindByNameAsync(User.Identity.Name);
             var reports = _managerReportData.GetReportsByTimeSpan(manager.Id, fromDate, toDate).ToList();
+            var groupedReports = reports.GroupBy(r => new { r.Report.AuthorId, r.Report.Date.Date });
+            var dailyWorkList = new List<UserDailyWork>();
+            //Calculating sum of user workhours in day
+            foreach (var groupedReport in groupedReports)
+            {
+                var dailyWork = new UserDailyWork();
+                dailyWork.User = groupedReport.First().Report.Author;
+                dailyWork.Date = groupedReport.First().Report.Date;
+                var workHourSum = new TimeSpan();
+                foreach (var report in groupedReport)
+                {
+                    workHourSum = workHourSum.Add(report.Report.TaskEndTime.Subtract(report.Report.TaskStartTime));
+                }
+                dailyWork.WorkHour = workHourSum;
+                dailyWorkList.Add(dailyWork);
+            }
             var stream = new MemoryStream();
             var employees = _managerData.GetEmployees(manager.Id).ToList();
-            var userReportHashMap = new Dictionary<ApplicationUser, List<Report>>();
+            var userReportHashMap = new Dictionary<ApplicationUser, List<UserDailyWork>>();
             var numberOfDays = (int)toDate.Date.Subtract(fromDate.Date).TotalDays + 1;
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             using (var package = new ExcelPackage(stream))
@@ -161,17 +187,17 @@ namespace coReport.Controllers
                 //Filling cells with default values
                 for (int i = 0; i < employees.Count(); i++)
                 {
-                    userReportHashMap[employees[i]] = new List<Report>(); //Creating Hashmap with empty values
+                    userReportHashMap[employees[i]] = new List<UserDailyWork>(); //Creating Hashmap with empty values
                     //Filling spreadsheet cells with default styling
                     var cells = workSheet.Cells[i + 2, 2, i + 2, numberOfDays + 1];
                     cells.Value = "00:00";
                     cells.Style.Fill.PatternType = ExcelFillStyle.Solid;
                     cells.Style.Fill.BackgroundColor.SetColor(Color.Red);
                 }
-                //Filling hashmap with reports
-                for (int i = 0; i < reports.Count(); i++)
+                //Filling hashmap with dailyWorks
+                foreach (var dailyWork in dailyWorkList)
                 {
-                    userReportHashMap[reports[i].Report.Author].Add(reports[i].Report);
+                    userReportHashMap[dailyWork.User].Add(dailyWork);
                 }
                 //fill cells with report datas
                 int cellIndex = 2;
@@ -179,11 +205,10 @@ namespace coReport.Controllers
                 {
 
                     workSheet.Cells[cellIndex, 1].Value = mapElement.Key.FirstName + " " + mapElement.Key.LastName;
-                    foreach (var report in mapElement.Value)
+                    foreach (var dailyWork in mapElement.Value)
                     {
-                        var dayIndex = (int)report.Date.Subtract(fromDate.Date).TotalDays;
-                        workSheet.Cells[cellIndex, dayIndex+2].Value =
-                            report.TaskEndTime.Subtract(report.TaskStartTime).ToString("hh\\:mm");
+                        var dayIndex = (int)dailyWork.Date.Subtract(fromDate.Date).TotalDays;
+                        workSheet.Cells[cellIndex, dayIndex+2].Value = dailyWork.WorkHour.ToString("hh\\:mm");
                         workSheet.Cells[cellIndex, dayIndex+2].Style.Fill.BackgroundColor.SetColor(Color.DeepSkyBlue);
                     }
                     cellIndex++;
@@ -194,6 +219,13 @@ namespace coReport.Controllers
 
             var fileName = String.Format("{0}.xlsx", fromDate.ToHijri().GetDate()+" : "+ toDate.ToHijri().GetDate());
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+
+        private class UserDailyWork
+        {
+            public ApplicationUser User { get; set; }
+            public DateTime Date { get; set; }
+            public TimeSpan WorkHour { get; set; }
         }
     }
 }

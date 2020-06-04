@@ -64,6 +64,7 @@
                     Html.BeginForm("DownloadReportAttachment", "Report", FormMethod.Get);
                     {
                         <input type="hidden" value="@Model.UserReport.AttachmentName" name="fileName" />
+                        <input type="hidden" value="@Model.UserReport.Title" name="reportTitle" />
                         <button class="btn btn-link" type="submit"><i class="fas fa-paperclip"></i> دانلود ضمیمه</button>
                     }
                     Html.EndForm();

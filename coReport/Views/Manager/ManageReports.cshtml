@@ -103,14 +103,15 @@
                 <div class="modal-header">
                     <h6>دریافت گزارش تجمیعی</h6>
                 </div>
-                <form asp-action="GetCumulativeReport" id="cumulative_form" method="post" role="form">
+                <form asp-action="GetCumulativeReport" onsubmit="showLoading()" id="cumulative_form" method="post" role="form">
+                    <input id="downloadToken" name="token" hidden />
                     <div class="row mt-1">
                         <div class="col-md form-group" id="from_date_field">
                             <label class="col-md control-label">از تاریخ</label>
                             <div class="col-md">
                                 <input type="text" hidden id="fromDate" name="fromDate" class="form-control" />
                                 <input type="text" name="fromDate_text" id="fromDate_text" autocomplete="off"
-                                       data-val="true" data-val-required="فیلد اجباری است." class="form-control" />
+                                       data-val="true" data-val-required="این فیلد اجباری است." class="form-control" />
                                 <span class="text-danger field-validation-valid" data-valmsg-for="fromDate_text" data-valmsg-replace="true"></span>
                             </div>
                         </div>
@@ -119,7 +120,7 @@
                             <div class="col-md">
                                 <input type="text" hidden id="toDate" name="toDate" class="form-control" />
                                 <input type="text" name="toDate_text" id="toDate_text" autocomplete="off"
-                                       data-val="true" data-val-required="فیلد اجباری است." class="form-control" />
+                                       data-val="true" data-val-required="این فیلد اجباری است." class="form-control" />
                                 <span class="text-danger field-validation-valid" data-valmsg-for="toDate_text" data-valmsg-replace="true"></span>
                             </div>
                         </div>
@@ -133,8 +134,21 @@
         </div>
     </div>
 
+<div class="modal fade" id="report_loading" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="loader"></div>
+                <div clas="loader-txt">
+                    <p>گزارش در حال آماده سازی است...</p>
+                    <p class="small">به توجه به اطلاعات درخواستی ممکن است یک یا چند دقیقه طول بکشد.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-<div class="toast" id="download_info" aria-live="assertive" aria-atomic="true" data-delay="5000"
+<div class="toast" id="download_start" aria-live="assertive" aria-atomic="true" data-delay="5000"
      style="position: absolute; bottom: 1rem; left: 1rem;">
     <div class="toast-body">
         دانلود گزارش به زودی آغاز میشود...
@@ -184,24 +198,63 @@
                 });
             });
 
-
+            //Some ui stuff
             $('#date_form').on('submit', function () {
                 if ($('#date_text').val() != "") {
                     $('#daily_report').modal('toggle');
-                    $('#download_info').toast('show');
+                    $('#download_start').toast('show');
                 }
             });
             $('#cumulative_form').on('submit', function () {
                 if ($('#fromDate_text').val() != "" && $('#toDate_text').val() != "") {
                     $('#cumulative_report').modal('toggle');
-                    $('#download_info').toast('show');
                 }
             });
 
-            $('.modal').on('hidden.bs.modal', function (e) {
-                $(this).find('form').trigger('reset');
-            });
         });
+
+        //Functions for checking start of a download
+        function getCookie(name) {
+            var parts = document.cookie.split(name + "=");
+            if (parts.length == 2) return parts.pop().split(";").shift();
+        }
+
+        function expireCookie(cName) {
+            document.cookie =
+                encodeURIComponent(cName) +
+                "=deleted; expires=" +
+                new Date(0).toUTCString();
+        }
+
+
+        function setFormToken() {
+            var downloadToken = new Date().getTime();
+            $('#downloadToken').val(downloadToken);
+            return downloadToken;
+        }
+
+        var downloadTimer;
+        var attempts = 30;
+
+      // Prevents double-submits by waiting for a cookie from the server.
+        function showLoading() {
+            var downloadToken = setFormToken();
+            $('#report_loading').modal('toggle');
+            downloadTimer = window.setInterval(function () {
+                var token = getCookie("downloadToken");
+                if ((token == downloadToken) || (attempts == 0)) {
+                    hideLoading();
+                }
+                attempts--;
+            }, 1000);
+        }
+
+        function hideLoading() {
+            $('#report_loading').modal('toggle');
+            $('#download_start').toast('show');
+            window.clearInterval(downloadTimer);
+            expireCookie("downloadToken");
+        }
     </script>
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }

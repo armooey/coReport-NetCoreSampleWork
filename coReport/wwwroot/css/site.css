@@ -73,6 +73,15 @@ label{
     text-align: center;
 }
 
+.ql-editor.ql-blank::before {
+    color: rgba(0,0,0,0.6);
+    font-size: 15px;
+    content: attr(data-placeholder);
+    font-family: Vazir;
+    direction: rtl;
+    text-align: right;
+}
+
 .ql-bubble .ql-editor {
     min-height: 100px !important;
     height: 100% !important;
@@ -239,6 +248,16 @@ label{
         transform: scale(1.005);
     }
 
+
+.modal-content {
+    border-radius: 1px;
+    box-shadow: 0 0 20px 8px rgba(0, 0, 0, 0.7);
+}
+
+.modal-backdrop.show {
+    opacity: 0.75;
+}
+
 .box-widget {
     background: white;
     display: block;
@@ -376,4 +395,31 @@ label{
     margin: 0px 0px 0px 0px;
     padding: 0px 0px 0px 0px;
     outline: 0;
+}
+
+.loader {
+    position: relative;
+    text-align: center;
+    margin: 15px auto 35px auto;
+    z-index: 9999;
+    display: block;
+    width: 80px;
+    height: 80px;
+    border: 10px solid rgba(0, 0, 0, .3);
+    border-radius: 50%;
+    border-top-color: #000;
+    animation: spin 1s ease-in-out infinite;
+    -webkit-animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes spin {
+    to {
+        -webkit-transform: rotate(360deg);
+    }
 }

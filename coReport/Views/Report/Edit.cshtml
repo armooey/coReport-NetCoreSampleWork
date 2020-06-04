@@ -116,7 +116,8 @@
                     @if (Model.AttachmentName != null)
                     {
                         <div>
-                            <a class="btn btn-link" asp-controller="Report" asp-action="DownloadReportAttachment" asp-route-fileName="@Model.AttachmentName">
+                            <a class="btn btn-link" asp-controller="Report" asp-action="DownloadReportAttachment"
+                               asp-route-fileName="@Model.AttachmentName" asp-route-reportTitle="@Model.Title">
                                 <i class="fas fa-paperclip"></i> دانلود ضمیمه
                             </a>
                         </div>
