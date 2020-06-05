@@ -13,6 +13,7 @@ using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -91,7 +92,7 @@ namespace coReport.Controllers
                 //Basic styling of worksheet
                 var workSheet = package.Workbook.Worksheets.Add("Sheet1");
                 workSheet.View.RightToLeft = true;
-                var headerCells = workSheet.Cells["A1:G1"];
+                var headerCells = workSheet.Cells["A1:H1"];
                 headerCells.Style.Fill.PatternType = ExcelFillStyle.Solid;
                 headerCells.Style.Fill.BackgroundColor.SetColor(Color.Lime);
                 headerCells.Style.Font.Bold = true;
@@ -101,21 +102,26 @@ namespace coReport.Controllers
                 workSheet.Column(4).Width = 20;
                 workSheet.Column(5).Width = 20;
                 workSheet.Column(6).Width = 60;
-                workSheet.Column(7).Width = 20;
+                workSheet.Column(7).Width = 60;
+                workSheet.Column(8).Width = 20;
                 workSheet.Column(6).Style.WrapText = true;
+                workSheet.Column(7).Style.WrapText = true;
                 workSheet.Cells["A1"].Value = "نام کارمند";
                 workSheet.Cells["B1"].Value = "نام پروژه";
                 workSheet.Cells["C1"].Value = "فعالیت";
                 workSheet.Cells["D1"].Value = "زیرفعالیت";
                 workSheet.Cells["E1"].Value = "ساعت کاری";
-                workSheet.Cells["F1"].Value = "گزارش مدیر";
-                workSheet.Cells["G1"].Value = "وضعیت گزارش";
+                workSheet.Cells["F1"].Value = "گزارش کارمند";
+                workSheet.Cells["G1"].Value = "گزارش مدیر";
+                workSheet.Cells["H1"].Value = "وضعیت گزارش";
                 //setting cell allinments
-                var allCells = workSheet.Cells[1, 1, reports.Count() + 1, 7];
+                var allCells = workSheet.Cells[1, 1, reports.Count() + 1, 8];
                 allCells.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 allCells.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
                 workSheet.Column(6).Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                 workSheet.Column(6).Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+                workSheet.Column(7).Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                workSheet.Column(7).Style.VerticalAlignment = ExcelVerticalAlignment.Top;
 
 
                 //Setting cell borders
@@ -128,15 +134,17 @@ namespace coReport.Controllers
                 {
                     var report = reports[i];
                     var name = report.Report.Author.FirstName + " " + report.Report.Author.LastName;
-                    var workHour = report.Report.TaskEndTime.Subtract(report.Report.TaskStartTime).ToString("hh\\:mm");
+                    var workHour = report.Report.TaskEndTime.Subtract(report.Report.TaskStartTime);
                     workSheet.Cells[i + 2, 1].Value = name;
                     workSheet.Cells[i + 2, 2].Value = report.Report.Project.Title;
                     workSheet.Cells[i + 2, 3].Value = report.Report.Activity.Name;
                     workSheet.Cells[i + 2, 4].Value = report.Report.SubActivity != null ?
                                                       report.Report.SubActivity.Name : "-";
                     workSheet.Cells[i + 2, 5].Value = workHour;
-                    workSheet.Cells[i + 2, 6].Value = SystemOperations.GetTextFromQuillData(report.Text);
-                    workSheet.Cells[i + 2, 7].Value = report.IsUserReportAcceptable == true ? "قابل قبول" : "غیرقابل قبول";
+                    workSheet.Cells[i + 2, 5].Style.Numberformat.Format = "hh:mm";
+                    workSheet.Cells[i + 2, 6].Value = SystemOperations.GetTextFromQuillData(report.Report.Text);
+                    workSheet.Cells[i + 2, 7].Value = SystemOperations.GetTextFromQuillData(report.Text);
+                    workSheet.Cells[i + 2, 8].Value = report.IsUserReportAcceptable == true ? "قابل قبول" : "غیرقابل قبول";
                 }
                 package.Save();
             }
@@ -189,7 +197,7 @@ namespace coReport.Controllers
                 workSheet.View.RightToLeft = true;
                 //Basic styling of worksheet
                 workSheet.Cells[1, 1].Value = "نام کارمند";
-                var headerCells = workSheet.Cells[1,2,1,numberOfDays+1];
+                var headerCells = workSheet.Cells[1,2,1,numberOfDays+2];
                 headerCells.Style.Fill.PatternType = ExcelFillStyle.MediumGray;
                 headerCells.Style.Fill.BackgroundColor.SetColor(Color.Lime);
                 headerCells.Style.Font.Bold = true;
@@ -209,6 +217,7 @@ namespace coReport.Controllers
                 allCells.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
 
+
                 //Filling cells with days of the month
                 for (int i = 0; i < numberOfDays; i++)
                 {
@@ -222,9 +231,11 @@ namespace coReport.Controllers
                     userReportHashMap[employees[i]] = new List<UserDailyWork>(); //Creating Hashmap with empty values
                     //Filling spreadsheet cells with default styling
                     var cells = workSheet.Cells[i + 2, 2, i + 2, numberOfDays + 1];
-                    cells.Value = "00:00";
+                    cells.Value = TimeSpan.Parse("00:00:00");
                     cells.Style.Fill.PatternType = ExcelFillStyle.Solid;
                     cells.Style.Fill.BackgroundColor.SetColor(Color.Red);
+                    //Setting data type formatting to time
+                    cells.Style.Numberformat.Format = "hh:mm";
                 }
                 //Filling hashmap with dailyWorks
                 foreach (var dailyWork in dailyWorkList)
@@ -240,10 +251,27 @@ namespace coReport.Controllers
                     foreach (var dailyWork in mapElement.Value)
                     {
                         var dayIndex = (int)dailyWork.Date.Subtract(fromDate.Date).TotalDays;
-                        workSheet.Cells[cellIndex, dayIndex+2].Value = dailyWork.WorkHour.ToString("hh\\:mm");
+                        workSheet.Cells[cellIndex, dayIndex+2].Value = dailyWork.WorkHour;
                         workSheet.Cells[cellIndex, dayIndex+2].Style.Fill.BackgroundColor.SetColor(Color.DeepSkyBlue);
                     }
                     cellIndex++;
+                }
+                var sumCell = workSheet.Cells[1, numberOfDays + 2];
+                sumCell.Value = "مجموع ساعات کاری";
+                sumCell.Style.Fill.BackgroundColor.SetColor(Color.Coral);
+                workSheet.Column(numberOfDays + 2).Width = 20;
+                workSheet.Column(numberOfDays + 2).Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                var sumCells = workSheet.Cells[1, numberOfDays + 2, employees.Count() + 1, numberOfDays + 2];
+                sumCells.Style.Border.Top.Style = ExcelBorderStyle.Thick;
+                sumCells.Style.Border.Left.Style = ExcelBorderStyle.Thick;
+                sumCells.Style.Border.Right.Style = ExcelBorderStyle.Thick;
+                sumCells.Style.Border.Bottom.Style = ExcelBorderStyle.Thick;
+                for (int i = 1; i <= employees.Count(); i++)
+                {
+                    var cell = workSheet.Cells[i + 1, numberOfDays + 2];
+                    cell.Formula = "Sum(" + workSheet.Cells[i+1, 2].Address +
+                        ":"+ workSheet.Cells[i+1, numberOfDays + 1].Address + ")";
+                    cell.Style.Numberformat.Format = "hh:mm";
                 }
                 package.Save();
             }
