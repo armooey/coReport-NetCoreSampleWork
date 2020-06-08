@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using coReport.Models.AccountViewModels;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -14,6 +15,10 @@ namespace coReport.Models.ManageViewModels
         [Display(Name = "نقش سیستمی")]
         public String Role { get; set; }
 
+        [Display(Name = "مدیران")]
+        [Required(ErrorMessage = "انتخاب مدیران اجباری است.")]
+        public List<short> ManagerIds { get; set; }
+
         [Display(Name ="زمان پایان منع کاربر")]
         [Required]
         public DateTime BanEnd { get; set; }
@@ -23,5 +28,6 @@ namespace coReport.Models.ManageViewModels
 
         //Dummy Property
         public IEnumerable<SelectListItem> Roles { get; set; }
+        public List<UserViewModel> Managers { get; set; }
     }
 }

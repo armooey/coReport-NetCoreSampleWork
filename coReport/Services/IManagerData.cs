@@ -12,5 +12,7 @@ namespace coReport.Services
         public bool SetManagers(short userId, List<short> managerIds);
         public IEnumerable<ApplicationUser> GetEmployees(short managerId);
         public IEnumerable<ApplicationUser> GetManagers(short userId);
+        public bool DeleteManagers(short userId);
+        public bool UpdateManagers(short userId, IEnumerable<short> managerIds);
     }
 }

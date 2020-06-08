@@ -22,6 +22,21 @@ namespace coReport.Services
             _logger = logger;
         }
 
+        public bool DeleteManagers(short userId)
+        {
+            try
+            {
+                _context.UserManagers.Where(um => um.UserId == userId).Update(um => new UserManager { IsActive = false });
+                _context.SaveChanges();
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.Log("Error in saving managers for user", e);
+                return false;
+            }
+        }
+
         public IEnumerable<ApplicationUser> GetEmployees(short managerId)
         {
             return _context.UserManagers.Where(um => um.ManagerId == managerId && um.IsActive == true)
@@ -59,7 +74,7 @@ namespace coReport.Services
                 return false;
             }
         }
-        public void UpdateManagers(short userId, List<short> managerIds)
+        public bool UpdateManagers(short userId, IEnumerable<short> managerIds)
         {
             try
             {
@@ -85,10 +100,12 @@ namespace coReport.Services
                     }
                 }
                 _context.SaveChanges();
+                return true;
             }
             catch (Exception e)
             {
-                throw e;
+                _logger.Log("Error in saving managers for user", e);
+                return false;
             }
         }
     }

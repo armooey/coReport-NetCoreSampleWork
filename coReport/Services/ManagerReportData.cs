@@ -52,12 +52,14 @@ namespace coReport.Services
 
         public IEnumerable<ManagerReport> GetReportsByTimeSpan(short managerId, DateTime startDate, DateTime endTime)
         {
-            return  _context.ManagerReports.Where(mr => mr.AuthorId == managerId 
-                                            && startDate.Date <= mr.Report.Date.Date 
-                                            && mr.Report.Date.Date <= endTime.Date && !mr.IsDeleted)
+            return _context.ManagerReports.Where(mr => mr.AuthorId == managerId
+                                           && startDate.Date <= mr.Report.Date.Date
+                                           && mr.Report.Date.Date <= endTime.Date && !mr.IsDeleted)
                 .Include(r => r.Report)
                     .ThenInclude(r => r.Author)
                     .Include(r => r.Report.Project)
+                    .Include(r => r.Report.Activity)
+                    .Include(r => r.Report.SubActivity)
                 .OrderByDescending(r => r.Date)
                 .ToList();
         }

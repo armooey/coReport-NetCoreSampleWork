@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using coReport.Auth;
+using coReport.Models.AccountViewModels;
 using coReport.Models.ManageViewModels;
 using coReport.Operations;
 using coReport.Services;
@@ -21,6 +23,7 @@ namespace coReport.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole<short>> _roleManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IManagerData _managerData;
         private readonly ILogService _logger;
 
         public ManageController(
@@ -28,12 +31,14 @@ namespace coReport.Controllers
         SignInManager<ApplicationUser> signInManager,
         RoleManager<IdentityRole<short>> roleManager,
         IWebHostEnvironment webHostEnvironment,
+        IManagerData managerData,
         ILogService logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _webHostEnvironment = webHostEnvironment;
+            _managerData = managerData;
             _logger = logger;
         }
 
@@ -160,10 +165,24 @@ namespace coReport.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             ViewData["UserName"] = userName;
             var user = await _userManager.FindByNameAsync(userName);
+            var managers = _managerData.GetManagers(user.Id).Select(m => m.Id).ToList();
+            var allManagers = await _userManager.GetUsersInRoleAsync("Manager");
+
+            var managerViewModels = new List<UserViewModel>();
+            foreach (var manager in allManagers.Where(m => m.Id != user.Id).ToList())
+            {
+                managerViewModels.Add(new UserViewModel { 
+                    Id = manager.Id,
+                    FirstName = manager.FirstName,
+                    LastName = manager.LastName
+                });
+            }
             var model = new AdministrationViewModel
             {
                 Role = _userManager.GetRolesAsync(user).Result.FirstOrDefault(),
                 Roles = _roleManager.GetRolesSelectList(),
+                Managers = managerViewModels,
+                ManagerIds = managers,
                 IsBanned = user.IsBanned,
                 BanEnd = user.BanEndTime 
             };
@@ -192,6 +211,12 @@ namespace coReport.Controllers
                 var role = _userManager.GetRolesAsync(user).Result.FirstOrDefault();
                 if(role != null)
                     await _userManager.RemoveFromRoleAsync(user, role);
+                if (model.Role != "Employee")
+                    _managerData.DeleteManagers(user.Id);
+                else if (model.Role == "Employee")
+                {
+                    _managerData.UpdateManagers(user.Id, model.ManagerIds);
+                }
                 await _userManager.AddToRoleAsync(user, model.Role);
                 //applying user update
                 var result = await _userManager.UpdateAsync(user);

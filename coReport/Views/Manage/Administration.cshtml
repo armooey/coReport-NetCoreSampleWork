@@ -4,38 +4,57 @@
     ViewData["Title"] = "مدیریت";
     ViewData["ViewName"] = "Administration";
 }
+<link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
+
 
 <form asp-controller="Manage" asp-action="Administration" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal" role="form">
-    <div class="col-md">
-        <h5>تغییر نقش کاربر</h5>
-    </div>
-    <hr />
-    <div class="form-group">
-        <label asp-for="Role" class="col-md-4 control-label"></label>
-        <div class="col-md-4">
-            <select asp-for="Role" asp-items="@Model.Roles" class="form-control"></select>
-            <span asp-validation-for="Role" class="text-danger"></span>
+    <div>
+        <div class="col-md">
+            <h5>تغییر نقش کاربر</h5>
+        </div>
+        <hr />
+        <div class="form-group">
+            <label asp-for="Role" class="col-md-4 control-label"></label>
+            <div class="col-md-4">
+                <select id="role_select" asp-for="Role" asp-items="@Model.Roles" class="form-control"></select>
+                <span asp-validation-for="Role" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="ManagerIds" class="col-md-4 control-label"></label>
+            <div class="col-md-4">
+                <select id="manager_multiselect" asp-for="ManagerIds" style="width: 100%" multiple="multiple">
+                    <option></option>
+                    @foreach (var user in Model.Managers)
+                    {
+                        <option value="@user.Id">@user.FirstName @user.LastName</option>
+                    }
+                </select>
+                <span asp-validation-for="Role" class="text-danger"></span>
+            </div>
         </div>
     </div>
 
-    <div class="col-md">
-        <h5>مسدود کردن کاربر</h5>
-        <h6> می‌توانید دسترسی کاربر را تا زمانی مشخص مسدود کنید.</h6>
-    </div>
-    <hr />
-    <div asp-validation-summary="All" class="text-danger"></div>
-    <input asp-for="Username" hidden="hidden" class="form-control" />
+    <div class="pt-4">
+        <div class="col-md">
+            <h5>مسدود کردن کاربر</h5>
+            <h6> می‌توانید دسترسی کاربر را تا زمانی مشخص مسدود کنید.</h6>
+        </div>
+        <hr />
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <input asp-for="Username" hidden="hidden" class="form-control" />
 
 
 
-    <div class="form-group">
-        <span class="col-md"> مسدود کردن کاربر؟</span>
-        <input id="banned" asp-for="IsBanned" />
-    </div>
-    <div class="form-group">
-        <label asp-for="BanEnd" class="col-md-4 control-label"></label>
-        <div class="col-md-4">
-            <input id="banTime" asp-for="BanEnd" class="form-control" />
+        <div class="form-group">
+            <span class="col-md"> مسدود کردن کاربر؟</span>
+            <input id="banned" asp-for="IsBanned" />
+        </div>
+        <div class="form-group">
+            <label asp-for="BanEnd" class="col-md-4 control-label"></label>
+            <div class="col-md-4">
+                <input id="banTime" asp-for="BanEnd" class="form-control" />
+            </div>
         </div>
     </div>
     <div class="form-group">
@@ -47,8 +66,36 @@
 
 @section scripts
 {
+    <script src="~/lib/select2/js/select2.min.js"></script>
+    <script src="~/lib/select2/js/i18n/fa.js"></script>
     <script>
+        $('#manager_multiselect').select2({
+            placeholder: 'انتخاب کنید...',
+            dir: 'rtl',
+            language: 'fa'
+        });
         $(document).ready(function () {
+
+             if ($('#role_select').val() == 'Employee') {
+                    $('#manager_multiselect').prop('disabled', false);
+                    $('#manager_multiselect').parent().parent().prop('hidden', false);
+                }
+                else {
+                    $('#manager_multiselect').prop('disabled', true);
+                    $('#manager_multiselect').parent().parent().prop('hidden', true);
+                }
+
+            $('#role_select').change(function () {
+                if ($(this).val() == 'Employee') {
+                    $('#manager_multiselect').prop('disabled', false);
+                    $('#manager_multiselect').parent().parent().prop('hidden', false);
+                }
+                else {
+                    $('#manager_multiselect').prop('disabled', true);
+                    $('#manager_multiselect').parent().parent().prop('hidden', true);
+                }
+            });
+
             if ($("#banned").prop("checked") == true) {
                 $("#banTime").prop("disabled", false);
             }

@@ -4,6 +4,7 @@ using coReport.Models.ReportModels;
 using coReport.Models.ReportViewModel;
 using coReport.Operations;
 using coReport.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -21,6 +22,7 @@ using System.Threading.Tasks;
 
 namespace coReport.Controllers
 {
+    [Authorize(Roles = "Manager")]
     public class ManagerController: Controller
     {
         private UserManager<ApplicationUser> _userManager;
@@ -170,110 +172,95 @@ namespace coReport.Controllers
                 });
             var manager = await _userManager.FindByNameAsync(User.Identity.Name);
             var reports = _managerReportData.GetReportsByTimeSpan(manager.Id, fromDate, toDate).ToList();
-            var groupedReports = reports.GroupBy(r => new { r.Report.AuthorId, r.Report.Date.Date });
-            var dailyWorkList = new List<UserDailyWork>();
-            //Calculating sum of user workhours in day
-            foreach (var groupedReport in groupedReports)
-            {
-                var dailyWork = new UserDailyWork();
-                dailyWork.User = groupedReport.First().Report.Author;
-                dailyWork.Date = groupedReport.First().Report.Date;
-                var workHourSum = new TimeSpan();
-                foreach (var report in groupedReport)
-                {
-                    workHourSum = workHourSum.Add(report.Report.TaskEndTime.Subtract(report.Report.TaskStartTime));
-                }
-                dailyWork.WorkHour = workHourSum;
-                dailyWorkList.Add(dailyWork);
-            }
             var stream = new MemoryStream();
             var employees = _managerData.GetEmployees(manager.Id).ToList();
-            var userReportHashMap = new Dictionary<ApplicationUser, List<UserDailyWork>>();
             var numberOfDays = (int)toDate.Date.Subtract(fromDate.Date).TotalDays + 1;
+            var hijriFromDate = fromDate.ToHijri();
+            var hijriToDate = toDate.ToHijri();
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             using (var package = new ExcelPackage(stream))
             {
-                var workSheet = package.Workbook.Worksheets.Add("Sheet1");
-                workSheet.View.RightToLeft = true;
-                //Basic styling of worksheet
-                workSheet.Cells[1, 1].Value = "نام کارمند";
-                var headerCells = workSheet.Cells[1,2,1,numberOfDays+2];
-                headerCells.Style.Fill.PatternType = ExcelFillStyle.MediumGray;
-                headerCells.Style.Fill.BackgroundColor.SetColor(Color.Lime);
-                headerCells.Style.Font.Bold = true;
-                workSheet.DefaultColWidth = 10;
-                var nameCells = workSheet.Cells[2, 1, employees.Count()+1, 1];
-                workSheet.Cells[1, 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                workSheet.Cells[1, 1].Style.Fill.BackgroundColor.SetColor(Color.Coral);
-                workSheet.Column(1).Width = 20;
-                nameCells.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                nameCells.Style.Fill.BackgroundColor.SetColor(Color.Lime);
-                //Setting cell borders
-                var allCells = workSheet.Cells[1, 1, employees.Count() + 1, numberOfDays + 1];
-                allCells.Style.Border.Top.Style = ExcelBorderStyle.Thin;
-                allCells.Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                allCells.Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                allCells.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                allCells.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-
-
-                //Filling cells with days of the month
-                for (int i = 0; i < numberOfDays; i++)
+                foreach (var employee in employees)
                 {
-                    var hijriDate = fromDate.AddDays(i).ToHijri();
-                    workSheet.Cells[1, i + 2].Value = (hijriDate.Month < 10 ? "0" + hijriDate.Month.ToString() : hijriDate.Month.ToString()) 
-                        + "/" + (hijriDate.Day < 10 ? "0" + hijriDate.Day.ToString() : hijriDate.Day.ToString());
-                }
-                //Filling cells with default values
-                for (int i = 0; i < employees.Count(); i++)
-                {
-                    userReportHashMap[employees[i]] = new List<UserDailyWork>(); //Creating Hashmap with empty values
-                    //Filling spreadsheet cells with default styling
-                    var cells = workSheet.Cells[i + 2, 2, i + 2, numberOfDays + 1];
-                    cells.Value = TimeSpan.Parse("00:00:00");
-                    cells.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    cells.Style.Fill.BackgroundColor.SetColor(Color.Red);
-                    //Setting data type formatting to time
-                    cells.Style.Numberformat.Format = "hh:mm";
-                }
-                //Filling hashmap with dailyWorks
-                foreach (var dailyWork in dailyWorkList)
-                {
-                    userReportHashMap[dailyWork.User].Add(dailyWork);
-                }
-                //fill cells with report datas
-                int cellIndex = 2;
-                foreach(var mapElement in userReportHashMap)
-                {
+                    var employeeName = employee.FirstName + " " + employee.LastName;
+                    //Get reports of this employee
+                    var employeeReports = reports.Where(um => um.Report.AuthorId == employee.Id)
+                        .Select(um => um.Report).OrderBy(r => r.Date).ToList();
+                    var workSheet = package.Workbook.Worksheets.Add(employeeName);
+                    workSheet.View.RightToLeft = true;
+                    workSheet.DefaultColWidth = 25;
+                    workSheet.DefaultRowHeight = 30;
+                    //Basic styling of worksheet
+                    var infoCells = workSheet.Cells[1, 1, 1, 6];
+                    infoCells.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    infoCells.Style.Fill.BackgroundColor.SetColor(Color.DeepSkyBlue);
+                    infoCells.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    infoCells.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    infoCells.Merge = true;
+                    infoCells.Style.Border.Bottom.Style = ExcelBorderStyle.Medium;
+                    infoCells.Value = "گزارش فعالیت‌های " + employeeName + " از تاریخ " +
+                                        hijriFromDate.GetDate() + " تا " + hijriToDate.GetDate();
 
-                    workSheet.Cells[cellIndex, 1].Value = mapElement.Key.FirstName + " " + mapElement.Key.LastName;
-                    foreach (var dailyWork in mapElement.Value)
+                    if (employeeReports.Any())
                     {
-                        var dayIndex = (int)dailyWork.Date.Subtract(fromDate.Date).TotalDays;
-                        workSheet.Cells[cellIndex, dayIndex+2].Value = dailyWork.WorkHour;
-                        workSheet.Cells[cellIndex, dayIndex+2].Style.Fill.BackgroundColor.SetColor(Color.DeepSkyBlue);
+                        var headerCells = workSheet.Cells[2, 1, 2, 6];
+                        headerCells.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        headerCells.Style.Fill.BackgroundColor.SetColor(Color.LimeGreen);
+                        headerCells.Style.Font.Bold = true;
+
+                        workSheet.Cells["A2"].Value = "تاریخ گزارش";
+                        workSheet.Cells["B2"].Value = "نام گزارش";
+                        workSheet.Cells["C2"].Value = "نام پروژه";
+                        workSheet.Cells["D2"].Value = "فعالیت";
+                        workSheet.Cells["E2"].Value = "زیرفعالیت";
+                        workSheet.Cells["F2"].Value = "ساعت کاری";
+                        //Setting cell borders and alignmnet
+                        var allCells = workSheet.Cells[2, 1, employeeReports.Count() + 2, 6];
+                        allCells.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                        allCells.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                        allCells.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                        allCells.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                        allCells.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                        allCells.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+                        //fill cells with report datas
+                        for (int i = 0; i < employeeReports.Count(); i++)
+                        {
+                            workSheet.Cells[i + 3, 1].Value = employeeReports[i].Date.ToHijri().GetDate();
+                            workSheet.Cells[i + 3, 1].Style.Numberformat.Format = "yyyy/MM/dd";
+                            workSheet.Cells[i + 3, 2].Value = employeeReports[i].Title;
+                            workSheet.Cells[i + 3, 3].Value = employeeReports[i].Project.Title;
+                            workSheet.Cells[i + 3, 4].Value = employeeReports[i].Activity.Name;
+                            workSheet.Cells[i + 3, 5].Value = employeeReports[i].SubActivity != null ?
+                                                              employeeReports[i].SubActivity.Name : "-";
+                            workSheet.Cells[i + 3, 6].Value = employeeReports[i].TaskEndTime.Subtract(employeeReports[i].TaskStartTime);
+                            workSheet.Cells[i + 3, 6].Style.Numberformat.Format = "hh:mm";
+                        }
+                        workSheet.Cells[employeeReports.Count() + 3, 5].Value = "مجموع ساعات کاری";
+                        var sumCell = workSheet.Cells[employeeReports.Count() + 3, 6];
+                        sumCell.Formula = "Sum(" + workSheet.Cells[3, 6].Address +
+                            ":" + workSheet.Cells[employeeReports.Count() + 2, 6].Address + ")";
+                        sumCell.Style.Numberformat.Format = "hh:mm";
+                        var sumCells = workSheet.Cells[employeeReports.Count() + 3, 5, employeeReports.Count() + 3, 6];
+                        sumCells.Style.Font.Bold = true;
+                        sumCells.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                        sumCells.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                        sumCells.Style.Border.Left.Style = ExcelBorderStyle.Medium;
+                        sumCells.Style.Border.Right.Style = ExcelBorderStyle.Medium;
+                        sumCells.Style.Border.Bottom.Style = ExcelBorderStyle.Medium;
                     }
-                    cellIndex++;
+                    else
+                    {
+                        var noReportCells = workSheet.Cells[2, 1, 2, 6];
+                        noReportCells.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        noReportCells.Style.Fill.BackgroundColor.SetColor(Color.OrangeRed);
+                        noReportCells.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                        noReportCells.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                        noReportCells.Merge = true;
+                        noReportCells.Value = "گزارشی موجود نیست.";
+                    }
                 }
-                var sumCell = workSheet.Cells[1, numberOfDays + 2];
-                sumCell.Value = "مجموع ساعات کاری";
-                sumCell.Style.Fill.BackgroundColor.SetColor(Color.Coral);
-                workSheet.Column(numberOfDays + 2).Width = 20;
-                workSheet.Column(numberOfDays + 2).Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                var sumCells = workSheet.Cells[1, numberOfDays + 2, employees.Count() + 1, numberOfDays + 2];
-                sumCells.Style.Border.Top.Style = ExcelBorderStyle.Thick;
-                sumCells.Style.Border.Left.Style = ExcelBorderStyle.Thick;
-                sumCells.Style.Border.Right.Style = ExcelBorderStyle.Thick;
-                sumCells.Style.Border.Bottom.Style = ExcelBorderStyle.Thick;
-                for (int i = 1; i <= employees.Count(); i++)
-                {
-                    var cell = workSheet.Cells[i + 1, numberOfDays + 2];
-                    cell.Formula = "Sum(" + workSheet.Cells[i+1, 2].Address +
-                        ":"+ workSheet.Cells[i+1, numberOfDays + 1].Address + ")";
-                    cell.Style.Numberformat.Format = "hh:mm";
-                }
-                package.Save();
+                package.Save(); 
             }
             stream.Position = 0;
 
