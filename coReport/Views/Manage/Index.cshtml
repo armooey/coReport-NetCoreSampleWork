@@ -12,9 +12,10 @@
 
         <div class="form-group">
             <div class="mr-2">
-                @if (Model.ImageByte != null)
+                @if (Model.ProfileImageName != null)
                 {
-                    <img class=" img rounded-circle" src="data:image/jpeg;base64,@Convert.ToBase64String(Model.ImageByte)" style="width: 100px;height:100px;">
+                    <img class=" img rounded-circle" src="@Url.Action("GetUserImage", "Account", new { imageName = Model.ProfileImageName })"
+                         style="width: 100px;height:100px;">
                 }
                 else
                 {

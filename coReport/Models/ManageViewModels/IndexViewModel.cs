@@ -29,6 +29,6 @@ namespace coReport.Models.ManageViewModels
         [Display(Name = "نام خانوادگی")]
         public String LastName { get; set; }
 
-        public byte[] ImageByte { get; set; } //Byte data of user image
+        public String ProfileImageName { get; set; }
     }
 }

@@ -120,20 +120,9 @@ namespace coReport.Controllers
             var userViewModelList = new List<UserViewModel>();
             foreach (ApplicationUser user in users)
             {
-                //Reading image from local storage
-                byte[] image;
-                try
-                {
-                    var imagePath = Path.Combine(_webHostEnvironment.ContentRootPath, "UserData", "Images",
-                        user.ProfileImageName + ".jpg");
-                    image = await System.IO.File.ReadAllBytesAsync(imagePath);
-                }
-                catch
-                {
-                    image = null;
-                }
                 //creating view model
-                var userRole = _userManager.GetRolesAsync(user).Result.FirstOrDefault();
+                var userRolesList = await _userManager.GetRolesAsync(user);
+                var userRole = userRolesList.FirstOrDefault();
                 userViewModelList.Add(new UserViewModel
                 {
                     Id = user.Id,
@@ -141,12 +130,12 @@ namespace coReport.Controllers
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     Email = user.Email,
-                    Image = image,
+                    ProfileImageName = user.ProfileImageName,
                     Role = userRole,
-                    RoleName = userRole == "Manager"? AppSettingInMemoryDatabase.MANAGER_ROLE_NAME:
+                    RoleName = userRole == "Manager" ? AppSettingInMemoryDatabase.MANAGER_ROLE_NAME :
                                             AppSettingInMemoryDatabase.EMPLOYEE_ROLE_NAME,
                     IsActive = user.IsActive
-                }) ;
+                });
             }
             var userManagementViewModel = new UserManagementViewModel
             {

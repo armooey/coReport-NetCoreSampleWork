@@ -55,17 +55,6 @@ namespace coReport.Controllers
             if(!User.IsInRole("Admin") && User.Identity.Name != userName)
                 return View("_AccessDenied");
             var user = await _userManager.FindByNameAsync(userName);
-            byte[] image;
-            try
-            {
-                var imagePath = Path.Combine(_webHostEnvironment.ContentRootPath, "UserData", "Images", 
-                    String.Format("{0}.jpg", user.ProfileImageName));
-                image = await System.IO.File.ReadAllBytesAsync(imagePath);
-            }
-            catch
-            {
-                image = null;
-            }
 
             var model = new IndexViewModel
             {
@@ -73,7 +62,7 @@ namespace coReport.Controllers
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber,
-                ImageByte = image
+                ProfileImageName = user.ProfileImageName
                
             };
             return View(model);

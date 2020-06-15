@@ -248,24 +248,35 @@ namespace coReport.Controllers
 
 
         /*
-         * Used for getting current user profile image in Layout.
+         * Used for getting current user profile image.
          */
-        public async Task<IActionResult> GetUserImage() 
+        public async Task<IActionResult> GetUserImage(String imageName = null) 
         {
-            var user = await _userManager.GetUserAsync(User);
+            if (imageName == null)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                imageName = user.ProfileImageName;
+            } 
+
             byte[] image;
             try
             {
-                var imagePath = Path.Combine(_webHostEnvironment.ContentRootPath, "UserData", "Images",
-                    user.ProfileImageName +".jpg");
-                image = await System.IO.File.ReadAllBytesAsync(imagePath);
+                if (imageName != null)
+                {
+                    var imagePath = Path.Combine(_webHostEnvironment.ContentRootPath, "UserData", "Images", imageName + ".jpg");
+                    image = await System.IO.File.ReadAllBytesAsync(imagePath);
+                }
+                else
+                {
+                    var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "user.png");
+                    image = await System.IO.File.ReadAllBytesAsync(imagePath);
+                }
+                return File(image, "image/jpeg");
             }
             catch
             {
-                var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, "Images", "user.png");
-                image = await System.IO.File.ReadAllBytesAsync(imagePath);
+                return null;
             }
-            return File(image, "image/jpeg");
         }
 
 
