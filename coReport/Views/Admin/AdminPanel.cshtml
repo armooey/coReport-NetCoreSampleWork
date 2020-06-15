@@ -54,7 +54,7 @@
         <div class="col-md border border-dark p-2 box-widget-scrollable">
             <h6><b>اخطار ها</b></h6>
             <hr />
-            @if (Model.Messages.Count() == 0)
+            @if (Model.Warnings.Count() == 0)
             {
                 <div class="text-center"><b>اخطاری موجود نیست.</b></div>
             }
@@ -437,7 +437,6 @@
                 if (ajaxResult == null) {
                     bootbox.alert({
                         closeButton: false,
-                        title: "خطا",
                         message: "هنگام مشاهده پیام مشکلی پیش آمده لطفا مجددا سعی کنید.",
                         buttons: {
                             ok: {
@@ -455,6 +454,16 @@
                     $('#view_message').modal('show');
                     $('#message_' + id).attr('style', 'border: 1px solid !important');
                 }
+            }).fail(function () {
+                bootbox.alert({
+                        closeButton: false,
+                        message: "خطای ارتباط با سرور.",
+                        buttons: {
+                            ok: {
+                                label: 'بستن'
+                            }
+                        }
+                    });
             });
         }
 
@@ -484,7 +493,6 @@
                             else {
                                 bootbox.alert({
                                     closeButton: false,
-                                    title: "خطا",
                                     message: "هنگام خاتمه پروژه مشکلی پیش آمده لطفا مجددا سعی کنید.",
                                     buttons: {
                                         ok: {
@@ -525,7 +533,6 @@
                             else {
                                 bootbox.alert({
                                     closeButton: false,
-                                    title: "خطا",
                                     message: "هنگام حذف فعالیت مشکلی پیش آمده لطفا مجددا سعی کنید.",
                                     buttons: {
                                         ok: {

@@ -118,7 +118,6 @@
         {
             bootbox.alert({
                 closeButton: false,
-                title: "خطا",
                 message: "به دلیل ثبت گزارش مدیر، امکان حذف وجود ندارد.",
                 buttons: {
                     ok: {
@@ -192,7 +191,6 @@
                             else {
                                 bootbox.alert({
                                     closeButton: false,
-                                    title: "خطا",
                                     message: "هنگام حذف پیام مشکلی پیش آمده لطفا مجددا سعی کنید.",
                                     buttons: {
                                         ok: {
@@ -214,7 +212,6 @@
                 if (ajaxResult == null) {
                     bootbox.alert({
                         closeButton: false,
-                        title: "خطا",
                         message: "هنگام مشاهده پیام مشکلی پیش آمده لطفا مجددا سعی کنید.",
                         buttons: {
                             ok: {
@@ -244,6 +241,16 @@
                     $('#view_message').modal('show');
                     $('#message_' + id).attr('style', 'border: 1px solid !important');
                 }
+            }).fail(function () {
+                bootbox.alert({
+                        closeButton: false,
+                        message: "خطای ارتباط با سرور.",
+                        buttons: {
+                            ok: {
+                                label: 'بستن'
+                            }
+                        }
+                    });
             });
         }
 
