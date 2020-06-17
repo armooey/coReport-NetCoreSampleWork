@@ -54,8 +54,9 @@ namespace coReport.Controllers
         {
             if (model.Error == null)
             {
-                var exception = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
-                _logger.Log("Server Error!", exception.Error);
+                var exceptionHandlerPath = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+                var exception = exceptionHandlerPath.Error;
+                _logger.Log("Internal Server Error", exception);
             }
             return View(model);
         }

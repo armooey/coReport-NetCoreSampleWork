@@ -1,22 +1,22 @@
 ﻿using coReport.Data;
 using coReport.Models.AccountModel;
 using coReport.Models.LogModel;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace coReport.Services
 {
     public class LogService : ILogService
     {
         private ApplicationDbContext _context;
-
-        public LogService(ApplicationDbContext context)
+        private  IHttpContextAccessor _httpContext;
+        public LogService(ApplicationDbContext context, IHttpContextAccessor httpContext)
         {
             _context = context;
+            _httpContext = httpContext;
         }
 
         public IEnumerable<Log> GetAll()
@@ -36,11 +36,22 @@ namespace coReport.Services
                 .Where(e => e.Entity != null).ToList()
                 .ForEach(e => e.State = EntityState.Detached);
             //Log Exception
-            _context.Logs.Add(new Log { 
+            var exceptionString = exception.ToString();
+            var loggedUser = _httpContext.HttpContext.User?.Identity?.Name;
+            if (loggedUser != null)
+            {
+                exceptionString = exceptionString + "\n******************************************************************";
+                exceptionString += "\nLogged In User =====> " + loggedUser;
+            }
+
+            var log = new Log
+            {
                 Date = DateTime.Now,
                 Message = message,
-                Exception = exception.ToString()
-            });
+                Exception = exceptionString
+            };
+
+            _context.Logs.Add(log);
             _context.SaveChanges();
         }
 
