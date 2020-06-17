@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using coReport.Auth;
 using coReport.Models.HomeViewModels;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Diagnostics;
 
 namespace coReport.Controllers
 {
@@ -15,14 +16,17 @@ namespace coReport.Controllers
         private UserManager<ApplicationUser> _userManager;
         private SignInManager<ApplicationUser> _signInManager;
         private IMessageService _messageService;
+        private ILogService _logger;
 
         public HomeController( IMessageService messageService,
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+            SignInManager<ApplicationUser> signInManager,
+            ILogService logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _messageService = messageService;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
@@ -48,6 +52,11 @@ namespace coReport.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error(ErrorViewModel model)
         {
+            if (model.Error == null)
+            {
+                var exception = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+                _logger.Log("Server Error!", exception.Error);
+            }
             return View(model);
         }
     }

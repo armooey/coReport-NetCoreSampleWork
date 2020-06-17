@@ -18,6 +18,17 @@ namespace coReport.Services
         {
             _context = context;
         }
+
+        public IEnumerable<Log> GetAll()
+        {
+            return _context.Logs.OrderByDescending(l => l.Date);
+        }
+
+        public string GetLogMessage(short id)
+        {
+            return _context.Logs.Where(l => l.Id == id).Select(l => l.Exception).FirstOrDefault();
+        }
+
         public void Log(string message, Exception exception)
         {
             //Clear all changes that caused exception

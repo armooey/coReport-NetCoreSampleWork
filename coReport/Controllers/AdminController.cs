@@ -4,6 +4,7 @@ using coReport.Models.AccountViewModels;
 using coReport.Models.ActivityModels;
 using coReport.Models.AdminViewModels;
 using coReport.Models.HomeViewModels;
+using coReport.Models.LogViewModel;
 using coReport.Models.ProjectModels;
 using coReport.Models.ProjectViewModels;
 using coReport.Operations;
@@ -116,6 +117,7 @@ namespace coReport.Controllers
 
         public async Task<IActionResult> ManageUsers()
         {
+            throw new Exception("test admin");
             var users = _userManager.Users.Where(user => user.UserName != "admin" && !user.IsDeleted).OrderByDescending(u => u.RegisterDate);
             var userViewModelList = new List<UserViewModel>();
             foreach (ApplicationUser user in users)
@@ -317,6 +319,28 @@ namespace coReport.Controllers
         {
             var result = _activityData.Delete(id);
             return Json(result);
+        }
+
+
+        //getting server logs
+        public IActionResult ServerLogs()
+        {
+            var logs = _logger.GetAll();
+            var logViewModels = new List<LogViewModel>();
+            foreach (var log in logs)
+            {
+                logViewModels.Add(new LogViewModel { 
+                    Id = log.Id,
+                    Message = log.Message,
+                    Date = log.Date.ToHijri()
+                });
+            }
+            return View(logViewModels);
+        }
+
+        public IActionResult GetException(short id)
+        {
+            return Json(_logger.GetLogMessage(id));
         }
     }
 }

@@ -1,0 +1,64 @@
+﻿@using coReport.Models.LogViewModel
+@model IEnumerable<LogViewModel>
+@{
+    ViewData["Title"] = "لاگ‌های سرور";
+}
+<table class="bg-white table table-bordered table-hover">
+    <tr class="text-center">
+        <th>تاریخ و ساعت</th>
+        <th>پیغام خطا</th>
+        <th>اعمال</th>
+    </tr>
+    @foreach (var log in Model)
+    {
+        <tr>
+            <td>@log.Date.GetDate() @log.Date.GetTime()</td>
+            <td>@log.Message</td>
+            <td>
+                <button class="btn btn-primary" onclick="GetException(@log.Id)">مشاهده خطا</button>
+            </td>
+        </tr>
+    }
+</table>
+
+
+<div id="view_exception" class="modal fade">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"><p>پیغام خطا</p></div>
+            <textarea cols="80" rows="20" id="exception" readonly class="text-left"
+                      style="font-family:sans-serif"></textarea>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal">بستن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts
+{
+    <script src="~/lib/bootbox.js/bootbox.min.js"></script>
+    <script>
+        function GetException(id)
+        {
+            $.ajax({
+                url: "@Url.Action("GetException", "Admin")",
+                data: { id: id }
+            }).done(function (result) {
+                $('#exception').val(result);
+                $('#view_exception').modal('toggle');
+            }).fail(function () {
+                bootbox.alert({
+                        closeButton: false,
+                        message: "خطای ارتباط با سرور.",
+                        buttons: {
+                            ok: {
+                                label: 'بستن'
+                            }
+                        }
+                    });
+            });
+        }
+    </script>
+}
