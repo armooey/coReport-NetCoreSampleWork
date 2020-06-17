@@ -117,7 +117,6 @@ namespace coReport.Controllers
 
         public async Task<IActionResult> ManageUsers()
         {
-            throw new Exception("test admin");
             var users = _userManager.Users.Where(user => user.UserName != "admin" && !user.IsDeleted).OrderByDescending(u => u.RegisterDate);
             var userViewModelList = new List<UserViewModel>();
             foreach (ApplicationUser user in users)
