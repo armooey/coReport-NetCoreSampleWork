@@ -3,24 +3,14 @@
         var userName = @ViewData["UserName"];
     }
     <ul class="nav nav-pills flex-column">
-        @if (ViewData["ViewName"].Equals("Index"))
+        @if (ViewData["ViewName"].Equals("AccountInformation"))
         {
             <li class="nav-item "><a class="nav-link active"><i class="far fa-user"></i> پروفایل</a></li>
         }
         else
         {
-            <li class="nav-item"><a class="nav-link" asp-action="Index" asp-route-userName="@userName" asp-route-returnUrl="@ViewData["returnUrl"]">
+            <li class="nav-item"><a class="nav-link" asp-action="AccountInformation" asp-route-userName="@userName" asp-route-returnUrl="@ViewData["returnUrl"]">
                 <i class="far fa-user"></i> پروفایل</a></li>
-        }
-
-        @if (ViewData["ViewName"].Equals("Email"))
-        {
-            <li class="nav-item"><a class="nav-link active"><i class="far fa-envelope"></i> ایمیل</a></li>
-        }
-        else
-        {
-            <li class="nav-item"><a class="nav-link" asp-action="Email" asp-route-userName="@userName" asp-route-returnUrl="@ViewData["returnUrl"]">
-                <i class="far fa-envelope"></i> ایمیل</a></li>
         }
 
         @if (ViewData["ViewName"].Equals("Password"))

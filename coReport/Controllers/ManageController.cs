@@ -45,10 +45,10 @@ namespace coReport.Controllers
 
 
         /*
-         * Index Action deals with user personal data like name.
+         * This Action deals with user personal data like name, phone, ...
          */
         [HttpGet]
-        public async Task<IActionResult> Index(string userName, string returnUrl = null)
+        public async Task<IActionResult> AccountInformation(string userName, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
             ViewData["UserName"] = userName;
@@ -56,21 +56,21 @@ namespace coReport.Controllers
                 return View("_AccessDenied");
             var user = await _userManager.FindByNameAsync(userName);
 
-            var model = new IndexViewModel
+            var model = new AccountInfoViewModel
             {
                 Username = user.UserName,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber,
-                ProfileImageName = user.ProfileImageName
-               
+                Email = user.Email,
+                HasImage = user.ProfileImageName != null ? true : false
             };
             return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(IndexViewModel model, string returnUrl = null)
+        public async Task<IActionResult> AccountInformation(AccountInfoViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
             ViewData["UserName"] = model.Username;
@@ -81,6 +81,7 @@ namespace coReport.Controllers
                 user.FirstName = model.FirstName;
                 user.LastName = model.LastName;
                 user.PhoneNumber = model.PhoneNumber;
+                user.Email = model.Email;
                 if (model.Image != null)
                 {
                     var imageName = await SystemOperations.SaveProfileImage(_webHostEnvironment, model.Image);
@@ -95,52 +96,13 @@ namespace coReport.Controllers
                 var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index", new { userName = model.Username, returnUrl = returnUrl });
+                    return RedirectToAction("AccountInformation", new { userName = model.Username, returnUrl = returnUrl });
                 }
                 ModelState.AddModelError(String.Empty, "مشکل در بروزرسانی اطلاعات کاربر.");
                 return View(model);
             }
             return View(model);
 
-        }
-
-
-
-        /*
-         * Used to change email
-         */
-        [HttpGet]
-        public async Task<IActionResult> Email(string userName, string returnUrl = null)
-        {
-            ViewData["ReturnUrl"] = returnUrl;
-            if (!User.IsInRole("Admin") && User.Identity.Name != userName)
-                return View("_AccessDenied");
-            var user = await _userManager.FindByNameAsync(userName);
-            var model = new ChangeEmailViewModel
-            {
-                Email = user.Email
-            };
-            ViewData["UserName"] = userName;
-            return View(model);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Email(ChangeEmailViewModel model, string returnUrl = null)
-        {
-            ViewData["ReturnUrl"] = returnUrl;
-            ViewData["UserName"] = model.Username;
-            var user = await _userManager.FindByNameAsync(model.Username);
-            if (user != null)
-            {
-                user.Email = model.Email;
-                var result = await _userManager.UpdateAsync(user);
-                if (result.Succeeded)
-                    return RedirectToAction("Index", new { userName = model.Username, returnUrl = returnUrl });
-                ModelState.AddModelError(String.Empty, "مشکل در بروزرسانی اطلاعات کاربر.");
-                return View(model);
-            }
-            return View(model);
         }
 
 
@@ -185,13 +147,26 @@ namespace coReport.Controllers
         {
             ViewData["ReturnUrl"] = returnUrl;
             ViewData["UserName"] = model.Username;
-            model.Roles = _roleManager.GetRolesSelectList();
             if (model.IsBanned && model.BanEnd < DateTime.Now)
             {
                 ModelState.AddModelError(String.Empty, "زمان وارد شده گذشته است.");
                 return View(model);
             }
             var user = await _userManager.FindByNameAsync(model.Username);
+            var allManagers = await _userManager.GetUsersInRoleAsync("Manager");
+            var managerViewModels = new List<UserViewModel>();
+            foreach (var manager in allManagers.Where(m => m.Id != user.Id).ToList())
+            {
+                managerViewModels.Add(new UserViewModel
+                {
+                    Id = manager.Id,
+                    FirstName = manager.FirstName,
+                    LastName = manager.LastName
+                });
+            }
+            model.Managers = managerViewModels;
+            model.Roles = _roleManager.GetRolesSelectList();
+
             if (user != null)
             {
                 user.IsBanned = model.IsBanned;
@@ -210,7 +185,7 @@ namespace coReport.Controllers
                 //applying user update
                 var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)
-                    return RedirectToAction("Index", new { userName = model.Username, returnUrl = returnUrl });
+                    return RedirectToAction("AccountInformation", new { userName = model.Username, returnUrl = returnUrl });
                 ModelState.AddModelError(String.Empty, "مشکل در بروزرسانی اطلاعات کاربر.");
                 return View(model);
             }
@@ -247,7 +222,7 @@ namespace coReport.Controllers
                 if (result.Succeeded)
                 {
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction(nameof(Index), new {userName =  model.Username, returnUrl = returnUrl });
+                    return RedirectToAction("AccountInformation", new {userName =  model.Username, returnUrl = returnUrl });
                 }
                 foreach (var error in result.Errors)
                 {

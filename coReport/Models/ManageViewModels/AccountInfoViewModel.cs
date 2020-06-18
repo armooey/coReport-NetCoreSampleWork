@@ -6,12 +6,13 @@ using coReport.CustomValidation;
 
 namespace coReport.Models.ManageViewModels
 {
-    public class IndexViewModel
+    public class AccountInfoViewModel
     {
         public String Username { get; set; }
 
         [Display(Name = "عکس پروفایل")]
-        [ImageValidation(ErrorMessage = "فرمت مناسبی برای تصویر انتخاب کنید.")]
+        [ImageFormatValidation(ErrorMessage = "فرمت مناسبی برای تصویر انتخاب کنید.")]
+        [ImageSizeValidation(ErrorMessage = "سایز تصویر انتخابی باید کمتر از 100 کیلوبایت باشد.")]
         public IFormFile Image { get; set; }
 
         [Display(Name = "شماره تلفن", Prompt =("09xx-xxx-xxxx"))]
@@ -21,6 +22,12 @@ namespace coReport.Models.ManageViewModels
 
         public String PhoneNumber { get; set; }
 
+
+        [Required(ErrorMessage = "تکمیل فیلد ایمیل اجباری است.")]
+        [EmailAddress(ErrorMessage = "لطفا یک ایمیل صحیح وارد کنید.")]
+        [Display(Name = "ایمیل")]
+        public String Email { get; set; }
+
         [Required(ErrorMessage = "تکمیل فیلد نام اجباری است.")]
         [Display(Name = "نام")]
         public String FirstName { get; set; }
@@ -29,6 +36,6 @@ namespace coReport.Models.ManageViewModels
         [Display(Name = "نام خانوادگی")]
         public String LastName { get; set; }
 
-        public String ProfileImageName { get; set; }
+        public bool HasImage { get; set; }
     }
 }

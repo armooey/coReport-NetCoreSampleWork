@@ -6,7 +6,7 @@
 }
 
 
-    <div class="col-md-6 p-2 box-widget" style="margin: auto; margin-top: 10%;">
+    <div class="col-md-7 p-2 box-widget" style="margin: auto; margin-top: 10%;">
         <form id="register" asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]"
               method="post" class="form-horizontal" enctype="multipart/form-data" role="form">
             <h4 class="text-center">ثبت نام</h4>
@@ -73,6 +73,7 @@
                             <div class="col-md">
                                 <input asp-for="Image" class="form-control" />
                                 <span asp-validation-for="Image" class="text-danger small"></span>
+                                <p class="small text-muted">سایز فایل انتخابی باید کمتر از 100 کیلوبایت باشد.</p>
                             </div>
                         </div>
                     </div>

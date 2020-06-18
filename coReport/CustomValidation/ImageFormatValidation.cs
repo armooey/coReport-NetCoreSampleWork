@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace coReport.CustomValidation
 {
     //Custom Validation for Image Extension
-    public class ImageValidation: ValidationAttribute
+    public class ImageFormatValidation: ValidationAttribute
     {
         public override bool IsValid(object value)
         {

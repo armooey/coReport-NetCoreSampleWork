@@ -250,13 +250,25 @@ namespace coReport.Controllers
         /*
          * Used for getting current user profile image.
          */
-        public async Task<IActionResult> GetUserImage(String imageName = null) 
+        public async Task<IActionResult> GetUserImage(String username = null) 
         {
-            if (imageName == null)
+            String imageName = String.Empty;
+            if (username != null)
+            {
+                if (User.Identity.Name == username || User.Identity.Name == "admin")
+                {
+                    var user = await _userManager.FindByNameAsync(username);
+                    imageName = user.ProfileImageName;
+                }
+                else
+                    return View("_AccessDenied");
+
+            }
+            else
             {
                 var user = await _userManager.GetUserAsync(User);
                 imageName = user.ProfileImageName;
-            } 
+            }
 
             byte[] image;
             try

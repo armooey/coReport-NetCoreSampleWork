@@ -6,9 +6,9 @@
     <div class="col">
         <div class="media">
             <span class="float-right">
-                @if (Model.ProfileImageName != null)
+                @if (Model.HasImage)
                 {
-                    <img class=" img rounded-circle" src="@Url.Action("GetUserImage", "Account", new { imageName = Model.ProfileImageName })"
+                    <img class=" img rounded-circle" src="@Url.Action("GetUserImage", "Account", new { username = Model.Username })"
                          style="width: 70px;height:70px;">
                 }
                 else
@@ -22,7 +22,7 @@
                 <button class="float-left btn btn-danger span-control" style="margin-top:-10px" onclick="DeleteUser(@Model.Id)">
                     <i class="fas fa-trash-alt"></i> حذف
                 </button>
-                <a class="float-left btn btn-primary span-control" style="margin-top:-10px" asp-action="Index" asp-controller="Manage"
+                <a class="float-left btn btn-primary span-control" style="margin-top:-10px" asp-action="AccountInformation" asp-controller="Manage"
                    asp-route-userName="@Model.Username" asp-route-returnUrl="@Url.Action("ManageUsers","Admin")">
                     <i class="fas fa-edit"></i> ویرایش
                 </a>

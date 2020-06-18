@@ -20,7 +20,6 @@ namespace coReport.Models.ManageViewModels
         public List<short> ManagerIds { get; set; }
 
         [Display(Name ="زمان پایان منع کاربر")]
-        [Required]
         public DateTime BanEnd { get; set; }
 
         [Display(Name ="منع کاربر")]

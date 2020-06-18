@@ -13,7 +13,7 @@ namespace coReport.Models.AccountViewModels
         public String FirstName { get; set; }
         public String LastName { get; set; }
         public String Email { get; set; }
-        public String ProfileImageName { get; set; }
+        public bool HasImage { get; set; }
         public String Role { get; set; }
         public String RoleName { get; set; }
         public bool IsActive { get; set; }

@@ -131,7 +131,7 @@ namespace coReport.Controllers
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     Email = user.Email,
-                    ProfileImageName = user.ProfileImageName,
+                    HasImage = user.ProfileImageName != null ? true : false,
                     Role = userRole,
                     RoleName = userRole == "Manager" ? AppSettingInMemoryDatabase.MANAGER_ROLE_NAME :
                                             AppSettingInMemoryDatabase.EMPLOYEE_ROLE_NAME,

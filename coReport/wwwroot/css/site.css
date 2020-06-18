@@ -322,6 +322,10 @@ label{
     max-height: 500px;
 }
 
+    .popover input {
+        direction: ltr;
+    }
+
 .tree, .tree ul {
     margin: 0;
     padding: 0;
