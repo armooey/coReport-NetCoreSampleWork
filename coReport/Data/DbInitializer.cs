@@ -48,6 +48,7 @@ namespace coReport.Data
                 var adminUser = new ApplicationUser
                 {
                     UserName = AppSettingInMemoryDatabase.ADMIN_USERNAME,
+                    FirstName = "ادمین",
                     Email = "admin@email.com",
                     IsActive = true
                 };

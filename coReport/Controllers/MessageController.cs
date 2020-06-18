@@ -27,6 +27,28 @@ namespace coReport.Controllers
             return Json(result);
         }
 
+
+        public IActionResult SendMessage(String messageTitle, IEnumerable<short> receivers, String messageText)
+        {
+            short ADMIN_ID = 1;
+            var message = new Message { 
+                Title = messageTitle,
+                SenderId = ADMIN_ID,
+                Type = MessageType.Message,
+                Text = messageText,
+                Time = DateTime.Now
+            };
+            
+            var result = _messageService.Add(message, receivers);
+            if (!result)
+            {
+                var model = new ErrorViewModel { Error = "مشکل در ارسال پیام" };
+                return RedirectToAction("Error", "Home", model);
+            }
+            return RedirectToAction("AdminPanel", "Admin");
+        }
+
+
         //Get message text and flag message as viewed
         public async Task<IActionResult> ViewMessage(short id)
         {

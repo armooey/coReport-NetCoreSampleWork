@@ -29,6 +29,7 @@ namespace coReport.Controllers
         private IManagerData _managerData;
         private IReportData _reportData;
         private IManagerReportData _managerReportData;
+        private IMessageService _messageService;
 
         public ManagerController(UserManager<ApplicationUser> userManager, IReportData reportData,
             IManagerReportData managerReportData,
@@ -41,6 +42,7 @@ namespace coReport.Controllers
             _managerData = managerData;
             _reportData = reportData;
             _managerReportData = managerReportData;
+            _messageService = messageService;
         }
 
         public async Task<IActionResult> ManageReports(String nav)
@@ -70,7 +72,7 @@ namespace coReport.Controllers
             {
                 ManagerId = manager.Id,
                 UserReports = userReportViewModels,
-                Messages = new List<MessageViewModel>()
+                Messages = SystemOperations.GetMessageViewModels(_messageService, manager.Id)
             };
             return View(reportsViewModel);
         }

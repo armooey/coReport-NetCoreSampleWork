@@ -292,6 +292,18 @@ namespace coReport.Controllers
         }
 
 
+        public IActionResult GetUsers()
+        {
+            var users = _userManager.Users.Where(u => u.UserName != "admin");
+            var userViewModels = new List<KeyValuePair<short, String>>();
+            foreach (var user in users)
+            {
+                userViewModels.Add(new KeyValuePair<short, string>(user.Id, user.FirstName + " " + user.LastName));
+            }
+            return Json(userViewModels);
+        }
+
+
         #region Helpers
 
         private IActionResult RedirectToLocal(string returnUrl)

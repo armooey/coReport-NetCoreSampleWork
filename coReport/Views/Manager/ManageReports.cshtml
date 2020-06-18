@@ -6,6 +6,7 @@
 }
 
 <link href="~/lib/date-picker/jquery.md.bootstrap.datetimepicker.style.css" rel="stylesheet" />
+<link href="~/lib/quill/quill.bubble.css" rel="stylesheet" />
 <div class="row">
     <button class="btn btn-info mr-4" data-toggle="modal" data-target="#daily_report">گزارش روزانه</button>
     <button class="btn btn-info mr-1" data-toggle="modal" data-target="#cumulative_report">گزارش تجمیعی</button>
@@ -99,41 +100,41 @@
 </div>
 
 <div id="cumulative_report" class="modal fade">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h6>دریافت گزارش تجمیعی</h6>
-                </div>
-                <form asp-action="GetCumulativeReport" id="cumulative_form" method="post" role="form">
-                    <input id="downloadToken_cumulative" name="token" hidden />
-                    <div class="row mt-1">
-                        <div class="col-md form-group" id="from_date_field">
-                            <label class="col-md control-label">از تاریخ</label>
-                            <div class="col-md">
-                                <input type="text" hidden id="fromDate" name="fromDate" class="form-control" />
-                                <input type="text" name="fromDate_text" id="fromDate_text" autocomplete="off"
-                                       data-val="true" data-val-required="این فیلد اجباری است." class="form-control" />
-                                <span class="text-danger field-validation-valid" data-valmsg-for="fromDate_text" data-valmsg-replace="true"></span>
-                            </div>
-                        </div>
-                        <div class="col-md form-group" id="to_date_field">
-                            <label class="col-md control-label">تا تاریخ</label>
-                            <div class="col-md">
-                                <input type="text" hidden id="toDate" name="toDate" class="form-control" />
-                                <input type="text" name="toDate_text" id="toDate_text" autocomplete="off"
-                                       data-val="true" data-val-required="این فیلد اجباری است." class="form-control" />
-                                <span class="text-danger field-validation-valid" data-valmsg-for="toDate_text" data-valmsg-replace="true"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
-                        <button type="submit" class="btn btn-primary">ثبت</button>
-                    </div>
-                </form>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6>دریافت گزارش تجمیعی</h6>
             </div>
+            <form asp-action="GetCumulativeReport" id="cumulative_form" method="post" role="form">
+                <input id="downloadToken_cumulative" name="token" hidden />
+                <div class="row mt-1">
+                    <div class="col-md form-group" id="from_date_field">
+                        <label class="col-md control-label">از تاریخ</label>
+                        <div class="col-md">
+                            <input type="text" hidden id="fromDate" name="fromDate" class="form-control" />
+                            <input type="text" name="fromDate_text" id="fromDate_text" autocomplete="off"
+                                   data-val="true" data-val-required="این فیلد اجباری است." class="form-control" />
+                            <span class="text-danger field-validation-valid" data-valmsg-for="fromDate_text" data-valmsg-replace="true"></span>
+                        </div>
+                    </div>
+                    <div class="col-md form-group" id="to_date_field">
+                        <label class="col-md control-label">تا تاریخ</label>
+                        <div class="col-md">
+                            <input type="text" hidden id="toDate" name="toDate" class="form-control" />
+                            <input type="text" name="toDate_text" id="toDate_text" autocomplete="off"
+                                   data-val="true" data-val-required="این فیلد اجباری است." class="form-control" />
+                            <span class="text-danger field-validation-valid" data-valmsg-for="toDate_text" data-valmsg-replace="true"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                    <button type="submit" class="btn btn-primary">ثبت</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
 <div class="modal fade" id="report_loading" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -156,14 +157,43 @@
     </div>
 </div>
 
+
+<div id="view_message" class="modal fade">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white rounded-0">
+                <div id="message_title" class="col-text-2 font-weight-bold"></div>
+                <div class="col-md text-danger" hidden><i class="fas fa-exclamation-triangle"></i><span id="message_warning"></span></div>
+                <div class="col-md-5"><i class="fas fa-user"></i><span id="message_sender"></span></div>
+                <div class="col-md float-left">
+                    <i class="fas fa-calendar-alt"></i><span id="message_date"></span>
+                    <i class="far fa-clock"></i><span id="message_time"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md">
+                    <div id="quill_text" style="border:none"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section scripts
 {
     <script src="~/lib/popper.js/umd/popper.min.js"></script>
     <script src="~/lib/bootbox.js/bootbox.min.js"></script>
+    <script src="~/lib/quill/quill.js"></script>
     <script src="~/lib/date-picker/jquery.md.bootstrap.datetimepicker.js"></script>
     <script>
 
         $(document).ready(function () {
+            $('.seen-False').attr('style', 'border: 2px solid !important');
+            $('.ql-editor').attr('style', 'border: none !important');
 
             $('#date_field').MdPersianDateTimePicker({
                 targetTextSelector: '#date_text',
@@ -215,6 +245,68 @@
 
         });
 
+        function ViewMessage(id) {
+            $.ajax({
+                url: "@Url.Action("ViewMessage","Message")",
+                data: { id: id }
+            }).done(function (ajaxResult) {
+                if (ajaxResult == null) {
+                    bootbox.alert({
+                        closeButton: false,
+                        message: "هنگام مشاهده پیام مشکلی پیش آمده لطفا مجددا سعی کنید.",
+                        buttons: {
+                            ok: {
+                                label: 'بستن'
+                            }
+                        }
+                    });
+                }
+                else {
+                    $('#message_title').text(' ' + ajaxResult[0]);
+                    if (ajaxResult[1] == 'اخطار سیستمی') {
+                        $('#message_warning').parent().prop('hidden', false);
+                        $('#message_sender').parent().prop('hidden', true);
+                        $('#message_warning').text(' ' + ajaxResult[1]);
+                    }
+                    else {
+                        $('#message_warning').parent().prop('hidden', true);
+                        $('#message_sender').parent().prop('hidden', false);
+                        $('#message_sender').text(' ' + ajaxResult[1]);
+                    }
+
+                    $('#message_date').text(' ' + ajaxResult[2]);
+                    $('#message_time').text(' ' + ajaxResult[3]);
+                    quill.setContents(jQuery.parseJSON(ajaxResult[4]));
+                    $('#view_message').modal('show');
+                    $('#message_' + id).attr('style', 'border: 1px solid !important');
+                }
+            }).fail(function () {
+                bootbox.alert({
+                    closeButton: false,
+                    message: "خطای ارتباط با سرور.",
+                    buttons: {
+                        ok: {
+                            label: 'بستن'
+                        }
+                    }
+                });
+            });
+        }
+
+        //Quil rich text initialization
+        var FontAttributor = Quill.import('attributors/class/font');
+        FontAttributor.whitelist = [
+            'arial', 'default', 'times-new-roman'
+        ];
+        var Size = Quill.import('attributors/style/size');
+        Size.whitelist = ['12px', '15px', '18px', '20px'];
+        Quill.register(Size, true);
+        Quill.register(FontAttributor, true);
+        var quill = new Quill('#quill_text', {
+            theme: 'bubble',
+            readOnly: true
+        });
+
         //Functions for checking start of a download
         function getCookie(name) {
             var parts = document.cookie.split(name + "=");
@@ -239,7 +331,7 @@
         var downloadTimer;
         var attempts = 30;
 
-      // Prevents double-submits by waiting for a cookie from the server.
+        // Prevents double-submits by waiting for a cookie from the server.
         function showLoading() {
             var downloadToken = setFormToken();
             $('#report_loading').modal('toggle');

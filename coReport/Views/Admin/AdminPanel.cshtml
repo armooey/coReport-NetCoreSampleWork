@@ -8,6 +8,7 @@
 <link href="~/lib/Chart.js/Chart.min.css" rel="stylesheet" />
 <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
 <link href="~/lib/quill/quill.bubble.css" rel="stylesheet" />
+<link href="~/lib/quill/quill.snow.css" rel="stylesheet" />
 <div>
 
     <div class="row" style="margin-top:40px">
@@ -18,7 +19,8 @@
             <canvas height="300" width="500" id="reportsChart"></canvas>
         </div>
         <div class="col-md border border-dark p-2 box-widget-scrollable">
-            <h6><b>پیام ها</b></h6>
+            <span><b>پیام ها</b></span>
+            <button class="btn btn-primary btn-sm float-left" onclick="FetchUsers()">ارسال پیام</button>
             <hr />
             @if (Model.Messages.Count() == 0)
             {
@@ -196,7 +198,7 @@
                             foreach (var subactivity in activity.SubActivities)
                             {
                                 @if (!subactivity.IsDeleted)
-                                { 
+                                {
                                     <option value="@subactivity.Id">&emsp;&emsp;@subactivity.Name</option>
                                 }
                             }
@@ -239,6 +241,43 @@
     </div>
 </div>
 
+<div id="send_message" class="modal fade">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6>ارسال پیام</h6>
+            </div>
+            <form asp-action="SendMessage" asp-controller="Message" id="messageForm" method="post" role="form">
+                <div class="form-group">
+                    <label id="activity_name" class="col-md-4 control-label">عنوان</label>
+                    <div class="col-md-6">
+                        <input type="text" name="messageTitle" data-val="true" data-val-required="فیلد عنوان اجباری است." class="form-control" />
+                        <span class="text-danger field-validation-valid" data-valmsg-for="messageTitle" data-valmsg-replace="true"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label">ارسال به</label>
+                    <div class="col-md-6">
+                        <select id="user_select" style="width:100%" name="receivers" data-val="true" data-val-required="فیلد دریافت کنندگان اجباری است." class="form-control" multiple>
+                        </select>
+                        <span class="text-danger field-validation-valid" data-valmsg-for="receivers" data-valmsg-replace="true"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md">
+                        <textarea id="message" hidden name="messageText"></textarea>
+                        <div id="message_text"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                    <button type="button" onclick="SendMessage()" class="btn btn-primary">ارسال</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section scripts
 {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
@@ -258,6 +297,11 @@
             });
             $('#activity_select_for_delete').select2({
                 placeholder: 'فعالیتی که می‌خواهید حذف کنید را انتخاب کنید...',
+                dir: 'rtl',
+                language: 'fa'
+            });
+
+            $('#user_select').select2({
                 dir: 'rtl',
                 language: 'fa'
             });
@@ -292,6 +336,25 @@
         var quill = new Quill('#quill_text', {
             theme: 'bubble',
             readOnly: true
+        });
+
+        var toolbarOptions = [
+            [{ 'font': ['arial', 'default', 'times-new-roman'] }],
+            [{ 'size': ['12px', '15px', '18px', '20px'] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'align': [] }],
+            [{ 'direction': 'rtl' }],
+            [{ 'color': [] }, { 'background': [] }],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            [{ 'header': [1, 2, 3, false] }],
+            ['code-block']
+        ];
+
+        var message_editor = new Quill('#message_text', {
+            modules: {
+                toolbar: toolbarOptions
+            },
+            theme: 'snow'
         });
 
         //Function for creating collapsable treeview
@@ -388,6 +451,37 @@
                 }
             }
         });
+
+        function FetchUsers()
+        {
+            $.ajax({
+                url: "@Url.Action("GetUsers","Account")"
+            }).done(function (ajaxResult) {
+                if (ajaxResult.length != 0) {
+                    ajaxResult.forEach(function (element) {
+                        var option = new Option(element.Value, element.Key);
+                        $('#user_select').append(option).trigger('change');
+                    });
+                }
+                $('#send_message').modal('toggle');
+            }).fail(function () {
+                bootbox.alert({
+                    closeButton: false,
+                    message: "خطا در ارتباط با سرور!",
+                    buttons: {
+                        ok: {
+                            label: 'بستن'
+                        }
+                    }
+                });
+            });
+        }
+
+        function SendMessage()
+        {
+            $('#message').val(JSON.stringify(message_editor.getContents()));
+            $('#messageForm').submit();
+        }
 
         function DeleteMessage(id) {
             bootbox.confirm({

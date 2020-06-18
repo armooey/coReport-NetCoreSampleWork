@@ -12,12 +12,16 @@
         {
             <h6 style="color:red"><i class="fas fa-exclamation-triangle"></i> <b>@Model.Title</b></h6>
         }
+        else if (Model.Type == MessageType.Message)
+        {
+            <h6><b>@Model.Title</b></h6>
+        }
 
         @if (Model.Type == MessageType.Manager_Review_Notification)
         {
             <span class="span-control"><i class="fas fa-user-tie"></i> @Model.AuthorName</span>
         }
-        else if (Model.Type != MessageType.Warning)
+        else if (Model.Type != MessageType.Warning || Model.Type == MessageType.Message)
         {
             <span class="span-control"> @Model.AuthorName</span>
         }
