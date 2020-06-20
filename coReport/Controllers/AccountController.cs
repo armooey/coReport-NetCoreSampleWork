@@ -292,9 +292,10 @@ namespace coReport.Controllers
         }
 
 
-        public IActionResult GetUsers()
+        public async Task<IActionResult> GetUsers()
         {
-            var users = _userManager.Users.Where(u => u.UserName != "admin");
+            var currentUser = await _userManager.GetUserAsync(User);
+            var users = _userManager.Users.Where(u => u.Id != currentUser.Id);
             var userViewModels = new List<KeyValuePair<short, String>>();
             foreach (var user in users)
             {

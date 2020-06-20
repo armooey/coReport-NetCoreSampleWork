@@ -82,6 +82,7 @@
     <div class="container">
         <form id="manager_report" asp-controller="Report" asp-action="CreateManagerReport" method="post" class="form-horizontal" role="form">
             <input asp-for="UserReport.Id" hidden />
+            <input asp-for="UserReport.Title" hidden />
             <input asp-for="UserReport.Author.Id" hidden />
             <input asp-for="UserReport.Author.FirstName" hidden />
             <input asp-for="UserReport.Author.LastName" hidden />

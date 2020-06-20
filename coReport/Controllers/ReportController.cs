@@ -317,7 +317,7 @@ namespace coReport.Controllers
                 {
                     var message = new Message
                     {
-                        Title = "گزارش مدیر",
+                        Title = "گزارش مدیر :: " + model.UserReport.Title,
                         Text = model.Text,
                         Sender = manager,
                         Type = MessageType.Manager_Review_Notification,

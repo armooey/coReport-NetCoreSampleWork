@@ -6,12 +6,14 @@
 }
 
 <link href="~/lib/quill/quill.bubble.css" rel="stylesheet" />
+<link href="~/lib/quill/quill.snow.css" rel="stylesheet" />
+<link href="~/lib/select2/css/select2.css" rel="stylesheet" />
 <div class="row">
     <div class="col-md p-3 box-widget-scrollable" style="height:600px; max-height:600px">
         <span><b>گزارشات</b></span>
         <a asp-action="Create" asp-controller="Report" class="btn btn-primary btn-sm float-left">ایجاد گزارش</a>
-        <input type="text" id="search_field" placeholder="جستجو" 
-               class="input-group-sm ml-1 float-left searchbox border-dark rounded" style="padding:3px"/>
+        <input type="text" id="search_field" placeholder="جستجو"
+               class="input-group-sm ml-1 float-left searchbox border-dark rounded" style="padding:3px" />
         <hr />
         @if (Model.Reports.Count() == 0)
         {
@@ -27,7 +29,8 @@
         }
     </div>
     <div class="col-md p-3 box-widget-scrollable" style="height:600px; max-height:600px">
-        <h6><b>پیام ها</b></h6>
+        <span><b>پیام ها</b></span>
+        <button class="btn btn-primary btn-sm float-left" onclick="FetchUsers()">ارسال پیام</button>
         <hr />
         @if (Model.Messages.Count() == 0)
         {
@@ -49,23 +52,59 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white rounded-0">
-                <div id="message_title" class="col-text-2 font-weight-bold"></div>
-                <div class="col-md text-danger" hidden><i class="fas fa-exclamation-triangle"></i><span id="message_warning"></span></div>
-                <div class="col-md-5"><i class="fas fa-user"></i><span id="message_sender"></span></div>
-                <div class="col-md float-left">
-                    <i class="fas fa-calendar-alt"></i><span id="message_date"></span>
-                    <i class="far fa-clock"></i><span id="message_time"></span>
-                </div>
+                <div><i class="fas fa-envelope"></i> <span id="message_title"></span></div>
+                <div class="text-danger" hidden><i class="fas fa-exclamation-triangle"></i><span id="message_warning"></span></div>
+                <div><i class="fas fa-user"></i><span id="message_sender"></span></div>
             </div>
 
             <div class="form-group">
                 <div class="col-md">
-                    <div id="quill_text" style="border:none"></div>
+                    <div id="read_message_editor"></div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<div id="send_message" class="modal fade">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6>ارسال پیام</h6>
+            </div>
+            <form asp-action="SendMessage" asp-controller="Message" asp-route-returnUrl="@Url.Action("ManageReports","Account")"
+                  id="messageForm" method="post" role="form">
+                <div class="form-group">
+                    <label id="activity_name" class="col-md-4 control-label">عنوان</label>
+                    <div class="col-md-6">
+                        <input type="text" name="messageTitle" data-val="true" data-val-required="فیلد عنوان اجباری است." class="form-control" />
+                        <span class="text-danger field-validation-valid" data-valmsg-for="messageTitle" data-valmsg-replace="true"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-4 control-label">ارسال به</label>
+                    <div class="col-md-6">
+                        <select id="user_select" style="width:100%" name="receivers" data-val="true" data-val-required="فیلد دریافت کنندگان اجباری است." class="form-control" multiple>
+                        </select>
+                        <span class="text-danger field-validation-valid" data-valmsg-for="receivers" data-valmsg-replace="true"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md">
+                        <textarea id="message" hidden name="messageText"></textarea>
+                        <textarea id="message_raw_text" hidden name="messageRaw" data-val="true" data-val-required="متن پیام اجباری است."></textarea>
+                        <div id="send_message_editor"></div>
+                        <span class="text-danger field-validation-valid" data-valmsg-for="messageRaw" data-valmsg-replace="true"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+                    <button type="button" onclick="SendMessage()" class="btn btn-primary">ارسال</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -76,11 +115,17 @@
     <script src="~/lib/popper.js/umd/popper.min.js"></script>
     <script src="~/lib/bootbox.js/bootbox.min.js"></script>
     <script src="~/lib/quill/quill.js"></script>
+    <script src="~/lib/select2/js/select2.min.js"></script>
+    <script src="~/lib/select2/js/i18n/fa.js"></script>
     <script>
         $(document).ready(function(){
             $('.seen-False').attr('style', 'border: 2px solid !important');
             $('.ql-editor').attr('style', 'border: none !important');
 
+            $('#user_select').select2({
+                dir: 'rtl',
+                language: 'fa'
+            });
             //Perform dynamic search on reports
             function Contains(fisrtText, secondText)
             {
@@ -110,9 +155,28 @@
         Size.whitelist = ['12px', '15px', '18px', '20px'];
         Quill.register(Size, true);
         Quill.register(FontAttributor, true);
-        var quill = new Quill('#quill_text', {
+        var quill = new Quill('#read_message_editor', {
             theme: 'bubble',
             readOnly: true
+        });
+
+        var toolbarOptions = [
+            [{ 'font': ['arial', 'default', 'times-new-roman'] }],
+            [{ 'size': ['12px', '15px', '18px', '20px'] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'align': [] }],
+            [{ 'direction': 'rtl' }],
+            [{ 'color': [] }, { 'background': [] }],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            [{ 'header': [1, 2, 3, false] }],
+            ['code-block']
+        ];
+
+        var message_editor = new Quill('#send_message_editor', {
+            modules: {
+                toolbar: toolbarOptions
+            },
+            theme: 'snow'
         });
 
         function NotDeletableAlert()
@@ -205,6 +269,38 @@
                 }
             });
         }
+
+        function FetchUsers() {
+            $.ajax({
+                url: "@Url.Action("GetUsers","Account")"
+            }).done(function (ajaxResult) {
+                if (ajaxResult.length != 0) {
+                    ajaxResult.forEach(function (element) {
+                        var option = new Option(element.Value, element.Key);
+                        $('#user_select').append(option).trigger('change');
+                    });
+                }
+                $('#send_message').modal('toggle');
+            }).fail(function () {
+                bootbox.alert({
+                    closeButton: false,
+                    message: "خطا در ارتباط با سرور!",
+                    buttons: {
+                        ok: {
+                            label: 'بستن'
+                        }
+                    }
+                });
+            });
+        }
+
+        function SendMessage()
+        {
+            $('#message').val(JSON.stringify(message_editor.getContents()));
+            $('#message_raw_text').val(message_editor.getText());
+            $('#messageForm').submit();
+        }
+
         function ViewMessage(id) {
             $.ajax({
                 url: "@Url.Action("ViewMessage","Message")",
@@ -235,10 +331,8 @@
                         $('#message_sender').parent().prop('hidden', false);
                         $('#message_sender').text(' ' + ajaxResult[1]);
                     }
-                    
-                    $('#message_date').text(' ' + ajaxResult[2]);
-                    $('#message_time').text(' ' + ajaxResult[3]);
-                    quill.setContents(jQuery.parseJSON(ajaxResult[4]));
+
+                    quill.setContents(jQuery.parseJSON(ajaxResult[2]));
                     $('#view_message').modal('show');
                     $('#message_' + id).attr('style', 'border: 1px solid !important');
                 }

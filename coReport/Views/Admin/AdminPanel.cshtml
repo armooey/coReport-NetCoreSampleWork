@@ -221,17 +221,12 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white rounded-0">
-                <div id="message_title" class="col-text-2 font-weight-bold"></div>
-                <div class="col-md text-danger" hidden><i class="fas fa-exclamation-triangle"></i><span id="message_warning"></span></div>
-                <div class="col-md-5"><i class="fas fa-user"></i><span id="message_sender"></span></div>
-                <div class="col-md float-left">
-                    <i class="fas fa-calendar-alt"></i><span id="message_date"></span>
-                    <i class="far fa-clock"></i><span id="message_time"></span>
-                </div>
+                <div><i class="fas fa-envelope"></i> <span id="message_title"></span></div>
+                <div><i class="fas fa-user"></i> <span id="message_sender"></span></div>
             </div>
             <div class="form-group">
                 <div class="col-md">
-                    <div id="quill_text"></div>
+                    <div id="read_message_editor"></div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -247,7 +242,8 @@
             <div class="modal-header">
                 <h6>ارسال پیام</h6>
             </div>
-            <form asp-action="SendMessage" asp-controller="Message" id="messageForm" method="post" role="form">
+            <form asp-action="SendMessage" asp-controller="Message" asp-route-returnUrl="@Url.Action("AdminPanel","Admin")"
+                  id="messageForm" method="post" role="form">
                 <div class="form-group">
                     <label id="activity_name" class="col-md-4 control-label">عنوان</label>
                     <div class="col-md-6">
@@ -266,7 +262,9 @@
                 <div class="form-group">
                     <div class="col-md">
                         <textarea id="message" hidden name="messageText"></textarea>
-                        <div id="message_text"></div>
+                        <textarea id="message_raw_text" hidden name="messageRaw" data-val="true" data-val-required="متن پیام اجباری است."></textarea>
+                        <div id="send_message_editor"></div>
+                        <span class="text-danger field-validation-valid" data-valmsg-for="messageRaw" data-valmsg-replace="true"></span>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -333,7 +331,7 @@
         Size.whitelist = ['12px', '15px', '18px', '20px'];
         Quill.register(Size, true);
         Quill.register(FontAttributor, true);
-        var quill = new Quill('#quill_text', {
+        var quill = new Quill('#read_message_editor', {
             theme: 'bubble',
             readOnly: true
         });
@@ -350,7 +348,7 @@
             ['code-block']
         ];
 
-        var message_editor = new Quill('#message_text', {
+        var message_editor = new Quill('#send_message_editor', {
             modules: {
                 toolbar: toolbarOptions
             },
@@ -480,6 +478,7 @@
         function SendMessage()
         {
             $('#message').val(JSON.stringify(message_editor.getContents()));
+            $('#message_raw_text').val(message_editor.getText());
             $('#messageForm').submit();
         }
 
@@ -543,9 +542,7 @@
                 else {
                     $('#message_title').text(' ' + ajaxResult[0]);
                     $('#message_sender').text(' ' + ajaxResult[1]);
-                    $('#message_date').text(' ' + ajaxResult[2]);
-                    $('#message_time').text(' ' + ajaxResult[3]);
-                    quill.setContents(jQuery.parseJSON(ajaxResult[4]));
+                    quill.setContents(jQuery.parseJSON(ajaxResult[2]));
                     $('#view_message').modal('show');
                     $('#message_' + id).attr('style', 'border: 1px solid !important');
                 }

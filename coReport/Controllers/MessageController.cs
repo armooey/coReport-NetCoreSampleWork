@@ -28,12 +28,12 @@ namespace coReport.Controllers
         }
 
 
-        public IActionResult SendMessage(String messageTitle, IEnumerable<short> receivers, String messageText)
+        public async Task<IActionResult> SendMessage(String messageTitle, IEnumerable<short> receivers, String messageText, String returnUrl)
         {
-            short ADMIN_ID = 1;
+            var user = await _userManager.GetUserAsync(User);
             var message = new Message { 
                 Title = messageTitle,
-                SenderId = ADMIN_ID,
+                SenderId = user.Id,
                 Type = MessageType.Message,
                 Text = messageText,
                 Time = DateTime.Now
@@ -45,7 +45,7 @@ namespace coReport.Controllers
                 var model = new ErrorViewModel { Error = "مشکل در ارسال پیام" };
                 return RedirectToAction("Error", "Home", model);
             }
-            return RedirectToAction("AdminPanel", "Admin");
+            return RedirectToLocal(returnUrl);
         }
 
 
@@ -54,7 +54,6 @@ namespace coReport.Controllers
         {
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
             var message = _messageService.Get(id);
-            var messageDate = message.Time.ToHijri();
             string senderName = string.Empty;
             if (message.Type == MessageType.Message ||
                     message.Type == MessageType.Manager_Review_Notification)
@@ -64,12 +63,23 @@ namespace coReport.Controllers
             else if (message.Type == MessageType.System_Notification)
                 senderName = "پیام سیستمی";
 
-            var messageData = new List<string> { message.Title, senderName,
-                                                 messageDate.GetDate(),messageDate.GetTime() , message.Text};
+            var messageData = new List<string> { message.Title, senderName , message.Text};
             var result = _messageService.SetViewed(id, user.Id);
             if (!result)
                 return Json(null);
             return Json(messageData);
+        }
+
+        private IActionResult RedirectToLocal(string returnUrl)
+        {
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            else
+            {
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
         }
     }
 }

@@ -26,11 +26,11 @@
             <span class="span-control"> @Model.AuthorName</span>
         }
         <span class="span-control"><small><i class="fas fa-calendar-alt"></i> @Model.Time.GetDate()</small></span>
-
-            <button onclick="ViewMessage(@Model.Id)"
-                    class="btn btn-primary float-left span-control" style="margin-top: -15px">
-                <i class="far fa-eye"></i> مشاهده
-            </button>
+        <span><small><i class="far fa-clock"></i> @Model.Time.GetTime()</small></span>
+        <button onclick="ViewMessage(@Model.Id)"
+                class="btn btn-primary float-left span-control" style="margin-top: -15px">
+            <i class="far fa-eye"></i> مشاهده
+        </button>
 
         @if (Model.Type != MessageType.Warning)
         {
