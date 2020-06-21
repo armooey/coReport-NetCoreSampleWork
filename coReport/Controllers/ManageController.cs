@@ -118,6 +118,7 @@ namespace coReport.Controllers
             var user = await _userManager.FindByNameAsync(userName);
             var managers = _managerData.GetManagers(user.Id).Select(m => m.Id).ToList();
             var allManagers = await _userManager.GetUsersInRoleAsync("Manager");
+            allManagers = allManagers.Where(m => !m.IsDeleted).ToList();
 
             var managerViewModels = new List<UserViewModel>();
             foreach (var manager in allManagers.Where(m => m.Id != user.Id).ToList())
@@ -150,6 +151,7 @@ namespace coReport.Controllers
 
             var user = await _userManager.FindByNameAsync(model.Username);
             var allManagers = await _userManager.GetUsersInRoleAsync("Manager");
+            allManagers = allManagers.Where(m => !m.IsDeleted).ToList();
             var managers = _managerData.GetManagers(user.Id).Select(m => m.Id).ToList();
             var managerViewModels = new List<UserViewModel>();
             model.Managers = managerViewModels;
