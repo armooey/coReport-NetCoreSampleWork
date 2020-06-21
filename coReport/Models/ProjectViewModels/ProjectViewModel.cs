@@ -13,7 +13,7 @@ namespace coReport.Models.ProjectViewModels
         [Required(ErrorMessage ="عنوان پروژه الزامی است.")]
         [Display(Name ="عنوان پروژه")]
         public String Title { get; set; }
-        public DateTime CreateDate { get; set; }
-        public DateTime? EndDate { get; set; }
+        public String CreateDate { get; set; }
+        public String EndDate { get; set; }
     }
 }

@@ -109,6 +109,8 @@ namespace coReport.Services
                 //Flag Manager reports that manager report author will be deleted or elements that report author will be deleted.
                 _context.ManagerReports.Where(mr => mr.AuthorId == id || mr.Report.AuthorId == id)
                     .Update(mr => new ManagerReport { IsDeleted = true });
+                //Flag Reports that author will be deleted.
+                _context.Reports.Where(r => r.AuthorId == id).Update(r => new Report { IsDeleted = true });
                 //Flag rows that manager will be deleted or user will be deleted.
                 _context.UserManagers.Where(um => um.ManagerId == id || um.UserId == id)
                     .Update(um => new UserManager { IsActive = false});

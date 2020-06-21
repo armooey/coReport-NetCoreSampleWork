@@ -72,7 +72,13 @@ namespace coReport.Controllers
                 if (result.Succeeded)
                 {
                     var user = await _userManager.FindByNameAsync(model.Username);
-                    if (user.IsBanned && user.BanEndTime > DateTime.Now) //If user is banned redirect to ban message
+                    if (user.IsDeleted) //If user account flagged as deleted
+                    {
+                        await _signInManager.SignOutAsync();
+                        ModelState.AddModelError(string.Empty, "نام کاربری/رمز عبور اشتباه است.");
+                        return View(model);
+                    }
+                    else if (user.IsBanned && user.BanEndTime > DateTime.Now) //If user is banned redirect to ban message
                     {
                         await _signInManager.SignOutAsync();
                         return View("Banned");

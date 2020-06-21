@@ -6,10 +6,10 @@
 <div class="border border-dark p-3 rounded card-widget ended-@isEnded">
     <div class="col">
         <span> <b>@Model.Title</b></span>
-        <span class="span-control"><i class="fas fa-calendar-alt"></i> @Model.CreateDate.Date.ToString("MM/dd/yyyy")</span>
+        <span class="span-control"><i class="fas fa-calendar-alt"></i> @Model.CreateDate</span>
         @if (Model.EndDate != null)
         {
-            <span class="span-control"><i class="fas fa-calendar-times"></i> @Model.EndDate.Value.Date.ToString("MM/dd/yyyy") </span>
+            <span class="span-control"><i class="fas fa-calendar-times"></i> @Model.EndDate</span>
         }
         else
         {

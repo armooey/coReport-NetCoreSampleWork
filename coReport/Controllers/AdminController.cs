@@ -89,8 +89,8 @@ namespace coReport.Controllers
                 projectViewModels.Add(new ProjectViewModel { 
                     Id = project.Id,
                     Title = project.Title,
-                    CreateDate = project.CreateDate,
-                    EndDate = project.EndDate
+                    CreateDate = project.CreateDate.ToHijri().GetDate(),
+                    EndDate = project.EndDate.HasValue ? project.EndDate.Value.ToHijri().GetDate() : null
                 });
             }
             foreach (var warning in warnings)
