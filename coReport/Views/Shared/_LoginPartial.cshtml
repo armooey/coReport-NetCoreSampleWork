@@ -15,19 +15,19 @@
                 <div class="dropdown-menu">
                     @if (User.IsInRole("Admin"))
                     {
-                        <a class="dropdown-item" asp-action="Index" asp-controller="Manage" 
+                        <a class="dropdown-item" asp-action="AccountInformation" asp-controller="Manage" 
                            asp-route-userName="@User.Identity.Name" asp-route-returnUrl="@Url.Action("AdminPanel", "Admin")"
                            title="Manage"><i class="fas fa-cog"></i> تنظیمات</a>
                     }
                     else if (User.IsInRole("Manager"))
                     {
-                        <a class="dropdown-item" asp-action="Index" asp-controller="Manage" 
+                        <a class="dropdown-item" asp-action="AccountInformation" asp-controller="Manage" 
                            asp-route-userName="@User.Identity.Name" asp-route-returnUrl="@Url.Action("ManageReports", "Manager")"
                             title="Manage"><i class="fas fa-cog"></i> تنظیمات</a>
                     }
                     else
                     {
-                        <a class="dropdown-item" asp-action="Index" asp-controller="Manage" 
+                        <a class="dropdown-item" asp-action="AccountInformation" asp-controller="Manage" 
                            asp-route-userName="@User.Identity.Name" asp-route-returnUrl="@Url.Action("ManageReports", "Account")"
                            title="Manage"><i class="fas fa-cog"></i> تنظیمات</a>
                     }
