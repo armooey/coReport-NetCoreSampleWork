@@ -48,6 +48,29 @@
 </div>
 
 
+<div class="modal" id="message_loading" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="sk-circle">
+                    <div class="sk-circle1 sk-child"></div>
+                    <div class="sk-circle2 sk-child"></div>
+                    <div class="sk-circle3 sk-child"></div>
+                    <div class="sk-circle4 sk-child"></div>
+                    <div class="sk-circle5 sk-child"></div>
+                    <div class="sk-circle6 sk-child"></div>
+                    <div class="sk-circle7 sk-child"></div>
+                    <div class="sk-circle8 sk-child"></div>
+                    <div class="sk-circle9 sk-child"></div>
+                    <div class="sk-circle10 sk-child"></div>
+                    <div class="sk-circle11 sk-child"></div>
+                    <div class="sk-circle12 sk-child"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="view_message" class="modal fade">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -302,10 +325,12 @@
         }
 
         function ViewMessage(id) {
+            $('#message_loading').modal('show');
             $.ajax({
                 url: "@Url.Action("ViewMessage","Message")",
                 data: { id: id }
             }).done(function (ajaxResult) {
+                $('#message_loading').modal('hide');
                 if (ajaxResult == null) {
                     bootbox.alert({
                         closeButton: false,
@@ -337,6 +362,7 @@
                     $('#message_' + id).attr('style', 'border: 1px solid !important');
                 }
             }).fail(function () {
+                $('#message_loading').modal('hide');
                 bootbox.alert({
                         closeButton: false,
                         message: "خطای ارتباط با سرور.",
