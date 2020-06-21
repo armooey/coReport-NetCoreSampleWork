@@ -147,14 +147,20 @@ namespace coReport.Controllers
         {
             ViewData["ReturnUrl"] = returnUrl;
             ViewData["UserName"] = model.Username;
+
+            var user = await _userManager.FindByNameAsync(model.Username);
+            var allManagers = await _userManager.GetUsersInRoleAsync("Manager");
+            var managers = _managerData.GetManagers(user.Id).Select(m => m.Id).ToList();
+            var managerViewModels = new List<UserViewModel>();
+            model.Managers = managerViewModels;
+            model.Roles = _roleManager.GetRolesSelectList();
+            model.ManagerIds = managers;
             if (model.IsBanned && model.BanEnd < DateTime.Now)
             {
                 ModelState.AddModelError(String.Empty, "زمان وارد شده گذشته است.");
                 return View(model);
             }
-            var user = await _userManager.FindByNameAsync(model.Username);
-            var allManagers = await _userManager.GetUsersInRoleAsync("Manager");
-            var managerViewModels = new List<UserViewModel>();
+
             foreach (var manager in allManagers.Where(m => m.Id != user.Id).ToList())
             {
                 managerViewModels.Add(new UserViewModel
@@ -164,8 +170,6 @@ namespace coReport.Controllers
                     LastName = manager.LastName
                 });
             }
-            model.Managers = managerViewModels;
-            model.Roles = _roleManager.GetRolesSelectList();
 
             if (user != null)
             {

@@ -8,6 +8,8 @@
 <link href="~/lib/date-picker/jquery.md.bootstrap.datetimepicker.style.css" rel="stylesheet" />
 
 <form asp-controller="Manage" asp-action="Administration" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal" role="form">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
     <div class="row">
         <div class="col-md">
             <div class="col-md">
@@ -41,7 +43,6 @@
                 <h5>مسدود کردن کاربر</h5>
             </div>
             <hr />
-            <div asp-validation-summary="All" class="text-danger"></div>
             <input asp-for="Username" hidden="hidden" class="form-control" />
 
 
@@ -80,13 +81,16 @@
             dir: 'rtl',
             language: 'fa'
         });
+
         $('#date_field').MdPersianDateTimePicker({
             targetTextSelector: '#bantime_text',
-            selectedDate: new Date('2019/7/7'),
             targetDateSelector: '#bantime',
+            disableBeforeToday: true,
             enableTimePicker: true
         });
         $(document).ready(function () {
+
+            $('#date_field').MdPersianDateTimePicker('setDate', new Date());
 
             if ($('#role_select').val() == 'Employee') {
                 $('#manager_multiselect').prop('disabled', false);
