@@ -267,7 +267,7 @@ namespace coReport.Controllers
                     imageName = user.ProfileImageName;
                 }
                 else
-                    return View("_AccessDenied");
+                    return RedirectToAction("AccessDenied","Home");
 
             }
             else

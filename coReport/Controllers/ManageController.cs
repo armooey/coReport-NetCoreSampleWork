@@ -53,7 +53,7 @@ namespace coReport.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             ViewData["UserName"] = userName;
             if(!User.IsInRole("Admin") && User.Identity.Name != userName)
-                return View("_AccessDenied");
+                return RedirectToAction("AccessDenied", "Home");
             var user = await _userManager.FindByNameAsync(userName);
 
             var model = new AccountInfoViewModel
@@ -205,7 +205,7 @@ namespace coReport.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             ViewData["UserName"] = userName;
             if(!User.IsInRole("Admin") && User.Identity.Name != userName)
-                return View("_AccessDenied");
+                return RedirectToAction("AccessDenied", "Home");
             return View();
         }
 

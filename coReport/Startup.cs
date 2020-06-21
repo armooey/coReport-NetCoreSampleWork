@@ -11,7 +11,6 @@ using coReport.Auth;
 using coReport.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.Features;
-
 namespace coReport
 {
     public class Startup
@@ -41,10 +40,11 @@ namespace coReport
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultUI()
                 .AddDefaultTokenProviders();
-            //setting default login url
+            //setting default urls
             services.PostConfigure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme, option => 
             {
                 option.LoginPath = "/Account/Login";
+                option.AccessDeniedPath = "/Home/AccessDenied";
             });
             services.AddControllersWithViews();
             services.AddTransient<IReportData, ReportData>();
@@ -82,6 +82,13 @@ namespace coReport
                 context.Database.Migrate();
             }
 
+            app.UseStatusCodePages(async context =>
+            {
+                if (context.HttpContext.Response.StatusCode == 404)
+                {
+                    context.HttpContext.Response.Redirect("/Home/NotFound");
+                }
+            });
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

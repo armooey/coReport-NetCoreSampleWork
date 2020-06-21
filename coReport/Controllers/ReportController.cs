@@ -130,7 +130,7 @@ namespace coReport.Controllers
             if (report == null)
                 return NotFound();
             if(report.Author.UserName != User.Identity.Name)
-                return View("_AccessDenied");
+                return RedirectToAction("AccessDenied", "Home");
             var model = new CreateReportViewModel
             {
                 Id = report.Id,
@@ -229,7 +229,7 @@ namespace coReport.Controllers
             if (report == null)
                 return NotFound();
             if (!report.ProjectManagers.Any(pm => pm.ManagerId == manager.Id)) //If current user is not manager of loaded report
-                return View("_AccessDenied");
+                return RedirectToAction("AccessDenied", "Home");
             var reportModel = new ReportViewModel
             {
                 Id = report.Id,
