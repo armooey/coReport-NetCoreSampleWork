@@ -14,5 +14,6 @@ namespace coReport.Services
         public ManagerReport GetManagerReportByUserReportId(short id, short managerId);
         public bool Update(ManagerReport report);
         public IEnumerable<ManagerReport> GetReportsOfLastSevenDays();
+        public IEnumerable<ManagerReport> GetReportsOfDayIncludingAuthor(DateTime date);
     }
 }

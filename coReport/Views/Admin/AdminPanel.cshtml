@@ -299,6 +299,32 @@
     </div>
 </div>
 
+<div id="user_activity_details" class="modal fade">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>جزئیات فعالیت <span id="detail_type"></span> در تاریخ <span id="date"></span></span>
+            </div>
+            <div>
+                <table id="details_table" class="table table-sm table-hover">
+                    <thead class="thead-light">
+                        <tr class="text-center">
+                            <th>نام</th>
+                            <th>زمان</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">بستن</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section scripts
 {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
@@ -337,6 +363,91 @@
                     $("#activity_select").prop("disabled", true);
                     $("#activity_select").parent().parent().prop("hidden", true);
                     $("#activity_name").text('عنوان فعالیت');
+                }
+            });
+
+             //preparing data for chart
+            var days = JSON.parse('@Html.Raw(Json.Serialize(@Model.Days))');
+            var userReportCount = JSON.parse('@Html.Raw(Json.Serialize(@Model.UsersReportCount))');
+            var managerReportCount = JSON.parse('@Html.Raw(Json.Serialize(@Model.ManagersReportCount))');
+            //Creating chart
+            var context = document.getElementById('reportsChart').getContext('2d');
+            var chart = new Chart(context, {
+                type: 'bar',
+                data: {
+                    labels: days,
+                    datasets: [
+                        {
+                            data: userReportCount,
+                            label: "گزارشات کارمندان",
+                            backgroundColor: "#483b9b",
+                            fill: true
+                        },
+                        {
+                            data: managerReportCount,
+                            label: "گزارشات مدیران",
+                            backgroundColor: "#b2812c",
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                stepSize: 1
+                            }
+                        }]
+                    }
+                }
+            });
+
+            $('#reportsChart').on('click', function (evt) {
+                var activePoints = chart.getElementAtEvent(evt);
+                if (activePoints.length > 0) {
+                    var label = activePoints[0]._model.datasetLabel;
+                    var clickedBarTypeFlag;
+                    //check which type of bar the user clicked
+                    if (label == "گزارشات کارمندان")
+                        clickedBarTypeFlag = true;
+                    else
+                        clickedBarTypeFlag = false;
+
+                    var index = activePoints[0]["_index"];
+                    var date = chart.data.labels[index];
+                    $('#message_loading').modal('show');
+                    $.ajax({
+                        url: "@Url.Action("GetUserActivityDetails","Admin")",
+                        data: { dayIndex: index + 1, typeFlag: clickedBarTypeFlag }
+                    }).done(function (ajaxResult) {
+                        $('#message_loading').modal('hide');
+                        $('#details_table tbody tr').remove();
+                        $('#date').text(date);
+                        if (clickedBarTypeFlag == true) {
+                            $('#detail_type').text("کارمندان");
+                        }
+                        else {
+                            $('#detail_type').text("مدیران");
+                        }
+
+                        ajaxResult.forEach(function (result) {
+                            $('#details_table tbody').append("<tr><td>" + result.value[0] + "</td><td>" + result.value[1] + "</td></tr>");
+                        });
+                        $('#user_activity_details').modal('show');
+                    }).fail(function () {
+                        $('#message_loading').modal('hide');
+                        bootbox.alert({
+                            closeButton: false,
+                            message: "خطای ارتباط با سرور.",
+                            buttons: {
+                                ok: {
+                                    label: 'بستن'
+                                }
+                            }
+                        });
+                    });
                 }
             });
 
@@ -435,43 +546,6 @@
         //Initialize treeview
         $('#tree').createTreeView();
 
-        //preparing data for chart
-        var days = JSON.parse('@Html.Raw(Json.Serialize(@Model.Days))');
-        var userReportCount = JSON.parse('@Html.Raw(Json.Serialize(@Model.UsersReportCount))');
-        var managerReportCount = JSON.parse('@Html.Raw(Json.Serialize(@Model.ManagersReportCount))');
-        //Creating chart
-        var context = document.getElementById('reportsChart').getContext('2d');
-        var myChart = new Chart(context, {
-            type: 'bar',
-                data: {
-                labels: days,
-                datasets: [
-                    {
-                        data: userReportCount,
-                        label: "گزارشات کارمندان",
-                        backgroundColor: "#483b9b",
-                        fill: true
-                    },
-                    {
-                        data: managerReportCount,
-                        label: "گزارشات مدیران",
-                        backgroundColor: "#b2812c",
-                        fill: true
-                    }
-                ]
-            },
-            options: {
-
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true,
-                            stepSize: 1
-                        }
-                    }]
-                }
-            }
-        });
 
         function FetchUsers()
         {

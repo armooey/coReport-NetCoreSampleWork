@@ -21,5 +21,6 @@ namespace coReport.Services
         public bool SetViewed(short reportId, short managerId);
         public bool PreprocessUserDelete(short id);
         public IEnumerable<Report> GetTodayReportsOfUser(short id);
+        public IEnumerable<Report> GetReportsOfDayIncludingAuthor(DateTime date);
     }
 }

@@ -221,5 +221,12 @@ namespace coReport.Services
             _context.ReportAttachmentHistory.Add(new ReportAttachmentHistory { ReportId = reportId, 
                                                     AttachmentName = attachmentName, Date = DateTime.Now });
         }
+
+        public IEnumerable<Report> GetReportsOfDayIncludingAuthor(DateTime date)
+        {
+            return _context.Reports
+                .Where(r => !r.IsDeleted && r.Date.Date == date.Date)
+                .Include(r => r.Author);
+        }
     }
 }

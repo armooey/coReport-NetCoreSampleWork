@@ -270,7 +270,7 @@ namespace coReport.Controllers
                 {
                     managerReport = new ManagerReport
                     {
-                        Date = DateTime.Now.Date,
+                        Date = DateTime.Now,
                         Author = manager,
                         Text = model.Text,
                         IsUserReportAcceptable = model.IsAcceptable,
@@ -359,5 +359,6 @@ namespace coReport.Controllers
                 return NotFound();
             }
         }
+
     }
 }

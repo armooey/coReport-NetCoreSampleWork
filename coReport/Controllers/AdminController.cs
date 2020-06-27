@@ -341,5 +341,32 @@ namespace coReport.Controllers
         {
             return Json(_logger.GetLogMessage(id));
         }
+
+        public IActionResult GetUserActivityDetails(int dayIndex, bool typeFlag)
+        {
+            var day = DateTime.Now.AddDays(dayIndex - 7);
+            var detailsList = new List<JsonResult>();
+            if (typeFlag) //if true means that user requested employee activity details
+            {
+                var employeeReports = _reportData.GetReportsOfDayIncludingAuthor(day);
+                foreach (var employeeReport in employeeReports)
+                {
+                    var authorName = employeeReport.Author.FirstName + " " + employeeReport.Author.LastName;
+                    var time = employeeReport.Date.ToHijri().GetTime();
+                    detailsList.Add(Json(new List<String> { authorName, time }));
+                }
+            }
+            else //means user requested manager activities
+            {
+                var managerReports = _managerReportData.GetReportsOfDayIncludingAuthor(day);
+                foreach (var managerReport in managerReports)
+                {
+                    var authorName = managerReport.Author.FirstName + " " + managerReport.Author.LastName;
+                    var time = managerReport.Date.ToHijri().GetTime();
+                    detailsList.Add(Json(new List<String> { authorName, time }));
+                }
+            }
+            return Json(detailsList);
+        }
     }
 }

@@ -132,6 +132,13 @@ namespace coReport.Services
             return _context.ManagerReports.Where(mr => !mr.IsDeleted && mr.Date.Date >= DateTime.Now.Date.AddDays(-7));
         }
 
+        public IEnumerable<ManagerReport> GetReportsOfDayIncludingAuthor(DateTime date)
+        {
+            return _context.ManagerReports
+                .Where(mr => !mr.IsDeleted && mr.Date.Date == date.Date)
+                .Include(mr => mr.Author);
+        }
+
         public ManagerReport GetManagerReportByUserReportId(short id, short managerId)
         {
             return _context.ManagerReports.FirstOrDefault(mr => mr.ReportId == id && mr.AuthorId == managerId);

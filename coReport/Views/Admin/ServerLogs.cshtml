@@ -4,11 +4,13 @@
     ViewData["Title"] = "لاگ‌های سرور";
 }
 <table class="bg-white table table-bordered table-hover">
-    <tr class="text-center">
-        <th>تاریخ و ساعت</th>
-        <th>پیغام خطا</th>
-        <th>اعمال</th>
-    </tr>
+    <thead class="thead-light">
+        <tr class="text-center">
+            <th>تاریخ و ساعت</th>
+            <th>پیغام خطا</th>
+            <th>اعمال</th>
+        </tr>
+    </thead>
     @foreach (var log in Model)
     {
         <tr>
