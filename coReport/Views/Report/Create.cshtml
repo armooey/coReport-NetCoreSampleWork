@@ -6,6 +6,7 @@
 }
 <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
 <link href="~/lib/quill/quill.snow.css" rel="stylesheet" />
+<link href="~/lib/filepond/filepond.css" rel="stylesheet" />
 
 <div class="p-2 box-widget rounded">
     <div class="container-fluid">
@@ -105,10 +106,11 @@
                 </div>
             </div>
             <div class="form-group">
-                <label asp-for="Attachment" class="col-md-4 control-label"></label>
-                <div class="col-md-4" style="margin-top: 10px">
-                    <input asp-for="Attachment" class="form-control" />
-                    <span asp-validation-for="Attachment" class="text-danger"></span>
+                <label asp-for="AttachmentName" class="col-md-4 control-label"></label>
+                <div class="col-md-5" style="margin-top: 10px">
+                    <input hidden id="attachmentName" asp-for="AttachmentName"/>
+                    <input name="attachment" type="file" class="form-control-file filepond" data-max-file-size="500MB" />
+                    <span asp-validation-for="AttachmentName" class="text-danger"></span>
                 </div>
             </div>
             <hr />
@@ -131,110 +133,121 @@
     <script src="~/lib/select2/js/i18n/fa.js"></script>
     <script src="~/lib/quill/quill.js"></script>
     <script src="~/lib/bootbox.js/bootbox.min.js"></script>
+    <script src="~/lib/filepond/filepond-plugin-file-validate-size.js"></script>
+    <script src="~/lib/filepond/filepond.js"></script>
 
     <script>
-    $(document).ready(function () {
-        $('#manager_multiselect').select2({
-            placeholder: 'انتخاب کنید...',
-            dir: 'rtl',
-            language: 'fa'
-        });
-        $('#project_select').select2({
-            placeholder: 'انتخاب کنید...',
-            dir: 'rtl',
-            language: 'fa'
-        });
-        $('#activity_select').select2({
-            placeholder: 'فعالیت را انتخاب کنید...',
-            minimumResultsForSearch: -1,
-            dir: 'rtl',
-            language: 'fa'
-        });
-        $('#subactivity :input').select2({
-            placeholder: 'فعالیت را انتخاب کنید...',
-            minimumResultsForSearch: -1,
-            dir: 'rtl',
-            language: 'fa'
-        });
-        $('#subactivity :input').change(function () {
-            quill.root.dataset.placeholder = 'اطلاعات مختص ' + $('#subactivity :input option:selected').text()
-                + ' را در گزارش خود وارد کنید...';
-        });
+        $(document).ready(function () {
+            $('#manager_multiselect').select2({
+                placeholder: 'انتخاب کنید...',
+                dir: 'rtl',
+                language: 'fa'
+            });
+            $('#project_select').select2({
+                placeholder: 'انتخاب کنید...',
+                dir: 'rtl',
+                language: 'fa'
+            });
+            $('#activity_select').select2({
+                placeholder: 'فعالیت را انتخاب کنید...',
+                minimumResultsForSearch: -1,
+                dir: 'rtl',
+                language: 'fa'
+            });
+            $('#subactivity :input').select2({
+                placeholder: 'فعالیت را انتخاب کنید...',
+                minimumResultsForSearch: -1,
+                dir: 'rtl',
+                language: 'fa'
+            });
+            $('#subactivity :input').change(function () {
+                quill.root.dataset.placeholder = 'اطلاعات مختص ' + $('#subactivity :input option:selected').text()
+                    + ' را در گزارش خود وارد کنید...';
+            });
 
 
-        $('#activity_select').change(function () {
-            $.ajax({
-                url: "@Url.Action("GetSubActivities","Report")",
-                data: { selectedActivityId: $(this).val() }
-            }).done(function (ajaxResult) {
-                if (ajaxResult.length != 0) {
-                    $('#subactivity').prop('hidden', false);
-                    $('#subactivity >label').text($('#activity_select option:selected').text());
-                    $('#subactivity :input').prop('disabled', false);
-                    $('#subactivity :input').empty();
-                    ajaxResult.forEach(function (element) {
-                        var option = new Option(element.Value, element.Key);
-                        $('#subactivity :input').append(option).trigger('change');
-                    });
-                }
-                else {
-                    $('#subactivity').prop('hidden', true);
-                    $('#subactivity :input').prop('disabled', true);
-                    quill.root.dataset.placeholder = 'اطلاعات مختص ' +
-                        $('#activity_select option:selected').text() + ' را در گزارش خود وارد کنید...';
-                }
-            }).fail(function () {
-                bootbox.alert({
-                    closeButton: false,
-                    message: "خطا در ارتباط با سرور!",
-                    buttons: {
-                        ok: {
-                            label: 'بستن'
-                        }
+            $('#activity_select').change(function () {
+                $.ajax({
+                    url: "@Url.Action("GetSubActivities","Report")",
+                    data: { selectedActivityId: $(this).val() }
+                }).done(function (ajaxResult) {
+                    if (ajaxResult.length != 0) {
+                        $('#subactivity').prop('hidden', false);
+                        $('#subactivity >label').text($('#activity_select option:selected').text());
+                        $('#subactivity :input').prop('disabled', false);
+                        $('#subactivity :input').empty();
+                        ajaxResult.forEach(function (element) {
+                            var option = new Option(element.Value, element.Key);
+                            $('#subactivity :input').append(option).trigger('change');
+                        });
                     }
+                    else {
+                        $('#subactivity').prop('hidden', true);
+                        $('#subactivity :input').prop('disabled', true);
+                        quill.root.dataset.placeholder = 'اطلاعات مختص ' +
+                            $('#activity_select option:selected').text() + ' را در گزارش خود وارد کنید...';
+                    }
+                }).fail(function () {
+                    bootbox.alert({
+                        closeButton: false,
+                        message: "خطا در ارتباط با سرور!",
+                        buttons: {
+                            ok: {
+                                label: 'بستن'
+                            }
+                        }
+                    });
                 });
             });
         });
-    });
+        FilePond.registerPlugin(FilePondPluginFileValidateSize);
+        var uploadInput = document.querySelector('input[type="file"]');
+        var filepond = FilePond.create(uploadInput);
+        FilePond.setOptions({
+            server: {
+                url: "@Url.Action("UploadAttachment", "Report")",
+                process: {
+                    onload: (response) => $('#attachmentName').val(response)
+                }
+            }
 
+        });
 
+        var FontAttributor = Quill.import('attributors/class/font');
+        FontAttributor.whitelist = [
+            'arial', 'default', 'times-new-roman'
+        ];
+        var Size = Quill.import('attributors/style/size');
+        Size.whitelist = ['12px', '15px', '18px', '20px'];
+        Quill.register(Size, true);
+        Quill.register(FontAttributor, true);
 
+        var toolbarOptions = [
+          [{ 'font': ['arial', 'default', 'times-new-roman'] }],
+          [{ 'size': ['12px', '15px', '18px', '20px'] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ 'align': [] }],
+          [{ 'direction': 'rtl' }],
+          [{ 'color': [] } , { 'background': [] }],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          [{ 'header': [1, 2, 3, false] }],
+          ['code-block']
+         ];
 
-    var FontAttributor = Quill.import('attributors/class/font');
-    FontAttributor.whitelist = [
-        'arial', 'default', 'times-new-roman'
-    ];
-    var Size = Quill.import('attributors/style/size');
-    Size.whitelist = ['12px', '15px', '18px', '20px'];
-    Quill.register(Size, true);
-    Quill.register(FontAttributor, true);
+        var quill = new Quill('#editor', {
+            modules: {
+        toolbar: toolbarOptions
+        },
+        theme: 'snow'
+        });
 
-    var toolbarOptions = [
-      [{ 'font': ['arial', 'default', 'times-new-roman'] }],
-      [{ 'size': ['12px', '15px', '18px', '20px'] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'align': [] }],
-      [{ 'direction': 'rtl' }],
-      [{ 'color': [] } , { 'background': [] }],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'header': [1, 2, 3, false] }],
-      ['code-block']
-     ];
+        quill.setContents(@Html.Raw(Model.Text));
 
-    var quill = new Quill('#editor', {
-        modules: {
-    toolbar: toolbarOptions
-    },
-    theme: 'snow'
-    });
-
-    quill.setContents(@Html.Raw(Model.Text));
-
-    function fetchText()
-    {
-        var textBox = document.getElementById("text");
-        textBox.value = JSON.stringify(quill.getContents());
-    }
+        function fetchText()
+        {
+            var textBox = document.getElementById("text");
+            textBox.value = JSON.stringify(quill.getContents());
+        }
 
 
     </script>

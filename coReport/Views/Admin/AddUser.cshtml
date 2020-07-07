@@ -5,90 +5,114 @@
     ViewData["Title"] = "اضافه کردن کاربر جدید";
 }
 
-    <div class="col-md-7 p-2 box-widget" style="margin: auto; margin-top: 10%;">
-        <form asp-controller="Admin" asp-action="AddUser" method="post" 
-              class="form-horizontal" enctype="multipart/form-data" role="form">
-            <h4 class="text-center">افزودن کاربر جدید</h4>
-            <hr />
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="container">
-                <div class="row">
-                    <div class="col-md">
-                        <div class="form-group">
-                            <label asp-for="Username" class="col-md-6 control-label"></label>
-                            <div class="col-md">
-                                <input asp-for="Username" class="form-control" />
-                                <span asp-validation-for="Username" class="text-danger small"></span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="FirstName" class="col-md-6 control-label"></label>
-                            <div class="col-md">
-                                <input asp-for="FirstName" class="form-control" />
-                                <span asp-validation-for="FirstName" class="text-danger small"></span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="LastName" class="col-md-6 control-label"></label>
-                            <div class="col-md">
-                                <input asp-for="LastName" class="form-control" />
-                                <span asp-validation-for="LastName" class="text-danger small"></span>
-                            </div>
-                        </div>
+<link href="~/lib/filepond/filepond.css" rel="stylesheet" />
 
-                        <div class="form-group">
-                            <label asp-for="Email" class="col-md-6 control-label"></label>
-                            <div class="col-md">
-                                <input asp-for="Email" class="form-control" />
-                                <span asp-validation-for="Email" class="text-danger small"></span>
-                            </div>
-                        </div>
 
+<div class="col-md-7 p-2 box-widget" style="margin: auto; margin-top: 10%;">
+    <form asp-controller="Admin" asp-action="AddUser" method="post"
+          class="form-horizontal" enctype="multipart/form-data" role="form">
+        <h4 class="text-center">افزودن کاربر جدید</h4>
+        <hr />
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md">
+                    <div class="form-group">
+                        <label asp-for="Username" class="col-md-6 control-label"></label>
+                        <div class="col-md">
+                            <input asp-for="Username" class="form-control" />
+                            <span asp-validation-for="Username" class="text-danger small"></span>
+                        </div>
                     </div>
-                    <div class="col-md">
-                        <div class="form-group">
-                            <label asp-for="Password" class="col-md-6 control-label"></label>
-                            <div class="col-md">
-                                <input asp-for="Password" class="form-control" />
-                                <span asp-validation-for="Password" class="text-danger small"></span>
-                            </div>
+                    <div class="form-group">
+                        <label asp-for="FirstName" class="col-md-6 control-label"></label>
+                        <div class="col-md">
+                            <input asp-for="FirstName" class="form-control" />
+                            <span asp-validation-for="FirstName" class="text-danger small"></span>
                         </div>
-                        <div class="form-group">
-                            <label asp-for="ConfirmPassword" class="col-md-6 control-label"></label>
-                            <div class="col-md">
-                                <input asp-for="ConfirmPassword" class="form-control" />
-                                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
-                            </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="LastName" class="col-md-6 control-label"></label>
+                        <div class="col-md">
+                            <input asp-for="LastName" class="form-control" />
+                            <span asp-validation-for="LastName" class="text-danger small"></span>
                         </div>
-                        <div class="form-group">
-                            <label asp-for="Role" class="col-md-6 control-label"></label>
-                            <div class="col-md">
-                                <select asp-for="Role" asp-items="@Model.Roles" class="form-control"></select>
-                                <span asp-validation-for="Role" class="text-danger small"></span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="Image" class="col-md-6 control-label"></label>
-                            <div class="col-md">
-                                <input asp-for="Image" class="form-control" />
-                                <span asp-validation-for="Image" class="text-danger small"></span>
-                                <p class="small text-muted">سایز فایل انتخابی باید کمتر از 100 کیلوبایت باشد.</p>
-                            </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Email" class="col-md-6 control-label"></label>
+                        <div class="col-md">
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
                     </div>
 
                 </div>
-                <div class="form-group">
-                    <div class="col-md">
-                        <a class="btn btn-secondary" asp-action="ManageUsers" >بازگشت</a>
-                        <button type="submit" class="btn btn-primary">افزودن</button>
+                <div class="col-md">
+                    <div class="form-group">
+                        <label asp-for="Password" class="col-md-6 control-label"></label>
+                        <div class="col-md">
+                            <input asp-for="Password" class="form-control" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
                     </div>
+                    <div class="form-group">
+                        <label asp-for="ConfirmPassword" class="col-md-6 control-label"></label>
+                        <div class="col-md">
+                            <input asp-for="ConfirmPassword" class="form-control" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Role" class="col-md-6 control-label"></label>
+                        <div class="col-md">
+                            <select asp-for="Role" asp-items="@Model.Roles" class="form-control"></select>
+                            <span asp-validation-for="Role" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ImageName" class="col-md-6 control-label"></label>
+                        <div class="col-md">
+                            <input id="imageName" asp-for="ImageName" hidden />
+                            <input name="image" type="file" class="form-control-file filepond" data-max-file-size="100KB" />
+                            <span asp-validation-for="ImageName" class="text-danger small"></span>
+                            <p class="small text-muted">سایز فایل انتخابی باید کمتر از 100 کیلوبایت باشد.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="form-group">
+                <div class="col-md">
+                    <a class="btn btn-secondary" asp-action="ManageUsers">بازگشت</a>
+                    <button type="submit" class="btn btn-primary">افزودن</button>
                 </div>
             </div>
+        </div>
 
-        </form>
-    </div>
+    </form>
+</div>
 
 @section Scripts {
+    <script src="~/lib/filepond/filepond-plugin-file-validate-size.js"></script>
+    <script src="~/lib/filepond/filepond-plugin-file-validate-type.js"></script>
+    <script src="~/lib/filepond/filepond.js"></script>
+    <script>
+        FilePond.registerPlugin(FilePondPluginFileValidateSize, FilePondPluginFileValidateType);
+        var uploadInput = document.querySelector('input[type="file"]');
+        var filepond = FilePond.create(uploadInput,
+            {
+                acceptedFileTypes: ["image/*"]
+            });
+        FilePond.setOptions({
+            server: {
+                url: "@Url.Action("UploadImage","Account")",
+                process: {
+                    onload: (response) => $('#imageName').val(response)
+                }
+            }
+
+        });
+    </script>
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }

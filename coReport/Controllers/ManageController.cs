@@ -82,16 +82,10 @@ namespace coReport.Controllers
                 user.LastName = model.LastName;
                 user.PhoneNumber = model.PhoneNumber;
                 user.Email = model.Email;
-                if (model.Image != null)
+                if (model.ImageName != null)
                 {
-                    var imageName = await SystemOperations.SaveProfileImage(_webHostEnvironment, model.Image);
-                    if (imageName == null)
-                    {
-                        ModelState.AddModelError("", "مشکل در ذخیره سازی عکس پروفایل");
-                        return View(model);
-                    }
-                    _logger.LogProfileImageHistory(user.Id, imageName);
-                    user.ProfileImageName = imageName;
+                    _logger.LogProfileImageHistory(user.Id, model.ImageName);
+                    user.ProfileImageName = model.ImageName;
                 }
                 var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)

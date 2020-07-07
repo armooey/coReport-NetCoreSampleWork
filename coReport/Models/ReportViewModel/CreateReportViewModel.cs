@@ -59,8 +59,6 @@ namespace coReport.Models.ReportViewModel
         public DateTime TaskEndTime { get; set; }
 
         [Display(Name = "ضمیمه")]
-        public IFormFile Attachment { get; set; }
-
         public String AttachmentName { get; set; }
 
         public bool IsSubmitedByManager { get; set; }

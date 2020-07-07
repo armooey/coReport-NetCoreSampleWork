@@ -12,6 +12,7 @@ using coReport.Operations;
 using coReport.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -127,16 +128,6 @@ namespace coReport.Controllers
             model.Roles = _roleManager.GetRolesSelectList();
             if (ModelState.IsValid)
             {
-                String imageName = null;
-                if (model.Image != null)
-                {
-                    imageName = await SystemOperations.SaveProfileImage(_webHostEnvironment, model.Image);
-                    if (imageName == null)
-                    {
-                        ModelState.AddModelError("", "مشکل در ذخیره سازی عکس پروفایل");
-                        return View(model);
-                    }
-                }
                 var user = new ApplicationUser {
                     UserName = model.Username,
                     FirstName = model.FirstName,
@@ -145,12 +136,13 @@ namespace coReport.Controllers
                     IsActive = false,
                     IsBanned = false,
                     Email = model.Email,
-                    ProfileImageName = imageName
+                    ProfileImageName = model.ImageName
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    _logger.LogProfileImageHistory(user.Id, imageName);
+                    if(model.ImageName != null)
+                        _logger.LogProfileImageHistory(user.Id, model.ImageName);
                     await _userManager.AddToRoleAsync(user, model.Role);
                     var message = new Message {
                         //Quill.js text data
@@ -308,6 +300,21 @@ namespace coReport.Controllers
                 userViewModels.Add(new KeyValuePair<short, string>(user.Id, user.FirstName + " " + user.LastName));
             }
             return Json(userViewModels);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> UploadImage(IFormFile image)
+        {
+            if (image != null)
+            {
+                var imageName = await SystemOperations.SaveProfileImage(_webHostEnvironment, image);
+                if (imageName != null)
+                {
+                    return Ok(imageName);
+                }
+            }
+            return BadRequest();
         }
 
 

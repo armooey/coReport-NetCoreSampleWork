@@ -202,15 +202,15 @@ namespace coReport.Controllers
             if (ModelState.IsValid)
             {
                 String imageName = null;
-                if (model.Image != null)
-                { 
-                    imageName = await SystemOperations.SaveProfileImage(_webHostEnvironment, model.Image);
-                    if (imageName == null)
-                    {
-                        ModelState.AddModelError("", "مشکل در ذخیره سازی عکس پروفایل");
-                        return View(model);
-                    }
-                }
+                //if (model.ImageName != null)
+                //{ 
+                //    imageName = await SystemOperations.SaveProfileImage(_webHostEnvironment, model.ImageName);
+                //    if (imageName == null)
+                //    {
+                //        ModelState.AddModelError("", "مشکل در ذخیره سازی عکس پروفایل");
+                //        return View(model);
+                //    }
+                //}
                 var user = new ApplicationUser
                 {
                     UserName = model.Username,

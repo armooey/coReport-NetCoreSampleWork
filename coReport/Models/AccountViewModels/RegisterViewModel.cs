@@ -35,9 +35,7 @@ namespace coReport.Models.AccountViewModels
         public String Role { get; set; }
 
         [Display(Name = "عکس پروفایل")]
-        [ImageFormatValidation(ErrorMessage = "فرمت مناسبی برای تصویر انتخاب کنید.")]
-        [ImageSizeValidation(ErrorMessage = "سایز تصویر انتخابی باید کمتر از 100 کیلوبایت باشد.")]
-        public IFormFile Image { get; set; }
+        public String ImageName { get; set; }
 
         [Required(ErrorMessage = "تکمیل فیلد کلمه عبور اجباری است.")]
         [StringLength(100, ErrorMessage = "کلمه عبور باید حداقل 6 کاراکتر باشد.", MinimumLength = 6)]

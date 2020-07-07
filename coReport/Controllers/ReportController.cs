@@ -8,6 +8,7 @@ using coReport.Operations;
 using coReport.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -71,7 +72,7 @@ namespace coReport.Controllers
         [HttpPost]
         [DisableRequestSizeLimit]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateReportViewModel model)
+        public IActionResult Create(CreateReportViewModel model)
         {
             model.Managers = SystemOperations.GetProjectManagerViewModels(model.AuthorId, _managerData);
             model.Projects = SystemOperations.GetInProgressProjectViewModels(_projectService);
@@ -84,16 +85,6 @@ namespace coReport.Controllers
                     return View(model);
                 }
                 //Save report Attachment
-                String fileName = null;
-                if (model.Attachment != null)
-                {
-                    fileName = await SystemOperations.SaveReportAttachment(_webHostEnvironment, model.Attachment);
-                    if (fileName == null)
-                    {
-                        ModelState.AddModelError("", "مشکل در ذخیره‌سازی فایل پیوست.");
-                        return View(model);
-                    }
-                }
                 var report = new Report
                 {
                     Title = model.Title,
@@ -106,15 +97,15 @@ namespace coReport.Controllers
                     TaskStartTime = model.TaskStartTime,
                     TaskEndTime = model.TaskEndTime,
                     Date = DateTime.Now,
-                    AttachmentName = fileName
+                    AttachmentName = model.AttachmentName
                 };
                 var savedReport = _reportData.Add(report, model.ProjectManagerIds); //Saving Report
-                if(savedReport == null)
+                if (savedReport == null)
                 {
                     ModelState.AddModelError("", "مشکل در ایجاد گزارش.");
                     return View(model);
                 }
-                return RedirectToAction("ManageReports","Account");
+                return RedirectToAction("ManageReports", "Account");
             }
             return View(model);
         }
@@ -159,7 +150,7 @@ namespace coReport.Controllers
         [HttpPost]
         [DisableRequestSizeLimit]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(CreateReportViewModel model)
+        public IActionResult Edit(CreateReportViewModel model)
         {
             model.Managers = SystemOperations.GetProjectManagerViewModels(model.AuthorId, _managerData);
             model.Projects = SystemOperations.GetInProgressProjectViewModels(_projectService);
@@ -172,16 +163,6 @@ namespace coReport.Controllers
                     return View(model);
                 }
                 //Save report Attachment
-                String fileName = null;
-                if (model.Attachment != null)
-                {
-                    fileName = await SystemOperations.SaveReportAttachment(_webHostEnvironment, model.Attachment);
-                    if (fileName == null)
-                    {
-                        ModelState.AddModelError("", "مشکل در ذخیره‌سازی فایل پیوست.");
-                        return View(model);
-                    }
-                }
                 var report = _reportData.Get(model.Id);
                 report.Title = model.Title;
                 report.Text = model.Text;
@@ -191,15 +172,15 @@ namespace coReport.Controllers
                 report.ActivityApendix = model.ActivityApendix;
                 report.TaskStartTime = model.TaskStartTime;
                 report.TaskEndTime = model.TaskEndTime;
-                if(fileName != null)
-                    report.AttachmentName = fileName;
+                if(model.AttachmentName != null) //preventing from saving null instead of last attachment
+                    report.AttachmentName = model.AttachmentName;
                 var result = _reportData.Update(report, model.ProjectManagerIds);
                 if (!result)
                 {
                     ModelState.AddModelError("", "مشکل در بروزرسانی!");
                     return View(model);
                 }
-                return RedirectToAction("ManageReports","Account");
+                return RedirectToAction("ManageReports", "Account");
             }
             return View(model);
         }
@@ -344,6 +325,16 @@ namespace coReport.Controllers
             return Json(subactivitiesList);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> UploadAttachment(IFormFile attachment)
+        {
+            var fileName = await SystemOperations.SaveReportAttachment(_webHostEnvironment, attachment);
+            if (fileName != null)
+            {
+                return Ok(fileName);
+            }
+            return BadRequest();
+        }
 
         [HttpGet("download")]
         public async Task<ActionResult> DownloadReportAttachment(String fileName, String reportTitle)

@@ -11,9 +11,7 @@ namespace coReport.Models.ManageViewModels
         public String Username { get; set; }
 
         [Display(Name = "عکس پروفایل")]
-        [ImageFormatValidation(ErrorMessage = "فرمت مناسبی برای تصویر انتخاب کنید.")]
-        [ImageSizeValidation(ErrorMessage = "سایز تصویر انتخابی باید کمتر از 100 کیلوبایت باشد.")]
-        public IFormFile Image { get; set; }
+        public String ImageName { get; set; }
 
         [Display(Name = "شماره تلفن", Prompt =("09xx-xxx-xxxx"))]
         [Phone]
