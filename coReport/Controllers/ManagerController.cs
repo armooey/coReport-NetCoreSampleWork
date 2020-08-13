@@ -236,13 +236,13 @@ namespace coReport.Controllers
                             workSheet.Cells[i + 3, 5].Value = employeeReports[i].SubActivity != null ?
                                                               employeeReports[i].SubActivity.Name : "-";
                             workSheet.Cells[i + 3, 6].Value = employeeReports[i].TaskEndTime.Subtract(employeeReports[i].TaskStartTime);
-                            workSheet.Cells[i + 3, 6].Style.Numberformat.Format = "hh:mm";
+                            workSheet.Cells[i + 3, 6].Style.Numberformat.Format = "[h]:mm";
                         }
                         workSheet.Cells[employeeReports.Count() + 3, 5].Value = "مجموع ساعات کاری";
                         var sumCell = workSheet.Cells[employeeReports.Count() + 3, 6];
                         sumCell.Formula = "Sum(" + workSheet.Cells[3, 6].Address +
                             ":" + workSheet.Cells[employeeReports.Count() + 2, 6].Address + ")";
-                        sumCell.Style.Numberformat.Format = "hh:mm";
+                        sumCell.Style.Numberformat.Format = "[h]:mm";
                         var sumCells = workSheet.Cells[employeeReports.Count() + 3, 5, employeeReports.Count() + 3, 6];
                         sumCells.Style.Font.Bold = true;
                         sumCells.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
