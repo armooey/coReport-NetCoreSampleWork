@@ -201,16 +201,6 @@ namespace coReport.Controllers
             model.Roles = _roleManager.GetRolesSelectList();
             if (ModelState.IsValid)
             {
-                String imageName = null;
-                //if (model.ImageName != null)
-                //{ 
-                //    imageName = await SystemOperations.SaveProfileImage(_webHostEnvironment, model.ImageName);
-                //    if (imageName == null)
-                //    {
-                //        ModelState.AddModelError("", "مشکل در ذخیره سازی عکس پروفایل");
-                //        return View(model);
-                //    }
-                //}
                 var user = new ApplicationUser
                 {
                     UserName = model.Username,
@@ -220,12 +210,12 @@ namespace coReport.Controllers
                     IsActive = false,
                     LockoutEnabled = false,
                     Email = model.Email,
-                    ProfileImageName = imageName
+                    ProfileImageName = model.ImageName
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    _logger.LogProfileImageHistory(user.Id, imageName);
+                    _logger.LogProfileImageHistory(user.Id, model.ImageName);
                     await _userManager.AddToRoleAsync(user, model.Role);
                     return RedirectToAction("ManageUsers");
                 }

@@ -70,7 +70,6 @@ namespace coReport.Controllers
         }
 
         [HttpPost]
-        [DisableRequestSizeLimit]
         [ValidateAntiForgeryToken]
         public IActionResult Create(CreateReportViewModel model)
         {
@@ -148,7 +147,6 @@ namespace coReport.Controllers
         }
 
         [HttpPost]
-        [DisableRequestSizeLimit]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(CreateReportViewModel model)
         {
@@ -326,6 +324,7 @@ namespace coReport.Controllers
         }
 
         [HttpPost]
+        [DisableRequestSizeLimit]
         public async Task<IActionResult> UploadAttachment(IFormFile attachment)
         {
             var fileName = await SystemOperations.SaveReportAttachment(_webHostEnvironment, attachment);
