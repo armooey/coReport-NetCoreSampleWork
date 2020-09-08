@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using coReport.Auth;
+using coReport.Data;
 using coReport.Models.AccountViewModels;
 using coReport.Models.ManageViewModels;
 using coReport.Operations;
@@ -196,13 +197,15 @@ namespace coReport.Controllers
          * Changing password
          */
         [HttpGet]
-        public IActionResult Password(String userName, string returnUrl = null)
+        public async Task<IActionResult> Password(String userName, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
             ViewData["UserName"] = userName;
-            if(!User.IsInRole("Admin") && User.Identity.Name != userName)
+            var user = await _userManager.FindByNameAsync(userName);
+            var isAdminUser = await _userManager.IsInRoleAsync(user, "admin");
+            if (!User.IsInRole("Admin") && User.Identity.Name != userName)
                 return RedirectToAction("AccessDenied", "Home");
-            return View();
+            return View(new ChangePasswordViewModel { IsAdmin = isAdminUser});
         }
 
         [HttpPost]
@@ -211,14 +214,25 @@ namespace coReport.Controllers
         {
             ViewData["ReturnUrl"] = returnUrl;
             ViewData["UserName"] = model.Username;
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
+
             var user = await _userManager.FindByNameAsync(model.Username);
+            var isAdminUser = await _userManager.IsInRoleAsync(user,"admin");
             if (user != null)
             {
-                var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.Password);
+                IdentityResult result;
+                if (User.IsInRole("Admin") && !isAdminUser)
+                {
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    result = await _userManager.ResetPasswordAsync(user, token, model.Password);
+                }
+                else
+                {
+                    if (!ModelState.IsValid)
+                    {
+                        return View(model);
+                    }
+                    result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.Password);
+                }
                 if (result.Succeeded)
                 {
                     await _signInManager.SignInAsync(user, isPersistent: false);

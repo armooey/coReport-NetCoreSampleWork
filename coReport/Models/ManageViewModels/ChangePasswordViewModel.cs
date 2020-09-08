@@ -8,6 +8,7 @@ namespace coReport.Models.ManageViewModels
 {
     public class ChangePasswordViewModel
     {
+        public bool IsAdmin { get; set; }
         public String Username { get; set; }
 
         [Required(ErrorMessage = "تکمیل فیلد کلمه عبور فعلی اجباری است.")]
